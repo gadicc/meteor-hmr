@@ -1,0 +1,22 @@
+{
+  "name": "meteor-hotload",
+  "version": "1.0.0",
+  "description": "",
+  "main": "meteor-hotload.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "react": "^0.14.7",
+    "react-dom": "^0.14.7",
+    "react-mounter": "^1.0.0"
+  },
+  "devDependencies": {
+    "babel-plugin-react-transform": "^2.0.0",
+    "react-transform-catch-errors": "^1.0.1",
+    "react-transform-hmr": "^1.0.1"
+  }
+}
