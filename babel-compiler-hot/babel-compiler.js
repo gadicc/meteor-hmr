@@ -11,8 +11,15 @@ BabelCompiler = function BabelCompiler(extraFeatures) {
 var BCp = BabelCompiler.prototype;
 var excludedFileExtensionPattern = /\.es5\.js$/i;
 
+// hot
+var firstTime = { js: true, jsx: true };
+
 BCp.processFilesForTarget = function (inputFiles) {
   var self = this;
+
+  // hot
+  var partialBundle = [];
+  var ext = inputFiles[0].getExtension();
 
   inputFiles.forEach(function (inputFile) {
     var source = inputFile.getContentsAsString();
@@ -79,8 +86,40 @@ BCp.processFilesForTarget = function (inputFiles) {
       toBeAdded.sourceMap = result.map;
     }
 
-    inputFile.addJavaScript(toBeAdded);
-  });
+    // hot
+    var path = packageName + '/' + inputFilePath;
+    if (firstTime[ext] || !inputFilePath.match(/^client/)) {
+
+      inputFile.addJavaScript(toBeAdded);
+      hot.orig[path] = toBeAdded;
+
+    } else {
+
+      if (hot.lastHash[path] !== toBeAdded.hash) {
+
+        if (0 /* TODO */) {
+
+          // XXX check for new non-relative imports and force reload
+          hot.orig[path] = toBeAdded;
+          hot.lastHash[path] = toBeAdded.hash;
+
+        } else {
+
+          partialBundle.push(toBeAdded);
+          hot.lastHash[path] = toBeAdded.hash;
+
+        }
+      }
+
+      // Always return the original code to prevent client refresh
+      inputFile.addJavaScript(hot.orig[path]);
+
+    }
+  }); /* inputFiles.forEach */
+
+  // hot
+  if (partialBundle.length) hot.process(partialBundle);
+  if (firstTime[ext]) firstTime[ext] = false;
 };
 
 BCp.setDiskCacheDirectory = function (cacheDir) {

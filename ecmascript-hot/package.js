@@ -1,5 +1,5 @@
 Package.describe({
-  name: 'ecmascript',
+  name: 'gadicc:ecmascript-hot',
   version: '0.4.0-modules.5',
   summary: 'Compiler plugin that supports ES2015+ in all .js files',
   documentation: 'README.md'
@@ -7,13 +7,13 @@ Package.describe({
 
 Package.registerBuildPlugin({
   name: 'compile-ecmascript',
-  use: ['babel-compiler'],
+  use: ['gadicc:babel-compiler-hot'],
   sources: ['plugin.js']
 });
 
 Package.onUse(function (api) {
   api.use('isobuild:compiler-plugin@1.0.0');
-  api.use('babel-compiler');
+  api.use('gadicc:babel-compiler-hot@6.4.0-modules.5');
 
   api.imply('modules');
   api.imply('ecmascript-runtime');

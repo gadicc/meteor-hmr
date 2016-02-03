@@ -6,12 +6,17 @@ Package.describe({
   documentation: "README.md"
 });
 
+/*
 Npm.depends({
   install: "0.4.0"
 });
+*/
 
 Package.onUse(function(api) {
-  api.addFiles(".npm/package/node_modules/install/install.js", [
+  api.addFiles(
+    // ".npm/package/node_modules/install/install.js",
+    'install-hot.js',
+  [
     "client",
     "server"
   ], {
