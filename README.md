@@ -83,6 +83,8 @@ this repo to see all changes to those packages.
 ## TODO
 
 * [ ] Force real reload if an extra `import` has been added
-* [ ] Track & merge all hotloads for a single load for fresh manual browser load
 * [ ] Proper module.hot stuff
 * [ ] react-transform-error stuff
+* [ ] Check for MONGO_URL or -p option to meteor to get right mongo address
+* [ ] Track & merge all hotloads for a single load for fresh manual browser load (not really so important since currently it will load the initial output and all the patches
+in order)
