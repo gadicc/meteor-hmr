@@ -11,7 +11,8 @@ Package.describe({
 
 Npm.depends({
   'meteor-babel': '0.6.3',
-  'mongodb': '2.1.4'
+  'mongodb': '2.1.4',
+  'babel-plugin-react-transform': '2.0.0'
 });
 
 Package.onUse(function (api) {

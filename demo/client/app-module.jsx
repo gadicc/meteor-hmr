@@ -6,12 +6,12 @@ export const Layout = ({content}) => (
         <h1 className="b">My X App</h1>
         <hr />
 
-        <div>Direct Welcome: <Welcome name="directG" /></div>
+        <div>Direct Welcome: <Welcome name="directA" /></div>
         <div>Via Content: {content}</div>
     </div>
 );
 
-console.log('no');
+//console.log('yes123');
 
 // define and export our Welcome component
 export const Welcome = ({name}) => (
@@ -19,5 +19,3 @@ export const Welcome = ({name}) => (
         Hello, {name}.
     </div>
 );
-
-window.X = { Layout, Welcome };

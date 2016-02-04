@@ -13,13 +13,16 @@ Package.describe({
 Package.onUse(function(api) {
   api.versionsFrom('1.3-modules-beta.5');
 
+  api.use('modules');
   api.use('ecmascript');
   api.use('mongo');
   api.use('webapp', 'server');
+
+  // make sure we're loaded after modules-runtime & before global-imports, app
   api.use('modules-runtime', 'client')
 
-  api.addFiles('client.js', 'client');
-  api.addFiles('server.js', 'server');
+  api.addFiles('hot-client.js', 'client');
+  api.addFiles('hot-server.js', 'server');
 
   api.export('meteorInstallHot', 'client');
 });

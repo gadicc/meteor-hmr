@@ -22,7 +22,7 @@ WebApp.connectHandlers.use(function(req, res, next) {
 
   var bundle = hot.col.findOne(hash);
   if (!bundle) {
-    console.warn('[hot] client requested unknown bundle');
+    console.warn('[gadicc:hot] client requested unknown bundle?');
     res.writeHead(404);
     res.end();
   }

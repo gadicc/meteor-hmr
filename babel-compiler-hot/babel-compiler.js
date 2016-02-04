@@ -12,14 +12,13 @@ var BCp = BabelCompiler.prototype;
 var excludedFileExtensionPattern = /\.es5\.js$/i;
 
 // hot
-var firstTime = { js: true, jsx: true };
+var reactTransform = Npm.require('babel-plugin-react-transform').default;
 
 BCp.processFilesForTarget = function (inputFiles) {
   var self = this;
 
   // hot
   var partialBundle = [];
-  var ext = inputFiles[0].getExtension();
 
   inputFiles.forEach(function (inputFile) {
     var source = inputFile.getContentsAsString();
@@ -57,6 +56,17 @@ BCp.processFilesForTarget = function (inputFiles) {
 
       var babelOptions = Babel.getDefaultOptions(self.extraFeatures);
 
+      // hot
+      babelOptions.plugins.push([reactTransform, {
+        transforms: [
+          {
+            transform: 'react-transform-hmr',
+            imports: [ "react" ],
+            locals: [ "module" ]
+          }          
+        ]
+      }]);
+
       babelOptions.sourceMap = true;
       babelOptions.filename =
       babelOptions.sourceFileName = packageName
@@ -88,9 +98,10 @@ BCp.processFilesForTarget = function (inputFiles) {
 
     // hot
     var path = packageName + '/' + inputFilePath;
-    if (firstTime[ext] || !inputFilePath.match(/^client/)) {
 
-      inputFile.addJavaScript(toBeAdded);
+    // inputFile.getArch() !== "web.browser"  but need to ignore test files?
+    if (!hot.lastHash[path] || !inputFilePath.match(/^client/)) {
+
       hot.orig[path] = toBeAdded;
 
     } else {
@@ -101,25 +112,26 @@ BCp.processFilesForTarget = function (inputFiles) {
 
           // XXX check for new non-relative imports and force reload
           hot.orig[path] = toBeAdded;
-          hot.lastHash[path] = toBeAdded.hash;
 
         } else {
 
           partialBundle.push(toBeAdded);
-          hot.lastHash[path] = toBeAdded.hash;
 
         }
+
       }
 
-      // Always return the original code to prevent client refresh
-      inputFile.addJavaScript(hot.orig[path]);
-
     }
+
+    // Always return the original code to prevent client refresh
+    inputFile.addJavaScript(hot.orig[path]);
+
+    hot.lastHash[path] = toBeAdded.hash;
+    
   }); /* inputFiles.forEach */
 
   // hot
   if (partialBundle.length) hot.process(partialBundle);
-  if (firstTime[ext]) firstTime[ext] = false;
 };
 
 BCp.setDiskCacheDirectory = function (cacheDir) {

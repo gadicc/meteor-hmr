@@ -47,7 +47,7 @@ hot.process = function(bundle) {
   hot.bundles[id] = bundle;
   hot.lastBundleId = id;
 
-  console.log('[hot] Creating a bundle for ' + bundle.length + ' change file(s)...');
+  console.log('[gadicc:hot] Creating a bundle for ' + bundle.length + ' change file(s)...');
 
   var tree = treeify(bundle);
   var bundleStr = 'meteorInstallHot(' +
@@ -79,7 +79,7 @@ var url = 'mongodb://localhost:' + port + '/meteor';
 var MongoClient = Npm.require('mongodb').MongoClient;
 MongoClient.connect(url, function(err, db) {
   if (err) throw new Error(err);
-  console.log("[hot] connected to db"); 
+  // console.debug("[gadicc:hot - babel-compiler-hot] connected to db"); 
   hot.col = db.collection('__hot');
 
   hot.col.deleteMany({}, function(err) {

@@ -1,5 +1,13 @@
 {
   "dependencies": {
+    "babel-plugin-react-transform": {
+      "version": "2.0.0",
+      "dependencies": {
+        "array-find": {
+          "version": "1.0.0"
+        }
+      }
+    },
     "meteor-babel": {
       "version": "0.6.3",
       "dependencies": {
