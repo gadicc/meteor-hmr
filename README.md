@@ -38,20 +38,20 @@ if you know what you're doing :)
 * `client/*` only - use Meteor's regular linker for server and test code (?)
 
 ## To use in another app (not recommended yet; use with correct Meteor
-`release-1.3` commit)
+1.3-modules-beta release)
 
-1. Symlink demo/packages/* to your app `packages` dir
+1. Symlink `demo/packages/*` to your app's `packages` dir
 1. Edit your `.meteor/packages`
-  1. replace 'ecmascript' with 'gadicc:ecmascript-hot'
-  1. add 'gadicc:hot' (name and nature of package likely to change)
+  1. replace `ecmascript` with `gadicc:ecmascript-hot`
+  1. add `gadicc:hot` (name and nature of package likely to change)
 1. Temporarily, add `import ReactTransformHMR from 'react-transform-hmr';` to
 any files that contain components that will be directly mounted.
 
 ## How To (this won't work yet, but this is the intended path)
 
 1. Edit your `.meteor/packages`
-  1. replace 'ecmascript' with 'gadicc:ecmascript-hot'
-  1. add 'gadicc:hot' (name and nature of package likely to change)
+  1. replace `ecmascript` with `gadicc:ecmascript-hot`
+  1. add `gadicc:hot` (name and nature of package likely to change)
 1. Use `react-mounter` to mount your components.
 
 ## How this works
