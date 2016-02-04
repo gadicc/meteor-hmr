@@ -2,6 +2,10 @@
 
 *React Hot Loading in Meteor, today, in the worst way possible.*
 
+Copyright (c) 2016 by Gadi Cohen <meteor@gadi.cc>, released under the MIT License.
+Note: this code includes additions to (republished) packages that are Copyright
+MDG and released under the same license.
+
 Given that:
 
 1. Webpack has react hotload support
