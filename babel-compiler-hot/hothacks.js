@@ -74,17 +74,29 @@ hot.process = function(bundle) {
  * I'm pretty sure there's no way good way to communicate from a compiler plugin
  * to the actual app.  I did say hacky!
  */
-var port = 3001; // TODO check in process.argv for -p and process.env for MONGO_URL
-var url = 'mongodb://localhost:' + port + '/meteor';
+
+var portIndex = process.argv.indexOf('-p');
+var port = portIndex === -1 ? 3001 : parseInt(process.argv[portIndex+1]) + 1;
+var url = process.env.MONGO_URL || 'mongodb://localhost:'+port+'/meteor';
 var MongoClient = Npm.require('mongodb').MongoClient;
+
 MongoClient.connect(url, function(err, db) {
-  if (err) throw new Error(err);
+  if (err) {
+    console.error('[gadicc:hot] Failed to connect to your Mongo database ' +
+      'on "' + url + '". Try MONGO_URL environment variable or "-p PORT" ' +
+      'when running Meteor.');
+    throw new Error(err);
+  }
+
   // console.debug("[gadicc:hot - babel-compiler-hot] connected to db"); 
   hot.col = db.collection('__hot');
 
+  // delete bundles from previous run (i.e. only track changes for this run)
   hot.col.deleteMany({}, function(err) {
     if (err) console.log(err);
   });
 
-  //db.close();  // XXX any good time to close?
+  process.on('exit', function() {
+    db.close();
+  });
 });
