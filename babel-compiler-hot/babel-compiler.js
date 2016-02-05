@@ -99,7 +99,9 @@ BCp.processFilesForTarget = function (inputFiles) {
     // hot
     var path = packageName + '/' + inputFilePath;
 
-    // inputFile.getArch() !== "web.browser"  but need to ignore test files?
+    // inputFile.getArch() !== "web.browser"
+    // packageName !== null
+    // but need to ignore test files?
     if (!hot.lastHash[path] || !inputFilePath.match(/^client/)) {
 
       hot.orig[path] = toBeAdded;
@@ -127,7 +129,7 @@ BCp.processFilesForTarget = function (inputFiles) {
     inputFile.addJavaScript(hot.orig[path]);
 
     hot.lastHash[path] = toBeAdded.hash;
-    
+
   }); /* inputFiles.forEach */
 
   // hot

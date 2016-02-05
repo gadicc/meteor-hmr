@@ -1,3 +1,6 @@
+// gets injected into first meteorInstall call
+//import ReactTransformHMR from 'react-transform-hmr';
+
 hot = {
   col: new Mongo.Collection('__hot')
 }
@@ -50,6 +53,7 @@ function walkFileTree(root, tree, func) {
  * a module with a module.hot key.  On each crawl, call func(file).
  */ 
 function requirersUntilHot(file, func) {
+  console.log(file.m.id);
   if (!file)
     return console.error('[gadicc:hot] requirersUntilHot(): no file?');
 
@@ -58,10 +62,17 @@ function requirersUntilHot(file, func) {
 
   func(file);
 
-  if (!file.m.hot)
-    modulesRequiringMe[file.m.id].forEach(function(moduleId) {
-      requirersUntilHot(allModules[moduleId], func);
-    });
+  if (!file.m.hot) {
+    let id = file.m.id.replace(/\/index.js$/, '');
+
+    if (modulesRequiringMe[id])
+      modulesRequiringMe[id].forEach(function(moduleId) {
+        requirersUntilHot(allModules[moduleId], func);
+      });
+    else {
+      console.error('[gadicc:hot] ' + file.m.id + ' is not hot and nothing requires it');
+    }
+  }
 }
 
 /*
@@ -108,6 +119,17 @@ var allModules;
 
 modules.meteorInstall = function(tree) {
   stuff.firstTree = tree;
+
+  // Inject react-transform-hmr into the tree
+  /*
+  if (!tree.node_modules)
+    tree.node_modules = {};
+  tree.node_modules['react-transform-hmr'] = [
+    function(require,exports,module) {
+      module.exports = ReactTransformHMR
+    }
+  ];
+  */
 
   var require = origMeteorInstall.apply(this, arguments);
 
@@ -158,4 +180,4 @@ var stuff = {
   modulesRequiringMe
 };
 
-// window.x = stuff;
+window.x = stuff;

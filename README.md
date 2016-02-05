@@ -37,22 +37,20 @@ if you know what you're doing :)
 * App only, no packages - avoids need to link in package imports
 * `client/*` only - use Meteor's regular linker for server and test code (?)
 
-## To use in another app (not recommended yet; use with correct Meteor
-1.3-modules-beta release)
+## To use in another app (not recommended yet)
+
+*Use with correct Meteor release, currently 1.3-modules-beta.5**
 
 1. Symlink `demo/packages/*` to your app's `packages` dir
 1. Edit your `.meteor/packages`
   1. replace `ecmascript` with `gadicc:ecmascript-hot`
   1. add `gadicc:hot` (name and nature of package likely to change)
-1. Temporarily, add `import ReactTransformHMR from 'react-transform-hmr';` to
-any files that contain components that will be directly mounted.
 
 ## How To (this won't work yet, but this is the intended path)
 
 1. Edit your `.meteor/packages`
   1. replace `ecmascript` with `gadicc:ecmascript-hot`
   1. add `gadicc:hot` (name and nature of package likely to change)
-1. Use `react-mounter` to mount your components.
 
 ## How this works
 
@@ -98,6 +96,7 @@ this repo to see all changes to those packages.
 
 ## TODO
 
+* [ ] Update to METEOR@1.3-modules-beta.6
 * [ ] Force real reload if an extra `import` has been added
 * [ ] Proper module.hot stuff
 * [ ] react-transform-error stuff

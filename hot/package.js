@@ -16,6 +16,7 @@ Package.onUse(function(api) {
   api.use('modules');
   api.use('ecmascript');
   api.use('mongo');
+  api.use('underscore', 'client');
   api.use('webapp', 'server');
 
   // make sure we're loaded after modules-runtime & before global-imports, app
