@@ -66,6 +66,7 @@ BCp.processFilesForTarget = function (inputFiles) {
           }          
         ]
       }]);
+      source = hot.transformStateless(source, inputFilePath);
 
       babelOptions.sourceMap = true;
       babelOptions.filename =

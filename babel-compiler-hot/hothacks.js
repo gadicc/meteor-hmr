@@ -70,6 +70,28 @@ hot.process = function(bundle) {
   });
 }
 
+hot.transformStateless = function(source, path) {
+  // Support MantraJS style stateless components, see README
+  if (!source.match(/^import React/m) || !path.match(/\/components\//)) {
+    return source;
+  }
+
+  source = source.replace(/import React from 'react';/,
+    "import React, { Component } from 'react';");
+
+  source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \(([\s\S]+?)\n\);\n/g,
+    function(match, className, args, code) {
+      return 'class ' + className + ' extends Component {\n' +
+        '  render() {\n' +
+        (args ? '    const ' + args + ' = this.props;\n' : '') +
+        '    return (' + code + ')\n' +
+        '  }\n' +
+        '}';
+    });
+
+  return source;
+}
+
 /*
  * I'm pretty sure there's no way good way to communicate from a compiler plugin
  * to the actual app.  I did say hacky!

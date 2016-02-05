@@ -36,15 +36,16 @@ if you know what you're doing :)
 
 * App only, no packages - avoids need to link in package imports
 * `client/*` only - use Meteor's regular linker for server and test code (?)
-* Stateless / functional components MUST have at least one real component ancestor
-(e.g. make sure whatever you *mount* is a real component, and you should be good).
+* Note the section beow about Stateless / functional / pure / "dumb" components.
 
 ## To use in another app (not recommended yet)
 
 *Use with correct Meteor release, currently 1.3-modules-beta.5**
 
-Working with *mantra-sample-blog-app*, see below.
+Working with [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app
+).
 
+1. Edit `.meteor/release` to `METEOR@1.3-modules-beta.5` (until we've had a chance to upgrade)
 1. Symlink `demo/packages/*` to your app's `packages` dir (until we publish...)
 1. Edit your `.meteor/packages`
   1. replace `ecmascript` with `gadicc:ecmascript-hot`
@@ -108,43 +109,29 @@ in order)
 Not tested yet in a big project, but if speed is an issue it's not too much
 work to spawn another process to watch the files and communicate with mongo.
 
-## MantraJS
+## Stateless / Functional / Pure / "Dumb" Components
 
-Works fine with minor tweaks.  e.g. for
+Since React 0.14 this is a recommended pattern, but they are harder to hot load.
+Currently babel-plugin-react-transform does not support it, see
+[#57](https://github.com/gaearon/babel-plugin-react-transform/issues/57).
 
-https://github.com/mantrajs/mantra-sample-blog-app
+There are two ways around this:
 
-1. Downgrade `.meteor/release` to `METEOR@1.3-modules-beta.5` (until we've had a chance to upgrade)
+1. As long as your stateless component is imported into a regular component,
+it's like any regular import, and this will work fine.  This won't work if
+e.g. you pass a stateless component as a prop or context in a router, it
+needs to be directly imported.
 
-1. Note the requirement above about stateless components needing at least one real
-component as an ancestor.  So modify `client/modules/core/components/main_layout.jsx` as follows:
+1. To sidestep the above limitation (and have faster patching), we'll auto
+convert (during compilation) stateless components into regular components
+in certain cases.  This can go wrong so instead of trying to accomodate
+every format, we do this for MantraJS style components, that:
 
-```js
-import React, { Component } from 'react';
-import Navigation from './navigation.jsx';
+  1. Are in a directory (or subdir of a directory) called `components`
+  1. Import `react`
+  1. Have exactly this format (keywords, newlines, indentation dependent -
+  args can be blank.)
 
-class Layout extends Component {
-    render() {
-        const { content } = this.props;
-        return (
-          <div>
-            <header>
-            <h1>Mantra Voice</h1>
-            <Navigation />
-            </header>
-
-            <div>
-            {content()}
-            </div>
-
-            <footer>
-            <small>Built with <a href='https://github.com/kadirahq/mantra'>Mantra</a> & Meteor.</small>
-            </footer>
-          </div>            
-        );
-    }
-}
-
-export default Layout;
-
-```
+    const MyComponent = ({prop1, prop2}) => (
+      ...
+    );
