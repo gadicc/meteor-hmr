@@ -36,21 +36,20 @@ if you know what you're doing :)
 
 * App only, no packages - avoids need to link in package imports
 * `client/*` only - use Meteor's regular linker for server and test code (?)
+* Stateless / functional components MUST have at least one real component ancestor
+(e.g. make sure whatever you *mount* is a real component, and you should be good).
 
 ## To use in another app (not recommended yet)
 
 *Use with correct Meteor release, currently 1.3-modules-beta.5**
 
-1. Symlink `demo/packages/*` to your app's `packages` dir
+Working with *mantra-sample-blog-app*, see below.
+
+1. Symlink `demo/packages/*` to your app's `packages` dir (until we publish...)
 1. Edit your `.meteor/packages`
   1. replace `ecmascript` with `gadicc:ecmascript-hot`
   1. add `gadicc:hot` (name and nature of package likely to change)
-
-## How To (this won't work yet, but this is the intended path)
-
-1. Edit your `.meteor/packages`
-  1. replace `ecmascript` with `gadicc:ecmascript-hot`
-  1. add `gadicc:hot` (name and nature of package likely to change)
+1. In project root, `npm install --save react-transform-hmr`
 
 ## How this works
 
@@ -108,3 +107,44 @@ in order)
 
 Not tested yet in a big project, but if speed is an issue it's not too much
 work to spawn another process to watch the files and communicate with mongo.
+
+## MantraJS
+
+Works fine with minor tweaks.  e.g. for
+
+https://github.com/mantrajs/mantra-sample-blog-app
+
+1. Downgrade `.meteor/release` to `METEOR@1.3-modules-beta.5` (until we've had a chance to upgrade)
+
+1. Note the requirement above about stateless components needing at least one real
+component as an ancestor.  So modify `client/modules/core/components/main_layout.jsx` as follows:
+
+```js
+import React, { Component } from 'react';
+import Navigation from './navigation.jsx';
+
+class Layout extends Component {
+    render() {
+        const { content } = this.props;
+        return (
+          <div>
+            <header>
+            <h1>Mantra Voice</h1>
+            <Navigation />
+            </header>
+
+            <div>
+            {content()}
+            </div>
+
+            <footer>
+            <small>Built with <a href='https://github.com/kadirahq/mantra'>Mantra</a> & Meteor.</small>
+            </footer>
+          </div>            
+        );
+    }
+}
+
+export default Layout;
+
+```

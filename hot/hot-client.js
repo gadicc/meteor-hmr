@@ -53,7 +53,8 @@ function walkFileTree(root, tree, func) {
  * a module with a module.hot key.  On each crawl, call func(file).
  */ 
 function requirersUntilHot(file, func) {
-  console.log(file.m.id);
+  // console.log(file.m.id);
+
   if (!file)
     return console.error('[gadicc:hot] requirersUntilHot(): no file?');
 
