@@ -1,6 +1,6 @@
 Package.describe({
   name: "modules-runtime",
-  version: "0.5.0-modules.5",
+  version: "0.5.0-modules.6",
   summary: "CommonJS module system",
   git: "https://github.com/benjamn/install",
   documentation: "README.md"
@@ -8,7 +8,7 @@ Package.describe({
 
 /*
 Npm.depends({
-  install: "0.4.0"
+  install: "0.4.2"
 });
 */
 

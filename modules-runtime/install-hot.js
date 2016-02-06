@@ -214,7 +214,7 @@ makeInstaller = function (options) {
   }
 
   function fileIsDirectory(file) {
-    return isObject(file.c);
+    return file && isObject(file.c);
   }
 
   function fileMergeContents(file, contents) {
@@ -308,7 +308,7 @@ makeInstaller = function (options) {
     return file;
   }
 
-  function fileResolve(file, id) {
+  function fileResolve(file, id, seenDirFiles) {
     file =
       // Absolute module identifiers (i.e. those that begin with a `/`
       // character) are interpreted relative to the root directory, which
@@ -324,17 +324,52 @@ makeInstaller = function (options) {
 
     // If the identifier resolves to a directory, we use the same logic as
     // Node to find an `index.js` or `package.json` file to evaluate.
-    while (file && fileIsDirectory(file)) {
-      // If `package.json` does not exist, `fileEvaluate` will return the
-      // `MISSING` object, which has no `.main` property.
-      var pkg = fileEvaluate(fileAppendIdPart(file, "package.json"));
-      file = pkg && isString(pkg.main) &&
-        fileAppendId(file, pkg.main) || // Might resolve to another directory!
-        fileAppendIdPart(file, "index.js");
+    while (fileIsDirectory(file)) {
+      seenDirFiles = seenDirFiles || [];
+
+      // If the "main" field of a `package.json` file resolves to a
+      // directory we've already considered, then we should not attempt to
+      // read the same `package.json` file again. Using an array as a set
+      // is acceptable here because the number of directories to consider
+      // is rarely greater than 1 or 2. Also, using indexOf allows us to
+      // store File objects instead of strings.
+      if (seenDirFiles.indexOf(file) < 0) {
+        seenDirFiles.push(file);
+
+        // If `package.json` does not exist, `fileEvaluate` will return
+        // the `MISSING` object, which has no `.main` property.
+        var pkg = fileEvaluate(fileAppendIdPart(file, "package.json"));
+        if (pkg && isString(pkg.main)) {
+          // The "main" field of package.json does not have to begin with
+          // ./ to be considered relative, so first we try simply
+          // appending it to the directory path before falling back to a
+          // full fileResolve, which might return a package from a
+          // node_modules directory.
+          file = fileAppendId(file, pkg.main) ||
+            fileResolve(file, pkg.main, seenDirFiles);
+
+          if (file) {
+            // The fileAppendId call above may have returned a directory,
+            // so continue the loop to make sure we resolve it to a
+            // non-directory file.
+            continue;
+          }
+        }
+      }
+
+      // If we didn't find a `package.json` file, or it didn't have a
+      // resolvable `.main` property, the only possibility left to
+      // consider is that this directory contains an `index.js` module.
+      // This assignment almost always terminates the while loop, because
+      // there's very little chance `fileIsDirectory(file)` will be true
+      // for the result of `fileAppendIdPart(file, "index.js")`. However,
+      // in principle it is remotely possible that a file called
+      // `index.js` could be a directory instead of a file.
+      file = fileAppendIdPart(file, "index.js");
     }
 
     if (file && isString(file.c)) {
-      file = fileResolve(file, file.c);
+      file = fileResolve(file, file.c, seenDirFiles);
     }
 
     return file;
