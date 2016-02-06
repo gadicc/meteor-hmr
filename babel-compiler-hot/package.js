@@ -6,11 +6,11 @@ Package.describe({
   // isn't possible because you can't publish a non-recommended
   // release with package versions that don't have a pre-release
   // identifier at the end (eg, -dev)
-  version: '6.4.0-modules.6'
+  version: '6.4.0-modules.7'
 });
 
 Npm.depends({
-  'meteor-babel': '0.6.6',
+  'meteor-babel': '0.7.1',
   'mongodb': '2.1.4',
   'babel-plugin-react-transform': '2.0.0'
 });
