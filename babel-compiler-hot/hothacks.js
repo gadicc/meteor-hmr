@@ -1,8 +1,11 @@
-hot = {
+console.log('reload');
+
+hot = global.__hot = {
   lastHash: {},
   bundles: {},
   orig: {}
 };
+console.log(hot);
 
 function extractRequires(content) {
   var requires = [], match, re = /require\((['"]+)(.+)\1\)/g;
@@ -110,7 +113,7 @@ MongoClient.connect(url, function(err, db) {
     throw new Error(err);
   }
 
-  // console.debug("[gadicc:hot - babel-compiler-hot] connected to db"); 
+  // console.info("[gadicc:hot - babel-compiler-hot] connected to db"); 
   hot.col = db.collection('__hot');
 
   // delete bundles from previous run (i.e. only track changes for this run)
