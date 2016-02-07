@@ -40,12 +40,15 @@ if you know what you're doing :)
 
 ## To use in another app (not recommended yet)
 
-*Use with correct Meteor release, currently 1.3-modules-beta.5**
+*Use with correct Meteor release, currently 1.3-modules-beta.7**
+
+There's a [commit](https://github.com/gadicc/meteor-react-hotloader/commit/cadf6619700e9262332381c2ef7bc1b0ced5b645) for beta.8 in that branch, but it breaks
+because of a change in Meteor, tracking in [meteor:#6182](https://github.com/meteor/meteor/issues/6182).
 
 Working with [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app
-).
+) (but you need to switch from flow-router-ssr to flow-router in beta.7+, see
+[mantra-sample-blog-app:#45](https://github.com/mantrajs/mantra-sample-blog-app/issues/45)).
 
-1. Edit `.meteor/release` to `METEOR@1.3-modules-beta.5` (until we've had a chance to upgrade)
 1. Symlink `demo/packages/*` to your app's `packages` dir (until we publish...)
 1. Edit your `.meteor/packages`
   1. replace `ecmascript` with `gadicc:ecmascript-hot`
@@ -96,7 +99,7 @@ this repo to see all changes to those packages.
 
 ## TODO
 
-* [ ] Update to METEOR@1.3-modules-beta.6
+* [X] Update to METEOR@1.3-modules-beta.6 and .7 (see note about .8)
 * [ ] Force real reload if an extra `import` has been added
 * [ ] Proper module.hot stuff
 * [ ] react-transform-error stuff
