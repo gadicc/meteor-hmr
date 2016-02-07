@@ -11,7 +11,7 @@ Package.describe({
 });
 
 Package.onUse(function(api) {
-  api.versionsFrom('1.3-modules-beta.5');
+  api.versionsFrom('1.3-modules-beta.7');
 
   api.use('modules');
   api.use('ecmascript');

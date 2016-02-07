@@ -6,7 +6,7 @@ Edit your react components and see changes instantly, while maintaining state.
 
 ![screencast](https://discourse-cdn.global.ssl.fastly.net/meteor/uploads/default/optimized/2X/4/43fb14d7cc38a1537e51ae0aa1bef88d80f8e510_1_690x341.gif)
 
-Copyright (c) 2016 by Gadi Cohen <meteor@gadi.cc>, released under the MIT License.
+Copyright (c) 2016 by Gadi Cohen &lt;meteor@gadi.cc&gt;, released under the MIT License.
 Note: this code includes / republishes additions to core Meteor packages that are
 Copyright MDG and released under the same license.
 
@@ -24,11 +24,11 @@ Let's:
 1. Implement a less-than-ideal solution to get react hot loading NOW, until
 something better/official comes along.
 
-## This isn't ready for use yet.
+## This is a pre-release
 
-I left the repo up for the curious, I was just trying to gauge interest.
-**There'll be a proper release probably next week**.  But you can play around
-if you know what you're doing :)
+Not all features are implemented yet, but you might still enjoy it if you're
+comfortable running from a git checkout, etc.  Instructions below.  Soon
+we'll publish a package to Atmosphere, to make this super easy.
 
 ## Where this works and doesn't
 
@@ -36,30 +36,36 @@ if you know what you're doing :)
 
 * App only, no packages - avoids need to link in package imports
 * `client/*` only - use Meteor's regular linker for server and test code (?)
-* Note the section beow about Stateless / functional / pure / "dumb" components.
+* Note the section beow about stateless / functional / pure / "dumb" components.
 
-## To use in another app (not recommended yet)
+## How to Use (pre-release)
 
-*Use with correct Meteor release, currently 1.3-modules-beta.7**
+*Use with correct Meteor release, currently 1.3-modules-beta.7*
 
-There's a [commit](https://github.com/gadicc/meteor-react-hotloader/commit/cadf6619700e9262332381c2ef7bc1b0ced5b645) for beta.8 in that branch, but it breaks
+There's a [commit](https://github.com/gadicc/meteor-react-hotloader/commit/cadf6619700e9262332381c2ef7bc1b0ced5b645) for beta.8 (in the likewise-named branch), but it breaks
 because of a change in Meteor, tracking in [meteor:#6182](https://github.com/meteor/meteor/issues/6182).
 
-Working with [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app
-) (but you need to switch from flow-router-ssr to flow-router in beta.7+, see
+Working with
+[mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
+(but you need to switch from flow-router-ssr to flow-router in beta.7+, see
 [mantra-sample-blog-app:#45](https://github.com/mantrajs/mantra-sample-blog-app/issues/45)).
 
-1. Symlink `demo/packages/*` to your app's `packages` dir (until we publish...)
-1. Edit your `.meteor/packages`
-  1. replace `ecmascript` with `gadicc:ecmascript-hot`
-  1. add `gadicc:hot` (name and nature of package likely to change)
+Until we publish to Atmosphere:
+
+1. `git clone https://github.com/gadicc/meteor-react-hotloader`
+1. Symlink `babel-compiler-hot`, `ecmascript-hot`, `hot` and `modules-runtime`
+([#6](https://github.com/benjamn/install/pull/6)) to your app's `packages` dir.  
+
+and then:
+
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot`
 1. In project root, `npm install --save react-transform-hmr`
 
 ## How this works
 
 Brace yourself for reading this and recall the project goals.
 
-1. Use [@gaearon](https://github.com/gaearon/) (dan abramov)'s
+1. We use [@gaearon](https://github.com/gaearon/) (dan abramov)'s
 [babel-plugin-react-transform](https://github.com/gaearon/babel-plugin-react-transform)
 and
 [react-transform-hmr](https://github.com/gaearon/react-transform-hmr)
@@ -84,24 +90,15 @@ These are awesome and this is the right way to go; nothing hacky here.
 
 ## Changes from original core packages
 
-Packages are based off the following commit in `meteor/meteor`:
-
-```
-commit 877cb9e61ae8bcf6312c6cec05bc943560770118
-Author: Ben Newman <ben@meteor.com>
-Date:   Mon Jan 25 15:34:16 2016 -0500
-
-    Add a test of client/compatibility directories.
-```
-
-You can diff the latest commit here against the first commit in
-this repo to see all changes to those packages.
+The bases for `babel-compiler` and `ecmascript` began from `1.3-modules-beta.5`
+and are upgraded as necessary, in their own commits (look out for commit messages
+`update package bases to 1.3-modules-beta.7 (<SHA>)` etc).
 
 ## TODO
 
 * [X] Update to METEOR@1.3-modules-beta.6 and .7 (see note about .8)
 * [ ] Force real reload if an extra `import` has been added
-* [ ] Proper module.hot stuff
+* [X] Proper module.hot stuff (seems to be good enough)
 * [ ] react-transform-error stuff
 * [X] Check for MONGO_URL or -p option to meteor to get right mongo address
 * [ ] Track & merge all hotloads for a single load for fresh manual browser load (not really so important since currently it will load the initial output and all the patches
