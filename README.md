@@ -43,12 +43,12 @@ we'll publish a package to Atmosphere, to make this super easy.
 *Use with correct Meteor release, currently 1.3-modules-beta.7*
 
 There's a [commit](https://github.com/gadicc/meteor-react-hotloader/commit/cadf6619700e9262332381c2ef7bc1b0ced5b645) for beta.8 (in the likewise-named branch), but it breaks
-because of a change in Meteor, tracking in [meteor:#6182](https://github.com/meteor/meteor/issues/6182).
+because of a change in Meteor, tracking in [meteor#6182](https://github.com/meteor/meteor/issues/6182).
 
 Working with
 [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
 (but you need to switch from flow-router-ssr to flow-router in beta.7+, see
-[mantra-sample-blog-app:#45](https://github.com/mantrajs/mantra-sample-blog-app/issues/45)).
+[mantra-sample-blog-app#45](https://github.com/mantrajs/mantra-sample-blog-app/issues/45)).
 
 Until we publish to Atmosphere:
 
@@ -98,6 +98,11 @@ and are upgraded as necessary, in their own commits (look out for commit message
 
 * [X] Update to METEOR@1.3-modules-beta.6 and .7 (see note about .8)
 * [ ] Force real reload if an extra `import` has been added
+* [ ] Force real reload if client hmr can't be accepted
+* [ ] Consider intercepting how modules-runtime is served to client
+      to avoid needing to provide a replacement package until
+      [install#86](https://github.com/benjamn/install/pull/6).
+* [ ] Clean up `babel-copmiler.js` and move `hothacks.js` stuff to `gadicc:hot`.
 * [X] Proper module.hot stuff (seems to be good enough)
 * [ ] react-transform-error stuff
 * [X] Check for MONGO_URL or -p option to meteor to get right mongo address
@@ -132,6 +137,14 @@ every format, we do this for MantraJS style components, that:
   1. Have exactly this format (keywords, newlines, indentation dependent -
   args can be blank.)
 
-    const MyComponent = ({prop1, prop2}) => (
-      ...
-    );
+```
+const MyComponent = ({prop1, prop2}) => (
+  ... code ...
+);
+```
+
+If this proves too inflexible, open an issue and I'll look at doing something
+using [recast](https://github.com/benjamn/recast) (from Meteor's @benjamn!),
+but for now I think it's better to be strict and avoid touching stuff we're
+not meant to, which I think is the reason react-transform-hmr doesn't address
+this yet.  [This](https://github.com/gaearon/babel-plugin-react-transform/issues/57#issuecomment-167677570) was interesting though.
