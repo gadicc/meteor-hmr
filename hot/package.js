@@ -22,6 +22,10 @@ Package.onUse(function(api) {
   // make sure we're loaded after modules-runtime & before global-imports, app
   api.use('modules-runtime', 'client')
 
+  // until https://github.com/benjamn/install/pull/6
+  api.addAssets('modules-runtime-hot.js', 'server');
+  api.addFiles('replace-modules-runtime.js', 'server');
+
   api.addFiles('hot-client.js', 'client');
   api.addFiles('hot-server.js', 'server');
 

@@ -99,7 +99,7 @@ and are upgraded as necessary, in their own commits (look out for commit message
 * [X] Update to METEOR@1.3-modules-beta.6 and .7 (see note about .8)
 * [ ] Force real reload if an extra `import` has been added
 * [ ] Force real reload if client hmr can't be accepted
-* [ ] Consider intercepting how modules-runtime is served to client
+* [X] Consider intercepting how modules-runtime is served to client
       to avoid needing to provide a replacement package until
       [install#86](https://github.com/benjamn/install/pull/6).
 * [ ] Clean up `babel-copmiler.js` and move `hothacks.js` stuff to `gadicc:hot`.
