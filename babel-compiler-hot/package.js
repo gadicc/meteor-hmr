@@ -1,12 +1,10 @@
 Package.describe({
   name: "gadicc:babel-compiler-hot",
-  summary: "Parser/transpiler for ECMAScript 2015+ syntax",
-  // Tracks the npm version below.  Use wrap numbers to increment
-  // without incrementing the npm version.  Hmm-- Apparently this
-  // isn't possible because you can't publish a non-recommended
-  // release with package versions that don't have a pre-release
-  // identifier at the end (eg, -dev)
-  version: '6.4.0-modules.7'
+  // version: '6.4.0-modules.7'    // core version, KEEP UPDATED
+  version: '0.0.1-modules.7',
+  summary: 'React hotloading, used by gadicc:ecmascript-hot.',
+  git: 'https://github.com/gadicc/meteor-react-hotloader',
+  documentation: '../README.md'
 });
 
 Npm.depends({

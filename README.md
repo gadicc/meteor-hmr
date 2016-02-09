@@ -36,7 +36,7 @@ we'll publish a package to Atmosphere, to make this super easy.
 
 * App only, no packages - avoids need to link in package imports
 * `client/*` only - use Meteor's regular linker for server and test code (?)
-* Note the section beow about stateless / functional / pure / "dumb" components.
+* Note the section below about stateless / functional / pure / "dumb" components.
 
 ## How to Use (pre-release)
 
@@ -50,16 +50,8 @@ Working with
 (but you need to switch from flow-router-ssr to flow-router in beta.7+, see
 [mantra-sample-blog-app#45](https://github.com/mantrajs/mantra-sample-blog-app/issues/45)).
 
-Until we publish to Atmosphere:
-
-1. `git clone https://github.com/gadicc/meteor-react-hotloader`
-1. Symlink `babel-compiler-hot`, `ecmascript-hot`, `hot` and `modules-runtime`
-([#6](https://github.com/benjamn/install/pull/6)) to your app's `packages` dir.  
-
-and then:
-
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot`
-1. In project root, `npm install --save react-transform-hmr`
+1. In your project root, `npm install --save react-transform-hmr`
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.1-modules.7` (don't forget to set it back before a production deploy!)
 
 ## How this works
 
@@ -132,9 +124,9 @@ convert (during compilation) stateless components into regular components
 in certain cases.  This can go wrong so instead of trying to accomodate
 every format, we do this for MantraJS style components, that:
 
-  1. Are in a directory (or subdir of a directory) called `components`
-  1. Import `react`
-  1. Have exactly this format (keywords, newlines, indentation dependent -
+  1. Is a `.jsx` and contains "import React"
+  1. ~~Are in a directory (or subdir of a directory) called `components`~~
+  1. Have exactly this format (const, root level indentation, newlines) -
   args can be blank.)
 
 ```
@@ -147,4 +139,5 @@ If this proves too inflexible, open an issue and I'll look at doing something
 using [recast](https://github.com/benjamn/recast) (from Meteor's @benjamn!),
 but for now I think it's better to be strict and avoid touching stuff we're
 not meant to, which I think is the reason react-transform-hmr doesn't address
-this yet.  [This](https://github.com/gaearon/babel-plugin-react-transform/issues/57#issuecomment-167677570) was interesting though.
+this yet.
+[This](https://github.com/gaearon/babel-plugin-react-transform/issues/57#issuecomment-167677570) was interesting though.

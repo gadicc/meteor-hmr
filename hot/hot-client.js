@@ -72,6 +72,7 @@ function requirersUntilHot(file, func) {
       });
     else {
       console.error('[gadicc:hot] ' + file.m.id + ' is not hot and nothing requires it');
+      console.log("[gadicc:hot] You should restart Meteor");
     }
   }
 }
@@ -103,8 +104,14 @@ meteorInstallHot = function(tree) {
 
       if (file.m.hot) {
         // console.debug('[gadicc:hot] Found module.hot in ' + file.m.id);
-        file.m.hot.accept();
-        // require(file.m.id);
+        try {
+          file.m.hot.accept();
+          // require(file.m.id);
+        } catch (e) {
+          console.error('[gadicc:hot] An error occured trying to accept hmr for ' + file.m.id);
+          console.error(e);
+          console.log('[gadicc:hot] Consider restarting Meteor.');
+        }
       }
     });
   });
