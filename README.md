@@ -32,9 +32,12 @@ something better/official comes along.
 * `client/*` only - use Meteor's regular linker for server and test code (?)
 * Note the section below about stateless / functional / pure / "dumb" components.
 
-## How to Use (pre-release)
+## How to Use (early release)
 
 *Use with correct Meteor release, currently 1.3-modules-beta.7*
+
+1. In your project root, `npm install --save react-transform-hmr`
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.1-modules.7` (don't forget to set it back before a production deploy!)
 
 There's a [commit](https://github.com/gadicc/meteor-react-hotloader/commit/cadf6619700e9262332381c2ef7bc1b0ced5b645) for beta.8 (in the likewise-named branch), but it breaks
 because of a change in Meteor, tracking in [meteor#6182](https://github.com/meteor/meteor/issues/6182).
@@ -43,9 +46,6 @@ Working with
 [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
 (but you need to switch from flow-router-ssr to flow-router in beta.7+, see
 [mantra-sample-blog-app#45](https://github.com/mantrajs/mantra-sample-blog-app/issues/45)).
-
-1. In your project root, `npm install --save react-transform-hmr`
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.1-modules.7` (don't forget to set it back before a production deploy!)
 
 ## How this works
 
