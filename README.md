@@ -24,12 +24,6 @@ Let's:
 1. Implement a less-than-ideal solution to get react hot loading NOW, until
 something better/official comes along.
 
-## This is a pre-release
-
-Not all features are implemented yet, but you might still enjoy it if you're
-comfortable running from a git checkout, etc.  Instructions below.  Soon
-we'll publish a package to Atmosphere, to make this super easy.
-
 ## Where this works and doesn't
 
 *This section isn't finished yet.*
