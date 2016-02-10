@@ -24,14 +24,6 @@ Let's:
 1. Implement a less-than-ideal solution to get react hot loading NOW, until
 something better/official comes along.
 
-## Where this works and doesn't
-
-*This section isn't finished yet.*
-
-* App only, no packages - avoids need to link in package imports
-* `client/*` only - use Meteor's regular linker for server and test code (?)
-* Note the section below about stateless / functional / pure / "dumb" components.
-
 ## How to Use (early release)
 
 *Use with correct Meteor release, currently 1.3-modules-beta.7*
@@ -46,6 +38,57 @@ Working with
 [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
 (but you need to switch from flow-router-ssr to flow-router in beta.7+, see
 [mantra-sample-blog-app#45](https://github.com/mantrajs/mantra-sample-blog-app/issues/45)).
+
+## Where this works and doesn't
+
+*This section isn't finished yet.*
+
+* App only, no packages - avoids need to link in package imports
+* `client/*` only - use Meteor's regular linker for server and test code (?)
+* Note the section below about stateless / functional / pure / "dumb" components.
+
+## Stateless / Functional / Pure / "Dumb" Components
+
+Since React 0.14 this is a recommended pattern, but they are harder to hot load.
+Currently babel-plugin-react-transform does not support it, see
+[#57](https://github.com/gaearon/babel-plugin-react-transform/issues/57).
+
+There are two ways around this:
+
+1. As long as your stateless component is imported into a regular component,
+it's like any regular import, and this will work fine.  This won't work if
+e.g. you pass a stateless component as a prop or context in a router, it
+needs to be directly imported.
+
+1. To sidestep the above limitation (and have faster patching), we'll auto
+convert (during compilation) stateless components into regular components
+in certain cases.  This can go wrong so instead of trying to accomodate
+every format, we do this for MantraJS style components, that:
+
+  1. Is a `.jsx` and contains "import React"
+  1. ~~Are in a directory (or subdir of a directory) called `components`~~
+  1. Have exactly this format (const, root level indentation, newlines) -
+  args can be blank.)
+
+```
+const MyComponent = ({prop1, prop2}) => (
+  ... code ...
+);
+```
+
+If this proves too inflexible, open an issue and I'll look at doing something
+using [recast](https://github.com/benjamn/recast) (from Meteor's @benjamn!),
+but for now I think it's better to be strict and avoid touching stuff we're
+not meant to, which I think is the reason react-transform-hmr doesn't address
+this yet.
+[This](https://github.com/gaearon/babel-plugin-react-transform/issues/57#issuecomment-167677570) was interesting though.
+
+## Troubleshooting
+
+**Uncaught Error: Cannot find module 'react-transform-hmr'**
+
+Run `npm install --save react-transform-hmr` in your project root
+(per the installation section in this README :)).
 
 ## How this works
 
@@ -99,39 +142,3 @@ in order)
 
 Not tested yet in a big project, but if speed is an issue it's not too much
 work to spawn another process to watch the files and communicate with mongo.
-
-## Stateless / Functional / Pure / "Dumb" Components
-
-Since React 0.14 this is a recommended pattern, but they are harder to hot load.
-Currently babel-plugin-react-transform does not support it, see
-[#57](https://github.com/gaearon/babel-plugin-react-transform/issues/57).
-
-There are two ways around this:
-
-1. As long as your stateless component is imported into a regular component,
-it's like any regular import, and this will work fine.  This won't work if
-e.g. you pass a stateless component as a prop or context in a router, it
-needs to be directly imported.
-
-1. To sidestep the above limitation (and have faster patching), we'll auto
-convert (during compilation) stateless components into regular components
-in certain cases.  This can go wrong so instead of trying to accomodate
-every format, we do this for MantraJS style components, that:
-
-  1. Is a `.jsx` and contains "import React"
-  1. ~~Are in a directory (or subdir of a directory) called `components`~~
-  1. Have exactly this format (const, root level indentation, newlines) -
-  args can be blank.)
-
-```
-const MyComponent = ({prop1, prop2}) => (
-  ... code ...
-);
-```
-
-If this proves too inflexible, open an issue and I'll look at doing something
-using [recast](https://github.com/benjamn/recast) (from Meteor's @benjamn!),
-but for now I think it's better to be strict and avoid touching stuff we're
-not meant to, which I think is the reason react-transform-hmr doesn't address
-this yet.
-[This](https://github.com/gaearon/babel-plugin-react-transform/issues/57#issuecomment-167677570) was interesting though.
