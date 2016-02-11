@@ -23,8 +23,8 @@ ecmascript-runtime@0.2.7-modules.7
 ejson@1.0.8-modules.7
 es5-shim@4.3.2-modules.7
 fastclick@1.0.8-modules.7
-gadicc:babel-compiler-hot@6.4.0-modules.7
-gadicc:ecmascript-hot@0.4.0-modules.7
+gadicc:babel-compiler-hot@0.0.1-modules.7
+gadicc:ecmascript-hot@0.0.1-modules.7
 gadicc:hot@0.0.1
 geojson-utils@1.0.5-modules.7
 hot-code-push@1.0.1-modules.7

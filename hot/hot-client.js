@@ -125,6 +125,28 @@ var origMeteorInstall = modules.meteorInstall;
 var modulesRequiringMe = {};
 var allModules;
 
+/*
+ * resolvePath("/client/foo/bar", "../baz") === "/client/foo/baz"
+ * XXX TODO optimize
+ */
+function resolvePath(moduleId, requirePath) {
+  if (requirePath.substr(0,1) === '/')
+    requirePath; // noop
+  else if (requirePath.substr(0,2) === './')
+    requirePath = requirePath.replace(/^\.\//,
+      moduleId.replace(/\/[^\/]+$/, '') + '/');
+  else if (requirePath.substr(0,3) === '../') {
+    moduleId = moduleId.replace(/\/[^\/]+$/, '');
+    while (requirePath.substr(0,3) === '../') {
+      requirePath = requirePath.replace(/^\.\.\//, '');
+      moduleId = moduleId.replace(/\/[^\/]+$/, '');
+    }
+    requirePath = moduleId + '/' + requirePath;
+  }
+
+  return requirePath;
+}
+
 modules.meteorInstall = function(tree) {
   stuff.firstTree = tree;
 
@@ -141,16 +163,18 @@ modules.meteorInstall = function(tree) {
 
   var require = origMeteorInstall.apply(this, arguments);
 
-  allModules = flattenRoot(root);
+  allModules = stuff.allModules = flattenRoot(root);
 
   walkFileTree(root, tree, function(file, module) {
 
+    // forEach on all reqs [ 'react', './blah', function(...) ]
     module.slice(0, module.length-1).forEach(function(req) {
-      if (req.substr(0, 1) !== '.')
+
+      // "react", etc will never be reloaded in this implementation
+      if (!req.match(/^[\.\/]{1,1}/))
         return;
 
-      req = req.replace(/^\.\//,
-        file.m.id.replace(/\/[^\/]+$/, '') + '/');
+      req = resolvePath(file.m.id, req);
 
       if (!allModules[req]) {
         if (allModules[req+'.js'])
@@ -188,4 +212,4 @@ var stuff = {
   modulesRequiringMe
 };
 
-window.x = stuff;
+window.hot = stuff;

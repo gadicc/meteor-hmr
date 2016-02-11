@@ -1,5 +1,12 @@
 # vNEXT
 
+# v0.0.2-modules.7
+
+* Correctly resolve relationships when importing from root paths
+  (`/something`) and relative paths involving parents
+  (`../../something).  Relative paths in the same directory
+  (`./something) were all that was supported previously (#4).
+
 # v0.0.1-modules.7
 
 * Relax restriction on stateless components to not be in a `components`
