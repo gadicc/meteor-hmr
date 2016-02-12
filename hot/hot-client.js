@@ -72,7 +72,8 @@ function requirersUntilHot(file, func) {
       });
     else {
       console.error('[gadicc:hot] ' + file.m.id + ' is not hot and nothing requires it');
-      console.log("[gadicc:hot] You should restart Meteor");
+      //console.log("[gadicc:hot] You should restart Meteor");
+      hot.reload();
     }
   }
 }
@@ -83,7 +84,7 @@ function requirersUntilHot(file, func) {
  * with module.hot, and require() that.
  */
 meteorInstallHot = function(tree) {
-  stuff.lastTree = tree;
+  hot.lastTree = tree;
   //console.log('got bundle', tree);
 
   // First, patch changed modules
@@ -110,7 +111,8 @@ meteorInstallHot = function(tree) {
         } catch (e) {
           console.error('[gadicc:hot] An error occured trying to accept hmr for ' + file.m.id);
           console.error(e);
-          console.log('[gadicc:hot] Consider restarting Meteor.');
+          //console.log('[gadicc:hot] Consider restarting Meteor.');
+          hot.reload();
         }
       }
     });
@@ -147,7 +149,7 @@ var modulesRequiringMe = {};
 var allModules;
 
 modulesRuntime.meteorInstall = Package['modules'].meteorInstall = function(tree) {
-  stuff.firstTree = tree;
+  hot.firstTree = tree;
 
   // Inject react-transform-hmr into the tree
   /*
@@ -162,7 +164,7 @@ modulesRuntime.meteorInstall = Package['modules'].meteorInstall = function(tree)
 
   var require = origMeteorInstall.apply(this, arguments);
 
-  allModules = stuff.allModules = flattenRoot(root);
+  allModules = hot.allModules = flattenRoot(root);
 
   walkFileTree(root, tree, function(file, module) {
 
@@ -204,12 +206,14 @@ modulesRuntime.meteorInstall = Package['modules'].meteorInstall = function(tree)
   return require;
 }
 
-/// XXX
-var stuff = {
-  root,
-  allModules,
-  modulesRequiringMe,
-  origMeteorInstall
-};
+hot.root = root;
+hot.allModules = allModules;
+hot.modulesRequiringMe = modulesRequiringMe;
+hot.origMeteorInstall = origMeteorInstall;
 
-window.hot = stuff;
+hot.reload = function() {
+  console.log('[gadicc:hot] Forcing client refresh...');
+  Meteor.call('__hot.reload', function() {
+    // setTimeout(window.location.reload.bind(window.location), 100);
+  });
+}

@@ -1,8 +1,11 @@
-hot = {
-  lastHash: {},
-  bundles: {},
-  orig: {}
+hot = {};
+
+hot.reset = function() {
+  hot.lastHash = {};
+  hot.bundles = {};
+  hot.orig = {};
 };
+hot.reset();
 
 function extractRequires(content) {
   var requires = [], match, re = /require\((['"]+)(.+)\1\)/g;

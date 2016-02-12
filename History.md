@@ -1,5 +1,9 @@
 # vNEXT
 
+* Code to force a client refresh, used for changes we can't handle.
+
+* Different method for overriding core modules-runtime.
+
 # v0.0.2-modules.7
 
 * Correctly resolve relationships when importing from root paths

@@ -14,6 +14,7 @@ Package.onUse(function(api) {
   api.use('mongo');
   api.use('underscore', 'client');
   api.use('webapp', 'server');
+  api.use('random', 'server');
 
   // make sure we're loaded after modules-runtime & before global-imports, app
   //api.use('modules-runtime', 'client')
@@ -28,6 +29,7 @@ Package.onUse(function(api) {
   api.addFiles('hot-client.js', 'client');
   api.addFiles('hot-server.js', 'server');
 
+  api.export('hot', 'client');
   api.export('meteorInstallHot', 'client');
 });
 

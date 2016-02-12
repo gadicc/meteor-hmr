@@ -102,10 +102,16 @@ BCp.processFilesForTarget = function (inputFiles) {
     // hot
     var path = packageName + '/' + inputFilePath;
 
-    // inputFile.getArch() !== "web.browser"
-    // packageName !== null
-    // but need to ignore test files?
-    if (!hot.lastHash[path] || !inputFilePath.match(/^client/)) {
+
+    if (inputFilePath === 'client/hot-force-reload.js') {
+
+      hot.reset();
+      hot.orig[path] = toBeAdded;
+
+    } else if (!hot.lastHash[path] || !inputFilePath.match(/^client/)) {
+      // inputFile.getArch() !== "web.browser"
+      // packageName !== null
+      // but need to ignore test files?
 
       hot.orig[path] = toBeAdded;
 
