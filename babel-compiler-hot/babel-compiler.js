@@ -105,8 +105,11 @@ BCp.processFilesForTarget = function (inputFiles) {
 
     if (inputFilePath === 'client/hot-force-reload.js') {
 
+      console.log('[gadicc:hot] client/hot-force.reload.js changed, ' +
+        'forcing refresh...');
       hot.reset();
       hot.orig[path] = toBeAdded;
+      hot.removeForceReloadJs();
 
     } else if (!hot.lastHash[path] || !inputFilePath.match(/^client/)) {
       // inputFile.getArch() !== "web.browser"

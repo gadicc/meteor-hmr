@@ -132,7 +132,7 @@ and are upgraded as necessary, in their own commits (look out for commit message
 ## TODO
 
 * [X] Update to METEOR@1.3-modules-beta.6 and .7 (see note about .8)
-* [ ] Force real reload if client hmr can't be accepted
+* [X] Force real reload if client hmr can't be accepted
 * [ ] Force real reload if an extra `import` has been added
       (this is probably just the same as above - possibly
       try-catch failed imports on meteorInstallHot)

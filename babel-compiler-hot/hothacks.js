@@ -1,3 +1,11 @@
+var fs = Npm.require('fs');
+var path = Npm.require('path');
+
+// like in hot-server.js
+var projRoot = process.cwd().substr(0,
+  process.cwd().indexOf('/.meteor/local/build'));
+var forceReloadFile = path.join(projRoot, 'client', 'hot-force-reload.js');
+
 hot = {};
 
 hot.reset = function() {
@@ -125,3 +133,12 @@ MongoClient.connect(url, function(err, db) {
     db.close();
   });
 });
+
+/*
+ * Because this happens during the build process, it won't trigger
+ * a rebuild.
+ */
+
+hot.removeForceReloadJs = function() {
+  fs.unlink(forceReloadFile);
+}

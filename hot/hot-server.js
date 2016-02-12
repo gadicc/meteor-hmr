@@ -37,15 +37,17 @@ Meteor.methods({
   }
 });
 
-var projRoot = process.cwd().substr(0,
-  process.cwd().indexOf('/.meteor/local/build'));
-
 var fs = Npm.require('fs');
 var path = Npm.require('path');
 
+var projRoot = process.cwd().substr(0,
+  process.cwd().indexOf('/.meteor/local/build'));
+
+var forceReloadFile = path.join(projRoot, 'client', 'hot-force-reload.js');
+
 // XXX any better way to do this?
 function forceReload() {
-  fs.writeFileSync(path.join(projRoot, 'client', 'hot-force-reload.js'),
+  fs.writeFileSync(forceReloadFile,
     '// Temporary measure to force a real reload\n' +
     'var UNIQUE = "' + Random.hexString(16) + '";\n');
   hot.col.remove({});
