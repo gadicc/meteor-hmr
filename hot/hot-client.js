@@ -117,14 +117,6 @@ meteorInstallHot = function(tree) {
   });
 }
 
-var root = meteorInstall._expose().root;
-
-// this will run before global-imports.js and app.js
-var modules = Package['modules'];
-var origMeteorInstall = modules.meteorInstall;
-var modulesRequiringMe = {};
-var allModules;
-
 /*
  * resolvePath("/client/foo/bar", "../baz") === "/client/foo/baz"
  * XXX TODO optimize
@@ -147,7 +139,14 @@ function resolvePath(moduleId, requirePath) {
   return requirePath;
 }
 
-modules.meteorInstall = function(tree) {
+// this will run before global-imports.js and app.js
+var modulesRuntime = Package['modules-runtime'];
+var origMeteorInstall = modulesRuntime.meteorInstall;
+var root = modulesRuntime.meteorInstall._expose().root;
+var modulesRequiringMe = {};
+var allModules;
+
+modulesRuntime.meteorInstall = Package['modules'].meteorInstall = function(tree) {
   stuff.firstTree = tree;
 
   // Inject react-transform-hmr into the tree
@@ -209,7 +208,8 @@ modules.meteorInstall = function(tree) {
 var stuff = {
   root,
   allModules,
-  modulesRequiringMe
+  modulesRequiringMe,
+  origMeteorInstall
 };
 
 window.hot = stuff;

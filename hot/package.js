@@ -16,11 +16,14 @@ Package.onUse(function(api) {
   api.use('webapp', 'server');
 
   // make sure we're loaded after modules-runtime & before global-imports, app
-  api.use('modules-runtime', 'client')
+  //api.use('modules-runtime', 'client')
+
+  // this isn't used directly, but is used to pull in the package
+  api.use('gadicc:modules-runtime-hot@0.0.1-modules.7');
 
   // until https://github.com/benjamn/install/pull/6
-  api.addAssets('modules-runtime-hot.js', 'server');
-  api.addFiles('replace-modules-runtime.js', 'server');
+  //api.addAssets('modules-runtime-hot.js', 'server');
+  //api.addFiles('replace-modules-runtime.js', 'server');
 
   api.addFiles('hot-client.js', 'client');
   api.addFiles('hot-server.js', 'server');

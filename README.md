@@ -28,6 +28,8 @@ Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-met
 
 **Current status (2016-02-09)**: Published to Atmopshere! Unfinished but very useable. Feedback wanted.
 
+**Current release (2016-02-11)**: `gadicc:ecmascript-hot@0.0.2-modules.7`
+
 ## How to Use (early release)
 
 *Use with correct Meteor release, currently 1.3-modules-beta.7*
@@ -130,8 +132,10 @@ and are upgraded as necessary, in their own commits (look out for commit message
 ## TODO
 
 * [X] Update to METEOR@1.3-modules-beta.6 and .7 (see note about .8)
-* [ ] Force real reload if an extra `import` has been added
 * [ ] Force real reload if client hmr can't be accepted
+* [ ] Force real reload if an extra `import` has been added
+      (this is probably just the same as above - possibly
+      try-catch failed imports on meteorInstallHot)
 * [X] Consider intercepting how modules-runtime is served to client
       to avoid needing to provide a replacement package until
       [install#86](https://github.com/benjamn/install/pull/6).
