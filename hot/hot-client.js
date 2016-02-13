@@ -1,8 +1,19 @@
+var NEW_HMR = false;
+
 // gets injected into first meteorInstall call
 //import ReactTransformHMR from 'react-transform-hmr';
 
 hot = {
   col: new Mongo.Collection('__hot')
+}
+
+// XXX
+if (NEW_HMR) {
+  var mhot = Package['modules-runtime'].mhot;
+  window.mhot = mhot;
+  Meteor.startup(function() {
+    window.meteorInstallHot = mhot.meteorInstallHot;
+  });
 }
 
 Meteor.subscribe('__hot');
@@ -17,6 +28,21 @@ Meteor.startup(function() {
     }
   });
 });
+
+hot.reload = function() {
+  console.log('[gadicc:hot] Forcing client refresh...');
+  Meteor.call('__hot.reload', function() {
+    // setTimeout(window.location.reload.bind(window.location), 100);
+  });
+}
+
+// useful to put in an app for dev work on this package
+hot.disableReload = function() {
+  hot.reload = function() {
+    console.log('[gadicc:hot] Would usually force a refresh now, but ' +
+      'hot.disableReload() was called.  Run hot.reload() when desirable.');
+  }
+}
 
 /*
  * Takes install.js root and flattens it, so we can easily access modules by
@@ -33,6 +59,31 @@ function flattenRoot(root) {
   }
   walk(root);
   return out;
+}
+
+if (NEW_HMR)
+  return;
+
+/*
+ * resolvePath("/client/foo/bar", "../baz") === "/client/foo/baz"
+ * XXX TODO optimize
+ */
+function resolvePath(moduleId, requirePath) {
+  if (requirePath.substr(0,1) === '/')
+    requirePath; // noop
+  else if (requirePath.substr(0,2) === './')
+    requirePath = requirePath.replace(/^\.\//,
+      moduleId.replace(/\/[^\/]+$/, '') + '/');
+  else if (requirePath.substr(0,3) === '../') {
+    moduleId = moduleId.replace(/\/[^\/]+$/, '');
+    while (requirePath.substr(0,3) === '../') {
+      requirePath = requirePath.replace(/^\.\.\//, '');
+      moduleId = moduleId.replace(/\/[^\/]+$/, '');
+    }
+    requirePath = moduleId + '/' + requirePath;
+  }
+
+  return requirePath;
 }
 
 /*
@@ -119,28 +170,6 @@ meteorInstallHot = function(tree) {
   });
 }
 
-/*
- * resolvePath("/client/foo/bar", "../baz") === "/client/foo/baz"
- * XXX TODO optimize
- */
-function resolvePath(moduleId, requirePath) {
-  if (requirePath.substr(0,1) === '/')
-    requirePath; // noop
-  else if (requirePath.substr(0,2) === './')
-    requirePath = requirePath.replace(/^\.\//,
-      moduleId.replace(/\/[^\/]+$/, '') + '/');
-  else if (requirePath.substr(0,3) === '../') {
-    moduleId = moduleId.replace(/\/[^\/]+$/, '');
-    while (requirePath.substr(0,3) === '../') {
-      requirePath = requirePath.replace(/^\.\.\//, '');
-      moduleId = moduleId.replace(/\/[^\/]+$/, '');
-    }
-    requirePath = moduleId + '/' + requirePath;
-  }
-
-  return requirePath;
-}
-
 // this will run before global-imports.js and app.js
 var modulesRuntime = Package['modules-runtime'];
 var origMeteorInstall = modulesRuntime.meteorInstall;
@@ -210,17 +239,3 @@ hot.root = root;
 hot.allModules = allModules;
 hot.modulesRequiringMe = modulesRequiringMe;
 hot.origMeteorInstall = origMeteorInstall;
-
-hot.reload = function() {
-  console.log('[gadicc:hot] Forcing client refresh...');
-  Meteor.call('__hot.reload', function() {
-    // setTimeout(window.location.reload.bind(window.location), 100);
-  });
-}
-
-// useful to put in an app for dev work on this package
-hot.disableReload = function() {
-  hot.reload = function() {
-    console.log('[gadicc:hot] Would usually force a refresh now, but hot.disableReload() was called');
-  }
-}

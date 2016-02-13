@@ -28,7 +28,7 @@ Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-met
 
 **Current status (2016-02-09)**: Published to Atmopshere! Unfinished but very useable. Feedback wanted.
 
-**Current release (2016-02-11)**: `gadicc:ecmascript-hot@0.0.2-modules.7`
+**Current release (2016-02-12)**: `gadicc:ecmascript-hot@0.0.3-modules.7`
 
 ## How to Use (early release)
 
@@ -48,6 +48,12 @@ Working with
 ## Where this works and doesn't
 
 *This section isn't finished yet.*
+
+NB: **This only works on React components**.  If you change a file that
+is imported by non-react by modules that aren't react components, a
+regular client refresh will occur.  We might offer full HMR support in
+the future, but then you'd still need to add code to your existing
+modules to handle the update (with React we know what to do already).
 
 * App only, no packages - avoids need to link in package imports
 * `client/*` only - use Meteor's regular linker for server and test code (?)
@@ -76,9 +82,9 @@ every format, we do this for MantraJS style components, that:
   1. Have exactly this format (const, root level indentation, newlines) -
   args can be blank.)
 
-```
+```js
 const MyComponent = ({prop1, prop2}) => (
-  ... code ...
+  ... jsx ...
 );
 ```
 
@@ -88,6 +94,32 @@ but for now I think it's better to be strict and avoid touching stuff we're
 not meant to, which I think is the reason react-transform-hmr doesn't address
 this yet.
 [This](https://github.com/gaearon/babel-plugin-react-transform/issues/57#issuecomment-167677570) was interesting though.
+
+FYI, to "convert" a pure component to a regular one, as in the
+example above, just do:
+
+```js
+import React, { Component } from 'react';
+const MyComponent extends Component {
+  render() {
+    const {prop1, prop2} = this.props;
+    return (
+      ... jsx ...
+    )
+  }
+}
+```
+
+## Forced Refresh
+
+In situations we can't handle, we'll automatically resort to a regular
+Meteor client refresh.  If you ever need to do this yourself, just
+call `hot.reload()` on the client.  To disable the automatic
+behaviour, call `hot.disableReload()` in your app, once.
+
+If the automatic refresh is happening in cases where you think it
+shouldn't, it can be useful to disable it to see the exact error
+messages, etc.
 
 ## Troubleshooting
 
@@ -143,7 +175,7 @@ and are upgraded as necessary, in their own commits (look out for commit message
 * [X] Proper module.hot stuff (seems to be good enough)
 * [ ] react-transform-error stuff
 * [X] Check for MONGO_URL or -p option to meteor to get right mongo address
-* [ ] Track & merge all hotloads for a single load for fresh manual browser load (not really so important since currently it will load the initial output and all the patches
+* [   ] Track & merge all hotloads for a single load for fresh manual browser load (not really so important since currently it will load the initial output and all the patches
 in order)
 
 ## Other ideas

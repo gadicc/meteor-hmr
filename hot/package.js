@@ -1,6 +1,6 @@
 Package.describe({
   name: 'gadicc:hot',
-  version: '0.0.2',
+  version: '0.0.3',
   summary: 'React hotloading, used by gadicc:ecmascript-hot.',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: '../README.md'
@@ -16,15 +16,10 @@ Package.onUse(function(api) {
   api.use('webapp', 'server');
   api.use('random', 'server');
 
-  // make sure we're loaded after modules-runtime & before global-imports, app
-  //api.use('modules-runtime', 'client')
-
   // this isn't used directly, but is used to pull in the package
   api.use('gadicc:modules-runtime-hot@0.0.1-modules.7');
-
-  // until https://github.com/benjamn/install/pull/6
-  //api.addAssets('modules-runtime-hot.js', 'server');
-  //api.addFiles('replace-modules-runtime.js', 'server');
+  api.use('modules-runtime');
+  api.imply('modules-runtime');
 
   api.addFiles('hot-client.js', 'client');
   api.addFiles('hot-server.js', 'server');

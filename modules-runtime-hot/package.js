@@ -1,7 +1,8 @@
 Package.describe({
   name: "gadicc:modules-runtime-hot",
   version: "0.0.1-modules.7",
-  summary: "CommonJS module system",
+  // summary: "CommonJS module system",
+  summary: 'Used by gadicc:ecmascript-hot',
   git: "https://github.com/benjamn/install",
   documentation: "README.md"
 });
@@ -22,6 +23,11 @@ Package.onUse(function(api) {
   ], {
     bare: true
   });
+
+  // hot
+  api.addFiles("modules-runtime-hot.js");
+  api.export('mhot'); // XXX
+  api.use('underscore');
 
   api.addFiles("modules-runtime.js");
   api.export("meteorInstall");

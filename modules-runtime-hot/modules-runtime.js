@@ -33,3 +33,4 @@ options.fallback = function (id, dir, error) {
 };
 
 meteorInstall = makeInstaller(options);
+// meteorInstall = mhot.makeInstaller(options);
