@@ -1,5 +1,7 @@
 # vNEXT
 
+# v0.0.3-modules.7
+
 * Code to force a client refresh, used for changes we can't handle.
 
 * Different method for overriding core modules-runtime.
