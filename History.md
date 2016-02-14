@@ -13,7 +13,7 @@
   (`../../something).  Relative paths in the same directory
   (`./something) were all that was supported previously (#4).
 
-# v0.0.1-modules.7 (2016-02-09)
+# v0.0.1-modules.7 (2016-02-09) - first Atmosphere release
 
 * Relax restriction on stateless components to not be in a `components`
   directory, let's hope it's ok.

@@ -35,7 +35,7 @@ Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-met
 *Use with correct Meteor release, currently 1.3-modules-beta.7*
 
 1. In your project root, `npm install --save react-transform-hmr`
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.2-modules.7` (don't forget to set it back before a production deploy!)
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.3-modules.7` (don't forget to set it back before a production deploy!)
 
 There's a [commit](https://github.com/gadicc/meteor-react-hotloader/commit/cadf6619700e9262332381c2ef7bc1b0ced5b645) for beta.8 (in the likewise-named branch), but it breaks
 because of a change in Meteor, tracking in [meteor#6182](https://github.com/meteor/meteor/issues/6182).
