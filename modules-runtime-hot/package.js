@@ -1,6 +1,6 @@
 Package.describe({
   name: "gadicc:modules-runtime-hot",
-  version: "0.0.1-modules.7",
+  version: "0.0.1-modules.8",
   // summary: "CommonJS module system",
   summary: 'Used by gadicc:ecmascript-hot',
   git: "https://github.com/benjamn/install",

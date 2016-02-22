@@ -121,7 +121,7 @@ MongoClient.connect(url, function(err, db) {
     throw new Error(err);
   }
 
-  // console.debug("[gadicc:hot - babel-compiler-hot] connected to db"); 
+  // console.info("[gadicc:hot - babel-compiler-hot] connected to db"); 
   hot.col = db.collection('__hot');
 
   // delete bundles from previous run (i.e. only track changes for this run)

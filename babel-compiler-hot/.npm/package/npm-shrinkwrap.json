@@ -9,7 +9,7 @@
       }
     },
     "meteor-babel": {
-      "version": "0.7.1",
+      "version": "0.7.2",
       "dependencies": {
         "babel-core": {
           "version": "6.4.5",
@@ -370,13 +370,13 @@
             "babel-code-frame": {
               "version": "6.3.13"
             },
-            "babel-generator": {
+            "babel-helper-define-map": {
               "version": "6.4.5"
             },
             "babel-helper-call-delegate": {
               "version": "6.3.13"
             },
-            "babel-helper-define-map": {
+            "babel-generator": {
               "version": "6.4.5"
             },
             "babel-helper-function-name": {
@@ -388,10 +388,10 @@
             "babel-helper-hoist-variables": {
               "version": "6.3.13"
             },
-            "babel-helper-optimise-call-expression": {
+            "babel-helper-regex": {
               "version": "6.3.13"
             },
-            "babel-helper-regex": {
+            "babel-helper-optimise-call-expression": {
               "version": "6.3.13"
             },
             "babel-helper-replace-supers": {
