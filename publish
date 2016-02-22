@@ -1,0 +1,12 @@
+#!/bin/sh
+
+RELEASE=1.3-beta.11
+
+cd modules-runtime-hot
+meteor publish --release $RELEASE
+cd ../hot
+meteor publish --release $RELEASE
+cd ../babel-compiler-hot
+meteor publish --release $RELEASE
+cd ../ecmascript
+meteor publish --release $RELEASE

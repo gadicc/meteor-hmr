@@ -31,7 +31,7 @@ export class App extends Component {
   render() {
     return (
       <div>
-        <Counter increment={10} color={NICE} />
+        <Counter increment={11} color={NICE} />
         <Counter increment={5} color={SUPER_NICE} />
       </div>
     );

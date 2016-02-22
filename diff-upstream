@@ -1,0 +1,5 @@
+#!/bin/sh
+. ./last-upstream-commit
+
+cd ~/www/meteor.gadicc
+git diff $LAST_COMMIT HEAD -- packages/babel-compiler packages/ecmascript packages/modules-runtime/ | colordiff | less -R

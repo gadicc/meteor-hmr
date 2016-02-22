@@ -5,7 +5,7 @@ export class AppWithStateless extends Component {
   render() {
     return (
       <div>Stateless:
-        <Stateless prop1={11} prop2={"x"} />
+        <Stateless prop1={12} prop2={"x"} />
       </div>
     );
   }

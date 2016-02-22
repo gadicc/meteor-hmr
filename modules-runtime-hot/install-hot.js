@@ -137,7 +137,7 @@ makeInstaller = function (options) {
     file.m = new Module(
       // If this file was created with `name`, join it with `parent.m.id`
       // to generate a module identifier.
-      name ? (parent && parent.m.id || "") + "/" + name : null,
+      parent && name ? parent.m.id + "/" + name : "",
       parent && parent.m
     );
 
@@ -206,7 +206,9 @@ makeInstaller = function (options) {
     if (isFunction(contents)) {
       var module = file.m;
       if (! hasOwn.call(module, "exports")) {
-        contents(file.r, module.exports = {}, module);
+        contents(file.r, module.exports = {}, module,
+                 file.m.id,
+                 file.p.m.id || "/");
       }
       return module.exports;
     }

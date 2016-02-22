@@ -28,17 +28,14 @@ Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-met
 
 **Current status (2016-02-09)**: Published to Atmopshere! Unfinished but very useable. Feedback wanted.
 
-**Current release (2016-02-12)**: `gadicc:ecmascript-hot@0.0.3-modules.7`
+**Current release (2016-02-22)**: `gadicc:ecmascript-hot@0.0.4-beta.11`
 
 ## How to Use (early release)
 
-*Use with correct Meteor release, currently 1.3-modules-beta.7*
+*Use with correct Meteor release, currently 1.3-beta.11*
 
 1. In your project root, `npm install --save react-transform-hmr`
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.3-modules.7` (don't forget to set it back before a production deploy!)
-
-There's a [commit](https://github.com/gadicc/meteor-react-hotloader/commit/cadf6619700e9262332381c2ef7bc1b0ced5b645) for beta.8 (in the likewise-named branch), but it breaks
-because of a change in Meteor, tracking in [meteor#6182](https://github.com/meteor/meteor/issues/6182).
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.4-beta.11` (don't forget to set it back before a production deploy!)
 
 Working with
 [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
@@ -159,11 +156,12 @@ These are awesome and this is the right way to go; nothing hacky here.
 
 The bases for `babel-compiler` and `ecmascript` began from `1.3-modules-beta.5`
 and are upgraded as necessary, in their own commits (look out for commit messages
-`update package bases to 1.3-modules-beta.7 (<SHA>)` etc).
+`update package bases to 1.3-beta.11 (<SHA>)` etc).
 
 ## TODO
 
-* [X] Update to METEOR@1.3-modules-beta.6 and .7 (see note about .8)
+* [X] ~~Update to METEOR@1.3-modules-beta.6 and .7 (see note about .8)~~
+      Updated to `beta.11`.
 * [X] Force real reload if client hmr can't be accepted
 * [ ] Force real reload if an extra `import` has been added
       (this is probably just the same as above - possibly
