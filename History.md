@@ -1,5 +1,9 @@
 # vNEXT
 
+# v0.0.4-beta.11 (2016-02-22)
+
+* `beta.11` support.
+
 # v0.0.3-modules.7 (2016-02-12)
 
 * Code to force a client refresh, used for changes we can't handle.
