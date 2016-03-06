@@ -1,5 +1,8 @@
 # vNEXT
 
+* Relax path restrictions a bit.  Match on anything that contains  'client'
+  and not 'test' in the path / filename.
+
 # v0.0.4-beta.11 (2016-02-22)
 
 * `beta.11` support.
