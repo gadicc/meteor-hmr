@@ -1,5 +1,7 @@
 # vNEXT
 
+# v0.0.5-beta.11 (2016-03-06)
+
 * New and more reliable strategy to block HCP.  Regular page reload (via
   ctrl-R) now works how we expect (it's always up to date, no more stored
   patches) and `hot.reload()` is no longer required.

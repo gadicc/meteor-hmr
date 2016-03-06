@@ -17,7 +17,7 @@ diff-sequence@1.0.2-beta.11
 ecmascript@0.4.0-beta.11
 ecmascript-runtime@0.2.7-beta.11
 ejson@1.0.8-beta.11
-gadicc:hot@0.0.4
+gadicc:hot@0.0.5
 gadicc:modules-runtime-hot@0.0.2-beta.11
 geojson-utils@1.0.5-beta.11
 html-tools@1.0.6-beta.11
@@ -39,6 +39,7 @@ ordered-dict@1.0.4
 promise@0.5.2-beta.11
 random@1.0.6-beta.11
 reactive-var@1.0.6
+reload@1.1.5-beta.11
 retry@1.0.4
 routepolicy@1.0.7-beta.11
 spacebars@1.0.8-beta.11
