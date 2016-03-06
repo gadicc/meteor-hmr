@@ -124,6 +124,9 @@ BCp.processFilesForTarget = function (inputFiles) {
 
       if (hot.lastHash[path] !== toBeAdded.hash) {
 
+        /// XXX experiment; always, block reload on client
+        hot.orig[path] = toBeAdded;
+
         if (0 /* TODO */) {
 
           // XXX check for new non-relative imports and force reload

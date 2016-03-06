@@ -75,6 +75,7 @@ hot.process = function(bundle) {
 
   hot.col.insertOne({
     _id: id,
+    ctime: Date.now(),
     contents: bundleStr
   }, function(err) {
     if (err) console.log(err);

@@ -4,8 +4,22 @@ var NEW_HMR = false;
 //import ReactTransformHMR from 'react-transform-hmr';
 
 hot = {
-  col: new Mongo.Collection('__hot')
+  col: new Mongo.Collection('__hot'),
+  failedOnce: false,
+  migrateRetry: null,
 }
+
+Reload._onMigrate(function (retry) {
+  if (hot.failedOnce) {
+    console.info('[gadicc:hot] HMR failed, allowing regular HCP refresh flow...');
+    hot.migrateRetry = null;
+    return [true];
+  } else {
+    console.info('[gadicc:hot] HMR success, blocking HCP... (report on github if something broke)');
+    hot.migrateRetry = retry;
+    return false;
+  }
+});
 
 // XXX
 if (NEW_HMR) {
@@ -124,7 +138,9 @@ function requirersUntilHot(file, func) {
     else {
       console.error('[gadicc:hot] ' + file.m.id + ' is not hot and nothing requires it');
       //console.log("[gadicc:hot] You should restart Meteor");
-      hot.reload();
+      
+      //hot.reload();
+      hot.failedOnce = true;
     }
   }
 }
@@ -163,11 +179,17 @@ meteorInstallHot = function(tree) {
           console.error('[gadicc:hot] An error occured trying to accept hmr for ' + file.m.id);
           console.error(e);
           //console.log('[gadicc:hot] Consider restarting Meteor.');
-          hot.reload();
+
+          //hot.reload();
+          hot.failedOnce = true;
         }
       }
     });
   });
+
+  // we had previously blocked a migrate, let's check again now
+  if (hot.migrateRetry)
+    hot.migrateRetry();
 }
 
 // this will run before global-imports.js and app.js

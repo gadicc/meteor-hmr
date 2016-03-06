@@ -12,6 +12,7 @@ Package.onUse(function(api) {
   api.use('modules');
   api.use('ecmascript');
   api.use('mongo');
+  api.use('reload', 'client');
   api.use('underscore', 'client');
   api.use('webapp', 'server');
   api.use('random', 'server');

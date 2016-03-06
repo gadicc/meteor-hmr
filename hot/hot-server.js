@@ -5,7 +5,10 @@ hot = {
 Meteor.publish('__hot', function() {
   var self = this;
 
-  hot.col.find({}, { fields: { _id: 1 }}).observe({
+  hot.col.find(
+    { ctime: { $gt: Date.now() }},
+    { fields: { _id: 1 }})
+  .observe({
     added: function(doc) {
       self.added('__hot', doc._id, doc);
     }

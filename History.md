@@ -1,5 +1,9 @@
 # vNEXT
 
+* New and more reliable strategy to block HCP.  Regular page reload (via
+  ctrl-R) now works how we expect (it's always up to date, no more stored
+  patches) and `hot.reload()` is no longer required.
+
 * Relax path restrictions a bit.  Match on anything that contains  'client'
   and not 'test' in the path / filename.
 
