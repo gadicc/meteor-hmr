@@ -26,16 +26,16 @@ something better/official comes along.
 
 Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-meteor-i-e-no-webpack/17523/
 
-**Current status (2016-02-09)**: Published to Atmopshere! Unfinished but very useable. Feedback wanted.
+**Current status (2016-03-06)**: Much more reliable HMR/HCP combo.
 
-**Current release (2016-02-22)**: `gadicc:ecmascript-hot@0.0.4-beta.11`
+**Current release (2016-03-06)**: `gadicc:ecmascript-hot@0.0.5-beta.12`
 
 ## How to Use (early release)
 
-*Use with correct Meteor release, currently 1.3-beta.11*
+*Use with correct Meteor release, currently 1.3-beta.12*
 
 1. In your project root, `npm install --save react-transform-hmr`
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.4-beta.11` (don't forget to set it back before a production deploy!)
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.5-beta.12` (don't forget to set it back before a production deploy!)
 
 Working with
 [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
@@ -53,7 +53,7 @@ the future, but then you'd still need to add code to your existing
 modules to handle the update (with React we know what to do already).
 
 * App only, no packages - avoids need to link in package imports
-* `client/*` only - use Meteor's regular linker for server and test code (?)
+* Only works with file paths that include 'client' and exclude 'test'.
 * Note the section below about stateless / functional / pure / "dumb" components.
 
 ## Stateless / Functional / Pure / "Dumb" Components
@@ -109,14 +109,16 @@ const MyComponent extends Component {
 
 ## Forced Refresh
 
-In situations we can't handle, we'll automatically resort to a regular
+Just do a browser refresh like normal (ctrl-R, etc).
+
+~~In situations we can't handle, we'll automatically resort to a regular
 Meteor client refresh.  If you ever need to do this yourself, just
 call `hot.reload()` on the client.  To disable the automatic
-behaviour, call `hot.disableReload()` in your app, once.
+behaviour, call `hot.disableReload()` in your app, once.~~
 
-If the automatic refresh is happening in cases where you think it
+~~If the automatic refresh is happening in cases where you think it
 shouldn't, it can be useful to disable it to see the exact error
-messages, etc.
+messages, etc.~~
 
 ## Troubleshooting
 
@@ -136,12 +138,9 @@ and
 plugins (which use his [react-proxy](https://github.com/gaearon/react-proxy) too).
 These are awesome and this is the right way to go; nothing hacky here.
 
-1. In compiler plugin, always pass `inputFile.addJavaScript()` the original data
-  for a file, even if it's changed - this avoids a client refresh.
-
-1. With changed files, manually construct a module tree that (hopefully)
-  resembles Meteor's linker output (which we bypass; hence we only support
-  specfic situations).
+1. In the (replaced) ecmascript compiler plugin, watch for changed files and
+  manually construct a module tree that (hopefully) resembles Meteor's linker
+  output (which we bypass; hence we only support specfic situations).
 
 1. Bundle this and store in Mongo (no other way to communicate with the running
   app from a compiler plugin)
@@ -150,7 +149,8 @@ These are awesome and this is the right way to go; nothing hacky here.
   load it (and serve it from the server).
 
 1. Patch meteorInstall's root, delete previous exports, climb the tree, and
-  reevaluate.
+  reevaluate.  This happens before the HCP, so if everything succeeded, we
+  block Meteor's HCP using a special callback passed to `Reload._onMigrate()`.
 
 ## Changes from original core packages
 
@@ -160,12 +160,7 @@ and are upgraded as necessary, in their own commits (look out for commit message
 
 ## TODO
 
-* [X] ~~Update to METEOR@1.3-modules-beta.6 and .7 (see note about .8)~~
-      Updated to `beta.11`.
 * [X] Force real reload if client hmr can't be accepted
-* [ ] Force real reload if an extra `import` has been added
-      (this is probably just the same as above - possibly
-      try-catch failed imports on meteorInstallHot)
 * [X] Consider intercepting how modules-runtime is served to client
       to avoid needing to provide a replacement package until
       [install#86](https://github.com/benjamn/install/pull/6).
@@ -173,8 +168,6 @@ and are upgraded as necessary, in their own commits (look out for commit message
 * [X] Proper module.hot stuff (seems to be good enough)
 * [ ] react-transform-error stuff
 * [X] Check for MONGO_URL or -p option to meteor to get right mongo address
-* [   ] Track & merge all hotloads for a single load for fresh manual browser load (not really so important since currently it will load the initial output and all the patches
-in order)
 
 ## Other ideas
 

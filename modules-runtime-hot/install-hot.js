@@ -17,6 +17,13 @@ makeInstaller = function (options) {
   // new modules are installed.
   var onInstall = options.onInstall;
 
+  // If defined, the options.override function will be called before
+  // looking up any top-level package identifiers in node_modules
+  // directories. It can either return a string to provide an alternate
+  // package identifier, or a non-string value to prevent the lookup from
+  // proceeding.
+  var override = options.override;
+
   // If defined, the options.fallback function will be called when no
   // installed module is found for a required module identifier. Often
   // options.fallback will be implemented in terms of the native Node
@@ -30,28 +37,26 @@ makeInstaller = function (options) {
   // require.ensure and require.promise.
   var requireMethods = options.requireMethods;
 
-  // Sentinel returned by fileEvaluate when module resolution fails.
-  var MISSING = {};
-
   // Nothing special about MISSING.hasOwnProperty, except that it's fewer
   // characters than Object.prototype.hasOwnProperty after minification.
-  var hasOwn = MISSING.hasOwnProperty;
+  var hasOwn = {}.hasOwnProperty;
 
   // The file object representing the root directory of the installed
   // module tree.
-  var root = new File({});
+  var root = new File("/", new File("/.."));
+  var rootRequire = makeRequire(root);
 
   // Merges the given tree of directories and module factory functions
   // into the tree of installed modules and returns a require function
   // that behaves as if called from a module in the root directory.
-  function install(tree) {
+  function install(tree, options) {
     if (isObject(tree)) {
-      fileMergeContents(root, tree);
+      fileMergeContents(root, tree, options);
       if (isFunction(onInstall)) {
-        onInstall(root.r);
+        onInstall(rootRequire);
       }
     }
-    return root.r;
+    return rootRequire;
   }
 
   // hot
@@ -79,19 +84,29 @@ makeInstaller = function (options) {
 
   function makeRequire(file) {
     function require(id) {
-      var result = fileEvaluate(fileResolve(file, id));
-      if (result === MISSING) {
-        var error = new Error("Cannot find module '" + id + "'");
-        if (isFunction(fallback)) {
-          result = fallback(
-            id, // The missing module identifier.
-            file.m.id, // The path of the enclosing directory.
-            error // The error we would have thrown.
-          );
-        } else throw error;
+      var result = fileResolve(file, id);
+      if (result) {
+        return fileEvaluate(result);
       }
-      return result;
+
+      var error = new Error("Cannot find module '" + id + "'");
+
+      if (isFunction(fallback)) {
+        return fallback(
+          id, // The missing module identifier.
+          file.m.id, // The path of the requiring file.
+          error // The error we would have thrown.
+        );
+      }
+
+      throw error;
     }
+
+    require.resolve = function (id) {
+      var f = fileResolve(file, id);
+      if (f) return f.m.id;
+      throw new Error("Cannot find module '" + id + "'");
+    };
 
     // A function that immediately returns true iff all the transitive
     // dependencies of the module identified by id have been installed.
@@ -126,7 +141,7 @@ makeInstaller = function (options) {
   // entry for that child in its `.c` object.  This is important for
   // implementing anonymous files, and preventing child modules from using
   // `../relative/identifier` syntax to examine unrelated modules.
-  function File(contents, /*optional:*/ parent, name) {
+  function File(name, parent) {
     var file = this;
 
     // Link to the parent file.
@@ -134,92 +149,53 @@ makeInstaller = function (options) {
 
     // The module object for this File, which will eventually boast an
     // .exports property when/if the file is evaluated.
-    file.m = new Module(
-      // If this file was created with `name`, join it with `parent.m.id`
-      // to generate a module identifier.
-      parent && name ? parent.m.id + "/" + name : "",
-      parent && parent.m
-    );
-
-    // Queue for tracking required modules with unmet dependencies,
-    // inherited from the `parent`.
-    file.q = parent && parent.q;
-
-    // Each directory has its own bound version of the `require` function
-    // that can resolve relative identifiers. Non-directory Files inherit
-    // the require function of their parent directories, so we don't have
-    // to create a new require function every time we evaluate a module.
-    file.r = isObject(contents)
-      ? makeRequire(file)
-      : parent && parent.r;
-
-    // Set the initial value of `file.c` (the "contents" of the File).
-    fileMergeContents(file, contents);
-
-    // When the file is a directory, `file.rc` is an object mapping module
-    // identifiers to boolean ready statuses ("rc" is short for "ready
-    // cache"). This information can be shared by all files in the
-    // directory, because module resolution always has the same results
-    // for all files in a given directory.
-    file.rc = fileIsDirectory(file) && {};
+    file.m = new Module(name, parent && parent.m);
   }
 
   // A file is ready if all of its dependencies are installed and ready.
   function fileReady(file) {
-    var result = !! file;
-    var contents = file && file.c;
-
-    if (contents && ! file.inReady) {
-      file.inReady = true;
-
-      if (isString(contents)) {
-        // This file is aliased (or symbolically linked) to the file
-        // obtained by resolving the contents string as a module
-        // identifier, so regard it as ready iff the resolved file exists
-        // and is ready.
-        result = fileReady(fileResolve(file, contents));
-
-      } else if (isFunction(contents)) {
-        var deps = contents.d;
-        if (deps) {
-          var parentReadyCache = file.p.rc;
-
-          result = deps.every(function (dep) {
-            // By storing the results of these lookups in `parentReadyCache`,
-            // we benefit when any other file in the same directory resolves
-            // the same identifier.
-            return parentReadyCache[dep] =
-              parentReadyCache[dep] ||
-              fileReady(fileResolve(file.p, dep));
-          });
-        }
-      }
-
-      file.inReady = false;
-    }
-
-    return result;
+    return file && (
+      file.ready || ( // Return true immediately if already ready.
+        file.ready = true, // Short-circuit circular fileReady calls.
+        file.ready = // Now compute the actual value of file.ready.
+          // The current file is aliased (or symbolically linked) to the
+          // file obtained by resolving the `file.c` string as a module
+          // identifier, so regard it as ready iff the resolved file exists
+          // and is ready.
+          isString(file.c) ? fileReady(fileResolve(file, file.c)) :
+          // Here file.c is a module factory function with an array of
+          // dependencies `.d` that must be ready before the current file
+          // can be considered ready.
+          isFunction(file.c) && file.c.d.every(function (dep, i) {
+            if (fileReady(fileResolve(file, dep))) {
+              delete file.c.d[i]; // Ignore this dependency once ready.
+              return true;
+            }
+          })
+      )
+    );
   }
 
   function fileEvaluate(file) {
     var contents = file && file.c;
-    if (isFunction(contents)) {
-      var module = file.m;
-      if (! hasOwn.call(module, "exports")) {
-        contents(file.r, module.exports = {}, module,
-                 file.m.id,
-                 file.p.m.id || "/");
-      }
-      return module.exports;
+    var module = file.m;
+    if (! hasOwn.call(module, "exports")) {
+      contents(
+        file.r = file.r || makeRequire(file),
+        module.exports = {},
+        module,
+        file.m.id,
+        file.p.m.id
+      );
     }
-    return MISSING;
+    return module.exports;
   }
 
   function fileIsDirectory(file) {
     return file && isObject(file.c);
   }
 
-  function fileMergeContents(file, contents) {
+  function fileMergeContents(file, contents, options) {
     // If contents is an array of strings and functions, return the last
     // function with a `.d` property containing all the strings.
     if (Array.isArray(contents)) {
@@ -252,24 +228,31 @@ makeInstaller = function (options) {
     }
 
     if (contents) {
-      var fileContents = file.c = file.c || (
-        isObject(contents) ? {} : contents
-      );
-
+      file.c = file.c || (isObject(contents) ? {} : contents);
       if (isObject(contents) && fileIsDirectory(file)) {
         Object.keys(contents).forEach(function (key) {
-          var child = getOwn(fileContents, key);
-          if (child) {
-            fileMergeContents(child, contents[key]);
+          if (key === "..") {
+            child = file.p;
+
           } else {
-            fileContents[key] = new File(contents[key], file, key);
+            var child = getOwn(file.c, key);
+            if (! child) {
+              child = file.c[key] = new File(
+                file.m.id.replace(/\/*$/, "/") + key,
+                file
+              );
+
+              child.o = options;
+            }
           }
+
+          fileMergeContents(child, contents[key], options);
         });
       }
     }
   }
 
-  function fileAppendIdPart(file, part, isLastPart) {
+  function fileAppendIdPart(file, part, extensions) {
     // Always append relative to a directory.
     while (file && ! fileIsDirectory(file)) {
       file = file.p;
@@ -288,7 +271,7 @@ makeInstaller = function (options) {
     // Only consider multiple file extensions if this part is the last
     // part of a module identifier and not equal to `.` or `..`, and there
     // was no exact match or the exact match was a directory.
-    if (isLastPart && (! exactChild || fileIsDirectory(exactChild))) {
+    if (extensions && (! exactChild || fileIsDirectory(exactChild))) {
       for (var e = 0; e < extensions.length; ++e) {
         var child = getOwn(file.c, part + extensions[e]);
         if (child) {
@@ -302,11 +285,16 @@ makeInstaller = function (options) {
 
   function fileAppendId(file, id) {
     var parts = id.split("/");
+    var exts = file.o && file.o.extensions || extensions;
+
     // Use `Array.prototype.every` to terminate iteration early if
     // `fileAppendIdPart` returns a falsy value.
     parts.every(function (part, i) {
-      return file = fileAppendIdPart(file, part, i === parts.length - 1);
+      return file = i < parts.length - 1
+        ? fileAppendIdPart(file, part)
+        : fileAppendIdPart(file, part, exts);
     });
+
     return file;
   }
 
@@ -338,17 +326,16 @@ makeInstaller = function (options) {
       if (seenDirFiles.indexOf(file) < 0) {
         seenDirFiles.push(file);
 
-        // If `package.json` does not exist, `fileEvaluate` will return
-        // the `MISSING` object, which has no `.main` property.
-        var pkg = fileEvaluate(fileAppendIdPart(file, "package.json"));
-        if (pkg && isString(pkg.main)) {
+        var pkgJsonFile = fileAppendIdPart(file, "package.json");
+        var main = pkgJsonFile && fileEvaluate(pkgJsonFile).main;
+        if (isString(main)) {
           // The "main" field of package.json does not have to begin with
           // ./ to be considered relative, so first we try simply
           // appending it to the directory path before falling back to a
           // full fileResolve, which might return a package from a
           // node_modules directory.
-          file = fileAppendId(file, pkg.main) ||
-            fileResolve(file, pkg.main, seenDirFiles);
+          file = fileAppendId(file, main) ||
+            fileResolve(file, main, seenDirFiles);
 
           if (file) {
             // The fileAppendId call above may have returned a directory,
@@ -378,9 +365,18 @@ makeInstaller = function (options) {
   };
 
   function nodeModulesLookup(file, id) {
-    return fileIsDirectory(file) &&
-      fileAppendId(file, "node_modules/" + id) ||
-      (file.p && nodeModulesLookup(file.p, id));
+    if (isFunction(override)) {
+      id = override(id, file.m.id);
+    }
+
+    if (isString(id)) {
+      for (var resolved; file && ! resolved; file = file.p) {
+        resolved = fileIsDirectory(file) &&
+          fileAppendId(file, "node_modules/" + id);
+      }
+
+      return resolved;
+    }
   }
 
   return install;

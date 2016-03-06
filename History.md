@@ -1,5 +1,9 @@
 # vNEXT
 
+# v0.0.6-beta.12 (2016-03-06)
+
+* Release for Meteor `1.3-beta.12`.
+
 # v0.0.5-beta.11 (2016-03-06)
 
 * New and more reliable strategy to block HCP.  Regular page reload (via
