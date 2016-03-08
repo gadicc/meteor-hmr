@@ -1,4 +1,5 @@
 allow-deny@1.0.1-beta.12
+autoupdate@1.2.5-beta.12
 babel-compiler@6.5.0-beta.12
 babel-runtime@0.1.5-beta.12
 base64@1.0.5-beta.12
@@ -19,15 +20,16 @@ ecmascript-runtime@0.2.7-beta.12
 ejson@1.0.8-beta.12
 es5-shim@4.3.2-beta.12
 gadicc:babel-compiler-hot@0.0.5-beta.12
-gadicc:ecmascript-hot@0.0.5-beta.12
-gadicc:hot@0.0.6
+gadicc:ecmascript-hot@0.0.6-beta.12
+gadicc:hot@0.0.7
 gadicc:modules-runtime-hot@0.0.3-beta.12
 geojson-utils@1.0.5-beta.12
 html-tools@1.0.6-beta.12
 htmljs@1.0.6-beta.12
+http@1.1.2-beta.12
 id-map@1.0.4
 jquery@1.11.5-beta.12
-local-test:gadicc:ecmascript-hot@0.0.5-beta.12
+local-test:gadicc:ecmascript-hot@0.0.6-beta.12
 logging@1.0.9-beta.12
 meteor@1.1.11-beta.12
 meteor-env-dev@0.0.2-beta.12
@@ -43,7 +45,6 @@ ordered-dict@1.0.4
 promise@0.5.2-beta.12
 random@1.0.6-beta.12
 reactive-var@1.0.6
-reload@1.1.5-beta.12
 retry@1.0.4
 routepolicy@1.0.7-beta.12
 spacebars@1.0.8-beta.12
@@ -52,5 +53,6 @@ tinytest@1.0.7-beta.12
 tracker@1.0.10-beta.12
 ui@1.0.8
 underscore@1.0.5-beta.12
+url@1.0.6-beta.12
 webapp@1.2.5-beta.12
 webapp-hashing@1.0.6-beta.12

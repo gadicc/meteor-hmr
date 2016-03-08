@@ -5,21 +5,8 @@ var NEW_HMR = false;
 
 hot = {
   col: new Mongo.Collection('__hot'),
-  failedOnce: false,
-  migrateRetry: null,
+  failedOnce: false
 }
-
-Reload._onMigrate(function (retry) {
-  if (hot.failedOnce) {
-    console.info('[gadicc:hot] HMR failed, allowing regular HCP refresh flow...');
-    hot.migrateRetry = null;
-    return [true];
-  } else {
-    console.info('[gadicc:hot] HMR success, blocking HCP... (report on github if something broke)');
-    hot.migrateRetry = retry;
-    return false;
-  }
-});
 
 // XXX
 if (NEW_HMR) {
@@ -151,6 +138,7 @@ function requirersUntilHot(file, func) {
  * with module.hot, and require() that.
  */
 meteorInstallHot = function(tree) {
+  hot.blockNextHCP = true;
   hot.lastTree = tree;
   //console.log('got bundle', tree);
 
@@ -186,10 +174,6 @@ meteorInstallHot = function(tree) {
       }
     });
   });
-
-  // we had previously blocked a migrate, let's check again now
-  if (hot.migrateRetry)
-    hot.migrateRetry();
 }
 
 // this will run before global-imports.js and app.js

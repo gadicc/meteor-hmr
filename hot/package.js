@@ -1,6 +1,6 @@
 Package.describe({
   name: 'gadicc:hot',
-  version: '0.0.6',
+  version: '0.0.7',
   summary: 'React hotloading, used by gadicc:ecmascript-hot.',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: '../README.md'
@@ -12,7 +12,6 @@ Package.onUse(function(api) {
   api.use('modules');
   api.use('ecmascript');
   api.use('mongo');
-  api.use('reload', 'client');
   api.use('underscore', 'client');
   api.use('webapp', 'server');
   api.use('random', 'server');
@@ -24,6 +23,9 @@ Package.onUse(function(api) {
 
   api.addFiles('hot-client.js', 'client');
   api.addFiles('hot-server.js', 'server');
+
+  api.use('autoupdate', 'client');
+  api.addFiles('hcp-intercept.js', 'client');
 
   api.export('hot', 'client');
   api.export('meteorInstallHot', 'client');

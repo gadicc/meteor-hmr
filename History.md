@@ -1,6 +1,12 @@
 # vNEXT
 
-# v0.0.6-beta.12 (2016-03-06)
+# v0.0.6-beta.12 (2016-03-08)
+
+* Even more reliable HCP strategy.  Fixes broken CSS hotloading (#9) and all
+  the cases which require a real reload (new files, etc) which we were accidently
+  blocking.
+
+# v0.0.5-beta.12 (2016-03-06)
 
 * Release for Meteor `1.3-beta.12`.
 
