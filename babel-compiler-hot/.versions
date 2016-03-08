@@ -5,7 +5,7 @@ check@1.1.1-beta.12
 ecmascript@0.4.0-beta.12
 ecmascript-runtime@0.2.7-beta.12
 ejson@1.0.8-beta.12
-gadicc:babel-compiler-hot@0.0.5-beta.12
+gadicc:babel-compiler-hot@0.0.6-beta.12
 meteor@1.1.11-beta.12
 meteor-env-dev@0.0.2-beta.12
 meteor-env-prod@0.0.2-beta.12

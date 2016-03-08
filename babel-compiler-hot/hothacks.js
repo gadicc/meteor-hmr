@@ -88,18 +88,30 @@ hot.transformStateless = function(source, path) {
     return source;
   }
 
-  source = source.replace(/import React from 'react';/,
-    "import React, { Component } from 'react';");
-
+  // const MyComponent = (prop1, prop2) => ();
   source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \(([\s\S]+?)\n\);\n/g,
     function(match, className, args, code) {
-      return 'class ' + className + ' extends Component {\n' +
+      return 'class ' + className + ' extends React.Component {\n' +
         '  render() {\n' +
         (args ? '    const ' + args + ' = this.props;\n' : '') +
         '    return (' + code + ')\n' +
         '  }\n' +
         '}';
     });
+
+  // const MyComponent = (prop1, prop2) => {};
+  source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \{([\s\S]+?)\n\};\n/g,
+    function(match, className, args, code) {
+      if (!match.match(/return\s+\(/))
+        return match;
+      return 'class ' + className + ' extends React.Component {\n' +
+        '  render() {\n' +
+        (args ? '    const ' + args + ' = this.props;\n' : '') +
+        '    ' + code + '\n' +
+        '  }\n' +
+        '}';
+    });
+
 
   return source;
 }

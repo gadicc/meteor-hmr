@@ -1,5 +1,10 @@
 # vNEXT
 
+# v0.0.7-beta.12 (2016-03-09)
+
+* Accept function components that contain code (before we just accepted functions
+  that mapped to jsx).  See README for the new example.
+
 # v0.0.6-beta.12 (2016-03-08)
 
 * Even more reliable HCP strategy.  Fixes broken CSS hotloading (#9) and all

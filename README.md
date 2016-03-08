@@ -83,6 +83,11 @@ every format, we do this for MantraJS style components, that:
 const MyComponent = ({prop1, prop2}) => (
   ... jsx ...
 );
+
+const MyComponent = ({prop1, prop2}) => {
+  // must include /return\s+\(/, i.e. "return", whitespace, "("
+  return ( ... )
+};
 ```
 
 If this proves too inflexible, open an issue and I'll look at doing something
