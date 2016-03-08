@@ -150,7 +150,10 @@ These are awesome and this is the right way to go; nothing hacky here.
 
 1. Patch meteorInstall's root, delete previous exports, climb the tree, and
   reevaluate.  This happens before the HCP, so if everything succeeded, we
-  block Meteor's HCP using a special callback passed to `Reload._onMigrate()`.
+  skip the next HCP.
+
+1. We skip HCPs by wrapping autoupdate's observe()'s `changed` callback,
+  to not fire the original callback in cases we want to skip.
 
 ## Changes from original core packages
 
