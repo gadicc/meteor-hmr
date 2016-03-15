@@ -102,7 +102,7 @@ hot.transformStateless = function(source, path) {
   // const MyComponent = (prop1, prop2) => {};
   source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \{([\s\S]+?)\n\};\n/g,
     function(match, className, args, code) {
-      if (!match.match(/return\s+\(/))
+      if (!match.match(/return\s+\(\s*\</))
         return match;
       return 'class ' + className + ' extends React.Component {\n' +
         '  render() {\n' +

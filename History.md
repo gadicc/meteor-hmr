@@ -3,6 +3,8 @@
 * Release for Meteor `1.3-rc.1`
 
 * Remove slightly annoying notice on server "Creating a bundle..."
+* Be slightly stricter in identifying stateless components, we now look for
+  `/return\s+\(\s*\</` to match (i.e. we added a `<` after the `return (`.
 
 # v0.0.7-beta.12 (2016-03-09)
 

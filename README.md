@@ -85,8 +85,9 @@ const MyComponent = ({prop1, prop2}) => (
 );
 
 const MyComponent = ({prop1, prop2}) => {
-  // must include /return\s+\(/, i.e. "return", whitespace, "("
-  return ( ... )
+  // must include /return\s+\(\s*\</
+  // i.e. "return", whitespace, "(", optional whitespace, "<"
+  return ( <JSX /> );
 };
 ```
 
