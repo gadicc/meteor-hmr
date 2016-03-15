@@ -8,9 +8,9 @@ makeInstaller = function (options) {
   // This constructor will be used to instantiate the module objects
   // passed to module factory functions (i.e. the third argument after
   // require and exports).
-  var Module = options.Module || function Module(id, parent) {
+  var Module = options.Module || function Module(id) {
     this.id = id;
-    this.parent = parent;
+    this.children = [];
   };
 
   // If defined, the options.onInstall function will be called any time
@@ -29,13 +29,6 @@ makeInstaller = function (options) {
   // options.fallback will be implemented in terms of the native Node
   // require function, which has the ability to load binary modules.
   var fallback = options.fallback;
-
-  // Whenever a new require function is created in the makeRequire
-  // function below, any methods contained by options.requireMethods will
-  // be bound and attached as methods to that function object. This option
-  // is intended to support user-defined require.* extensions like
-  // require.ensure and require.promise.
-  var requireMethods = options.requireMethods;
 
   // Nothing special about MISSING.hasOwnProperty, except that it's fewer
   // characters than Object.prototype.hasOwnProperty after minification.
@@ -86,7 +79,7 @@ makeInstaller = function (options) {
     function require(id) {
       var result = fileResolve(file, id);
       if (result) {
-        return fileEvaluate(result);
+        return fileEvaluate(result, file.m);
       }
 
       var error = new Error("Cannot find module '" + id + "'");
@@ -107,22 +100,6 @@ makeInstaller = function (options) {
       if (f) return f.m.id;
       throw new Error("Cannot find module '" + id + "'");
     };
-
-    // A function that immediately returns true iff all the transitive
-    // dependencies of the module identified by id have been installed.
-    // This function can be used with options.onInstall to implement
-    // asynchronous module loading APIs like require.ensure.
-    require.ready = function (id) {
-      return fileReady(fileResolve(file, id));
-    };
-
-    if (requireMethods) {
-      Object.keys(requireMethods).forEach(function (name) {
-        if (isFunction(requireMethods[name])) {
-          require[name] = requireMethods[name].bind(require);
-        }
-      });
-    }
 
     return require;
   }
@@ -149,44 +126,33 @@ makeInstaller = function (options) {
 
     // The module object for this File, which will eventually boast an
     // .exports property when/if the file is evaluated.
-    file.m = new Module(name, parent && parent.m);
+    file.m = new Module(name);
   }
 
-  // A file is ready if all of its dependencies are installed and ready.
-  function fileReady(file) {
-    return file && (
-      file.ready || ( // Return true immediately if already ready.
-        file.ready = true, // Short-circuit circular fileReady calls.
-        file.ready = // Now compute the actual value of file.ready.
-          // The current file is aliased (or symbolically linked) to the
-          // file obtained by resolving the `file.c` string as a module
-          // identifier, so regard it as ready iff the resolved file exists
-          // and is ready.
-          isString(file.c) ? fileReady(fileResolve(file, file.c)) :
-          // Here file.c is a module factory function with an array of
-          // dependencies `.d` that must be ready before the current file
-          // can be considered ready.
-          isFunction(file.c) && file.c.d.every(function (dep, i) {
-            if (fileReady(fileResolve(file, dep))) {
-              delete file.c.d[i]; // Ignore this dependency once ready.
-              return true;
-            }
-          })
-      )
-    );
-  }
-
-  function fileEvaluate(file) {
+  function fileEvaluate(file, parentModule) {
     var contents = file && file.c;
     var module = file.m;
     if (! hasOwn.call(module, "exports")) {
-      contents(
-        file.r = file.r || makeRequire(file),
-        module.exports = {},
-        module,
-        file.m.id,
-        file.p.m.id
-      );
+      if (parentModule) {
+        module.parent = parentModule;
+        var children = parentModule.children;
+        if (Array.isArray(children)) {
+          children.push(module);
+        }
+      }
+
+      // If a Module.prototype.useNode method is defined, give it a chance
+      // to define module.exports based on module.id using Node.
+      if (! isFunction(module.useNode) ||
+          ! module.useNode()) {
+        contents(
+          file.r = file.r || makeRequire(file),
+          module.exports = {},
+          module,
+          file.m.id,
+          file.p.m.id
+        );
+      }
     }
     return module.exports;
   }

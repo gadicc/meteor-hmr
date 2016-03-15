@@ -1,9 +1,4 @@
-var options = {
-  // File extensions to try when an imported module identifier does not
-  // exactly match any installed file.
-  extensions: []
-};
-
+var options = {};
 var hasOwn = options.hasOwnProperty;
 
 // RegExp matching strings that don't start with a `.` or a `/`.
@@ -37,23 +32,44 @@ options.fallback = function (id, dir, error) {
   throw error;
 };
 
-var install = makeInstaller(options);
+if (Meteor.isServer) {
+  // Defining Module.prototype.useNode allows the module system to
+  // delegate evaluation to Node, unless useNode returns false.
+  (options.Module = function Module(id) {
+    // Same as the default Module constructor implementation.
+    this.id = id;
+    this.children = [];
+  }).prototype.useNode = function () {
+    if (typeof npmRequire !== "function") {
+      // Can't use Node if npmRequire is not defined.
+      return false;
+    }
+
+    var parts = this.id.split("/");
+    var start = 0;
+    if (parts[start] === "") ++start;
+    if (parts[start] === "node_modules" &&
+        parts[start + 1] === "meteor") {
+      start += 2;
+    }
+
+    if (parts.indexOf("node_modules", start) < 0) {
+      // Don't try to use Node for modules that aren't in node_modules
+      // directories.
+      return false;
+    }
+
+    try {
+      npmRequire.resolve(this.id);
+    } catch (e) {
+      return false;
+    }
+
+    this.exports = npmRequire(this.id);
+
+    return true;
+  };
+}
+
+meteorInstall = makeInstaller(options);
 // meteorInstall = mhot.makeInstaller(options);
-
-(install.addExtension = function (ext) {
-  var args = arguments;
-  for (var i = 0; i < args.length; ++i) {
-    ext = args[i].toLowerCase();
-
-    if (! /^\.\w+/.test(ext)) {
-      throw new Error("bad module extension: " + ext);
-    }
-
-    var extensions = options.extensions;
-    if (extensions.indexOf(ext) < 0) {
-      extensions.push(ext);
-    }
-  }
-})(".js", ".json");
-
-meteorInstall = install;
