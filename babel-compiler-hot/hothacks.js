@@ -58,7 +58,7 @@ hot.process = function(bundle) {
   hot.bundles[id] = bundle;
   hot.lastBundleId = id;
 
-  console.log('[gadicc:hot] Creating a bundle for ' + bundle.length + ' change file(s)...');
+  // console.log('[gadicc:hot] Creating a bundle for ' + bundle.length + ' change file(s)...');
 
   var tree = treeify(bundle);
   var bundleStr = 'meteorInstallHot(' +

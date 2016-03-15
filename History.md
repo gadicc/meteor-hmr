@@ -2,6 +2,8 @@
 
 * Release for Meteor `1.3-rc.1`
 
+* Remove slightly annoying notice on server "Creating a bundle..."
+
 # v0.0.7-beta.12 (2016-03-09)
 
 * Accept function components that contain code (before we just accepted functions
