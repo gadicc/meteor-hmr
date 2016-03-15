@@ -113,6 +113,20 @@ const MyComponent extends Component {
 }
 ```
 
+### Important Flaw with this method
+
+We'll eventually incorporate
+[this pull request](https://github.com/gaearon/babel-plugin-react-transform/pull/85)
+which does pretty much the same thing with a bit more thought.
+
+> React doesn’t let functional components get refs. However this would
+technically allow those components to have refs in development. You can
+rely on this, and it will break in production.  e.g. findDOMNode(), etc.
+
+Source: @gaearon in
+[this comment](https://github.com/gaearon/babel-plugin-react-transform/pull/85#issuecomment-185428885) and
+[this comment](https://github.com/gaearon/babel-plugin-react-transform/pull/85#issuecomment-193033160).
+
 ## Forced Refresh
 
 Just do a browser refresh like normal (ctrl-R, etc).
