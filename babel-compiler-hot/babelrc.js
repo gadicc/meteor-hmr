@@ -19,10 +19,12 @@
 
 var babelrc = require('./babelrc-importer-hack');
 console.log('          babelrc1.js ' + babelrc.hash + ' ' + babelrc.time);
+babelrc = babelrc.default;
 
 mergeBabelrcOptions = function(options) {
   var babelrc = require('./babelrc-importer-hack');
   console.log('          babelrc2.js ' + babelrc.hash + ' ' + babelrc.time);
+  babelrc = babelrc.default;
 
   /*
    * Append arrays

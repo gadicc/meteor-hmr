@@ -98,8 +98,7 @@ Compiler.prototype.processFilesForTarget = function (files) {
   // not great, but works.
   data = 'var babelrc = ' + JSON.stringify(babelrc, null, 2)
     .replace(/"require\(\\"([^"]+)\\"\).default"/g, 'require("$1").default')
-    //+ ';\nmodule.exports = { default: babelrc };\n'
-    + ';\nmodule.exports = '+JSON.stringify({default:babelrc,hash:hash,time:time})+';\n'
+    + ';\nmodule.exports = { default: babelrc, hash:"'+hash+'",time:"'+time+'" };\n'
     + 'console.log("babelrc-importer-hack ' + hash + ' ' + time + '");';
 
   console.log('    babel-importer.js ' + hash + ' ' + time);
