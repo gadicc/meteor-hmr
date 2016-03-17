@@ -12,7 +12,7 @@ var BCp = BabelCompiler.prototype;
 var excludedFileExtensionPattern = /\.es5\.js$/i;
 
 // hot
-var reactTransform = Npm.require('babel-plugin-react-transform').default;
+//var reactTransform = Npm.require('babel-plugin-react-transform').default;
 
 BCp.processFilesForTarget = function (inputFiles) {
   var self = this;
@@ -34,6 +34,8 @@ BCp.processFilesForTarget = function (inputFiles) {
       sourceMap: null,
       bare: !! fileOptions.bare
     };
+
+    console.log(inputFilePath);
 
     // If you need to exclude a specific file within a package from Babel
     // compilation, pass the { transpile: false } options to api.addFiles
@@ -57,6 +59,7 @@ BCp.processFilesForTarget = function (inputFiles) {
       var babelOptions = Babel.getDefaultOptions(self.extraFeatures);
 
       // hot
+      /*
       babelOptions.plugins.push([reactTransform, {
         transforms: [
           {
@@ -66,6 +69,8 @@ BCp.processFilesForTarget = function (inputFiles) {
           }          
         ]
       }]);
+      */
+      mergeBabelrcOptions(babelOptions);
       source = hot.transformStateless(source, inputFilePath);
 
       babelOptions.sourceMap = true;
@@ -94,24 +99,18 @@ BCp.processFilesForTarget = function (inputFiles) {
         throw e;
       }
 
+      // hot
       toBeAdded.data = result.code;
       toBeAdded.hash = result.hash;
       toBeAdded.sourceMap = result.map;
     }
 
+    inputFile.addJavaScript(toBeAdded);
+
     // hot
     var path = packageName + '/' + inputFilePath;
 
-
-    if (inputFilePath === 'client/hot-force-reload.js') {
-
-      console.log('[gadicc:hot] client/hot-force.reload.js changed, ' +
-        'forcing refresh...');
-      hot.reset();
-      hot.orig[path] = toBeAdded;
-      hot.removeForceReloadJs();
-
-    } else if (!hot.lastHash[path]
+    if (!hot.lastHash[path]
         || !inputFilePath.match(/client/)
         || inputFilePath.match(/test/)) {
       // inputFile.getArch() !== "web.browser"
@@ -120,30 +119,12 @@ BCp.processFilesForTarget = function (inputFiles) {
 
       hot.orig[path] = toBeAdded;
 
-    } else {
+    } else if (hot.lastHash[path] !== toBeAdded.hash) {
 
-      if (hot.lastHash[path] !== toBeAdded.hash) {
-
-        /// XXX experiment; always, block reload on client
         hot.orig[path] = toBeAdded;
-
-        if (0 /* TODO */) {
-
-          // XXX check for new non-relative imports and force reload
-          hot.orig[path] = toBeAdded;
-
-        } else {
-
-          partialBundle.push(toBeAdded);
-
-        }
-
-      }
+        partialBundle.push(toBeAdded);
 
     }
-
-    // Always return the original code to prevent client refresh
-    inputFile.addJavaScript(hot.orig[path]);
 
     hot.lastHash[path] = toBeAdded.hash;
 

@@ -1,0 +1,2 @@
+This file just triggers some early importer action in babel-compiler.
+See babelrc-importer.js for more details.
