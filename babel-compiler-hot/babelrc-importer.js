@@ -9,6 +9,7 @@
 
 var fs = Plugin.fs;
 var path = Plugin.path;
+var crypto = Npm.require('crypto');
 
 Plugin.registerCompiler({
   filenames: ['babelrc-importer-hack']
@@ -56,8 +57,6 @@ Compiler.prototype.processFilesForTarget = function (files) {
   var file = files[0];
   var data = '';
 
-  console.log('importer hack runnning...');
-
   if (files.length > 1)
     throw new Error("And just how is it that you have more than one " +
       "babelrc-importer-hack files?");
@@ -78,28 +77,32 @@ Compiler.prototype.processFilesForTarget = function (files) {
       fs.writeFileSync(babelrcPath, babelrc);
     } else throw (e);
   }
+
+  var hash = crypto.createHash('sha1').update(babelrc).digest('hex').substr(0, 7);
+  var time = new Date().toTimeString();
+
   babelrc = JSON.parse(babelrc.replace(/\/\/.*\n/g, '\n')); // strip comments
-  console.log(111, babelrc);
 
   requirePluginsAndPresets(babelrc);
   if (babelrc.env)
     for (var key in babelrc.env)
       requirePluginsAndPresets(babelrc.env[key]);
 
-  // not great, but works.
-  data = 'babelrc = ' + JSON.stringify(babelrc, null, 2)
-    .replace(/"require\(\\"([^"]+)\\"\).default"/g, 'require("$1").default')
-    + ';\n';
-
-  //console.log(file._resourceSlot);
-
   /*
-   * Ok, close your mouth ;)  This is a small white lie; this really is where
+   * Ok, close your mouth ;)  This is a small white lie and it really is where
    * .babelrc is from.  This lets us use the project's node_modules dir for
    * imports.
    */
   file._resourceSlot.packageSourceBatch.sourceRoot = PROJ_ROOT;
 
+  // not great, but works.
+  data = 'var babelrc = ' + JSON.stringify(babelrc, null, 2)
+    .replace(/"require\(\\"([^"]+)\\"\).default"/g, 'require("$1").default')
+    //+ ';\nmodule.exports = { default: babelrc };\n'
+    + ';\nmodule.exports = '+JSON.stringify({default:babelrc,hash:hash,time:time})+';\n'
+    + 'console.log("babelrc-importer-hack ' + hash + ' ' + time + '");';
+
+  console.log('    babel-importer.js ' + hash + ' ' + time);
   file.addJavaScript({
     data: data,
     path: file.getPathInPackage() + '.js'

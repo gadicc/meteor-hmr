@@ -17,8 +17,13 @@
  *
  */
 
+var babelrc = require('./babelrc-importer-hack');
+console.log('          babelrc1.js ' + babelrc.hash + ' ' + babelrc.time);
+
 mergeBabelrcOptions = function(options) {
-  console.log('merge', babelrc);
+  var babelrc = require('./babelrc-importer-hack');
+  console.log('          babelrc2.js ' + babelrc.hash + ' ' + babelrc.time);
+
   /*
    * Append arrays
    */
@@ -31,5 +36,4 @@ mergeBabelrcOptions = function(options) {
 
   if (babelrc.env)
     options.env = babelrc.env;
-
 }

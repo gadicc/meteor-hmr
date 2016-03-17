@@ -35,8 +35,6 @@ BCp.processFilesForTarget = function (inputFiles) {
       bare: !! fileOptions.bare
     };
 
-    console.log(inputFilePath);
-
     // If you need to exclude a specific file within a package from Babel
     // compilation, pass the { transpile: false } options to api.addFiles
     // when you add that file.
