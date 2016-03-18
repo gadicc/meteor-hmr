@@ -17,15 +17,11 @@
  *
  */
 
-var babelrc = require('./babelrc-importer-hack');
-console.log('          babelrc1.js ' + babelrc.hash + ' ' + babelrc.time);
-babelrc = babelrc.default;
+var meteorBabel = Npm.require('meteor-babel');
+var skeleton = Assets.getText('babelrc-skel');
+var babelrc = meteorBabel.babelrcImport(skeleton);
 
 mergeBabelrcOptions = function(options) {
-  var babelrc = require('./babelrc-importer-hack');
-  console.log('          babelrc2.js ' + babelrc.hash + ' ' + babelrc.time);
-  babelrc = babelrc.default;
-
   /*
    * Append arrays
    */

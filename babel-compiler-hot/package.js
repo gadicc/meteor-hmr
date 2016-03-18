@@ -8,20 +8,14 @@ Package.describe({
 });
 
 Npm.depends({
-  'meteor-babel': '0.8.2',
+  //'meteor-babel': '0.8.2',  // KEEP UPDATED if tarball is against a different version
+  'meteor-babel': 'https://github.com/gadicc/babel/tarball/5439e2ac422237e3c8eb57befedcb9f5eda9a916',
   'mongodb': '2.1.4'
 //  'babel-plugin-react-transform': '2.0.0'
 });
 
-Package.registerBuildPlugin({
-  name: 'babelrc-plugin-preset-importer',
-  use: [ 'underscore', 'modules' ],
-  sources: ['babelrc-importer.js']
-});
-
 Package.onUse(function (api) {
   api.addFiles([
-    'babelrc-importer-hack',
     'hothacks.js',
     'babelrc.js',
     'babel.js',
@@ -35,9 +29,6 @@ Package.onUse(function (api) {
   // hot
   api.use('random@1.0.5');
   api.use('underscore@1.0.0');
-
-  api.use('modules@0.5.1-rc.1');
-  api.use('isobuild:compiler-plugin@1.0.0')
 
   api.export('Babel', 'server');
   api.export('BabelCompiler', 'server');
