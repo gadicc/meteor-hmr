@@ -1,6 +1,12 @@
 # vNEXT
 
-* Release for Meteor `1.3-rc.1`
+# v00.0.9-rc.2 (2016-03-18)
+
+* `.babelrc` support!  See the README for upgrading.
+
+* `react-transform-catch-error` via `.babelrc`.
+
+* Release for Meteor `1.3-rc.2`
 
 * Remove slightly annoying notice on server "Creating a bundle..."
 * Be slightly stricter in identifying stateless components, we now look for

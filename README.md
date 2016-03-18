@@ -13,6 +13,8 @@ Copyright (c) 2016 by Gadi Cohen &lt;meteor@gadi.cc&gt;, released under the MIT 
 Note: this code includes / republishes additions to core Meteor packages that are
 Copyright MDG and released under the same license.
 
+## More info
+
 Given that:
 
 1. Webpack has react hotload support and it's awesome.
@@ -32,7 +34,7 @@ Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-met
 **Current status (2016-03-18)**: Much more reliable HMR/HCP combo, .babelrc support,
 react error catching.
 
-**Current release (2016-03-18)**: `gadicc:ecmascript-hot@0.0.8-rc.2`
+**Current release (2016-03-18)**: `gadicc:ecmascript-hot@0.0.11-rc.2`
 
 ## How to Use
 
@@ -41,15 +43,19 @@ react error catching.
 1. In your project root, `npm install --save react-transform-hmr react-transform-catch-errors react-redbox`.
 1. Make sure you have a `.babelrc` in your project root that resembles the
 sample at the end of this README.
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.8-rc.2`
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.11-rc.2`
 
 If you want `.babelrc` support without react hotloading, just take out
 the `react-transform` lines in that file.
 
+NB: If you already had a `.babelrc` before this, realize that it might contain
+things that can break your Meteor build, but didn't before when Meteor ignored
+it.  Pay attention to existing plugins & presets.
+
 Working with
 [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
-(but you need to switch from flow-router-ssr to flow-router in beta.7+, see
-[mantra-sample-blog-app#45](https://github.com/mantrajs/mantra-sample-blog-app/issues/45)).
+(but you need to remove `babel-root-slash-import`, which might break some
+of your testing, tracking #).
 
 ## Upgrading from `v0.0.7-rc.1` and below
 
