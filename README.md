@@ -34,7 +34,7 @@ Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-met
 **Current status (2016-03-18)**: Much more reliable HMR/HCP combo, .babelrc support,
 react error catching.
 
-**Current release (2016-03-18)**: `gadicc:ecmascript-hot@0.0.11-rc.2`
+**Current release (2016-03-18)**: `gadicc:ecmascript-hot@0.0.9-rc.2`
 
 ## How to Use
 
