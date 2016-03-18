@@ -1,6 +1,6 @@
 #!/bin/sh
 
-RELEASE=1.3-beta.12
+RELEASE=1.3-rc.2
 
 cd modules-runtime-hot
 meteor publish --release $RELEASE
