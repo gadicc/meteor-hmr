@@ -30,21 +30,6 @@ Meteor.startup(function() {
   });
 });
 
-hot.reload = function() {
-  console.log('[gadicc:hot] Forcing client refresh...');
-  Meteor.call('__hot.reload', function() {
-    // setTimeout(window.location.reload.bind(window.location), 100);
-  });
-}
-
-// useful to put in an app for dev work on this package
-hot.disableReload = function() {
-  hot.reload = function() {
-    console.log('[gadicc:hot] Would usually force a refresh now, but ' +
-      'hot.disableReload() was called.  Run hot.reload() when desirable.');
-  }
-}
-
 /*
  * Takes install.js root and flattens it, so we can easily access modules by
  * their id, e.g. flattened['/client/app.jsx']
