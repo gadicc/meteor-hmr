@@ -11,9 +11,6 @@ BabelCompiler = function BabelCompiler(extraFeatures) {
 var BCp = BabelCompiler.prototype;
 var excludedFileExtensionPattern = /\.es5\.js$/i;
 
-// hot
-//var reactTransform = Npm.require('babel-plugin-react-transform').default;
-
 BCp.processFilesForTarget = function (inputFiles) {
   var self = this;
 
@@ -34,6 +31,7 @@ BCp.processFilesForTarget = function (inputFiles) {
       sourceMap: null,
       bare: !! fileOptions.bare
     };
+    var deps;
 
     // If you need to exclude a specific file within a package from Babel
     // compilation, pass the { transpile: false } options to api.addFiles
@@ -57,18 +55,7 @@ BCp.processFilesForTarget = function (inputFiles) {
       var babelOptions = Babel.getDefaultOptions(self.extraFeatures);
 
       // hot
-      /*
-      babelOptions.plugins.push([reactTransform, {
-        transforms: [
-          {
-            transform: 'react-transform-hmr',
-            imports: [ "react" ],
-            locals: [ "module" ]
-          }          
-        ]
-      }]);
-      */
-      mergeBabelrcOptions(babelOptions);
+      deps = mergeBabelrcOptions(babelOptions);
       source = hot.transformStateless(source, inputFilePath);
 
       babelOptions.sourceMap = true;
@@ -81,7 +68,7 @@ BCp.processFilesForTarget = function (inputFiles) {
 
       try {
         var result = profile('Babel.compile', function () {
-          return Babel.compile(source, babelOptions);
+          return Babel.compile(source, babelOptions, deps);
         });
       } catch (e) {
         if (e.loc) {

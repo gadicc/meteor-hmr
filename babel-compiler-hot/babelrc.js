@@ -9,6 +9,7 @@
  * Needed in core:
  *
  *   * Add .babelrc to watchlist, handle more gracefully.
+ *   * meteor-babel needs ability for custom cache hash deps (will submit PR)
  *
  * TODO here
  *
@@ -19,6 +20,7 @@
 
 var fs = Npm.require('fs');
 var path = Npm.require('path');
+var crypto = Npm.require('crypto');
 
 // XXX better way to do this?
 var projRoot = process.cwd();
@@ -29,20 +31,32 @@ if (!projRoot)
 
 var babelrcPath = path.join(projRoot, '.babelrc');
 var babelrcExists = fs.existsSync(babelrcPath);     // once on load
+var userBabelrcHash;
+
+/*
+ * meteor-babel 
+ */
+if (babelrcExists) {
+  userBabelrcHash = crypto.createHash('sha1')
+    .update(fs.readFileSync(babelrcPath))
+    .digest('hex');
+}
 
 /*
  * Wow, in the end, this is all we need and babel does the rest in
  * the right way.
  */
 mergeBabelrcOptions = function(options) {
-  if (babelrcExists)
+  if (babelrcExists) {
     options.extends = babelrcPath;
+    return userBabelrcHash;
+  }
 }
 
 /*
  * Quit on .babelrc change (need to rebuild all files through babel).
  * We purposefully watch even if the file doesn't exist, to quit if it's
- * created.
+ * created too.
  */
 fs.watchFile(babelrcPath, function(event) {
   console.log("Your .babelrc was changed, please restart Meteor.");
