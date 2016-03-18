@@ -1,8 +1,11 @@
 # meteor-react-hotloader
 
-*React Hot Loading in Meteor, today, in the worst way possible.*
+*React hot loading, .babelrc support, in Meteor, today*
 
-Edit your react components and see changes instantly, while maintaining state.
+* Edit your react components and see changes instantly, while maintaining state.
+* Catch react `render()` errors and show on your screen rather than crashing your app.
+* Add your own `.babelrc` plugins and presets, like
+[jsx-control-statements](https://www.npmjs.com/package/jsx-control-statements).
 
 ![screencast](https://discourse-cdn.global.ssl.fastly.net/meteor/uploads/default/optimized/2X/4/43fb14d7cc38a1537e51ae0aa1bef88d80f8e510_1_690x341.gif)
 
@@ -26,21 +29,44 @@ something better/official comes along.
 
 Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-meteor-i-e-no-webpack/17523/
 
-**Current status (2016-03-06)**: Much more reliable HMR/HCP combo.
+**Current status (2016-03-18)**: Much more reliable HMR/HCP combo, .babelrc support,
+react error catching.
 
-**Current release (2016-03-06)**: `gadicc:ecmascript-hot@0.0.5-beta.12`
+**Current release (2016-03-18)**: `gadicc:ecmascript-hot@0.0.8-rc.2`
 
-## How to Use (early release)
+## How to Use
 
-*Use with correct Meteor release, currently 1.3-beta.12*
+*Use with correct Meteor release, currently 1.3-rc.2*
 
-1. In your project root, `npm install --save react-transform-hmr`
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.5-beta.12` (don't forget to set it back before a production deploy!)
+1. In your project root, `npm install --save react-transform-hmr react-transform-catch-errors react-redbox`.
+1. Make sure you have a `.babelrc` in your project root that resembles the
+sample at the end of this README.
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.8-rc.2`
+
+If you want `.babelrc` support without react hotloading, just take out
+the `react-transform` lines in that file.
 
 Working with
 [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
 (but you need to switch from flow-router-ssr to flow-router in beta.7+, see
 [mantra-sample-blog-app#45](https://github.com/mantrajs/mantra-sample-blog-app/issues/45)).
+
+## Upgrading from `v0.0.7-rc.1` and below
+
+* Previously, we force-pushed `babel-plugin-react-transform` for you, but now
+we provide full `.babelrc` support.  So make sure you have a `.babelrc` in
+your project root that resembles the sample at the end of this README.
+
+* You should also `npm install --save react-transform-catch-errors react-redbox`
+if you want to use the error catching support.
+
+* Previously we recommended to remove this package before deploy, but now with
+proper `.babelrc` support, as long as the react-transform is in the `development`
+section, you should be good.  (Note, this package has not yet been tested
+extensively in production).
+
+* If you want `.babelrc` support without react hotloading, just take out
+the `react-transform` lines in that file.
 
 ## Where this works and doesn't
 
@@ -189,10 +215,37 @@ and are upgraded as necessary, in their own commits (look out for commit message
       [install#86](https://github.com/benjamn/install/pull/6).
 * [ ] Clean up `babel-copmiler.js` and move `hothacks.js` stuff to `gadicc:hot`.
 * [X] Proper module.hot stuff (seems to be good enough)
-* [ ] react-transform-error stuff
+* [X] react-transform-error stuff
 * [X] Check for MONGO_URL or -p option to meteor to get right mongo address
 
 ## Other ideas
 
 Not tested yet in a big project, but if speed is an issue it's not too much
 work to spawn another process to watch the files and communicate with mongo.
+
+## Sample .babelrc
+
+There should be a `.babelrc` file in your project root.  If it doesn't exist,
+create it with the contents below.  If it does already exist, you need to
+merge in the `env->development->plugins->["react-transform",{}]` array, below.
+
+```js
+{
+  "env": {
+    "development": {
+      "plugins": [
+        ["react-transform", {
+          "transforms": [{
+            "transform": "react-transform-hmr",
+            "imports": ["react"],
+            "locals": ["module"]
+          }, {
+            "transform": "react-transform-catch-errors",
+            "imports": ["react", "redbox-react"]
+          }]
+        }]
+      ]
+    }
+  }
+}
+```

@@ -2,8 +2,8 @@
   "dependencies": {
     "meteor-babel": {
       "version": "0.8.2",
-      "resolved": "https://github.com/gadicc/babel/tarball/5439e2ac422237e3c8eb57befedcb9f5eda9a916",
-      "from": "https://github.com/gadicc/babel/tarball/5439e2ac422237e3c8eb57befedcb9f5eda9a916",
+      "resolved": "file:../../../../npm/gadicc-meteor-babel",
+      "from": "../../../../npm/gadicc-meteor-babel",
       "dependencies": {
         "babel-core": {
           "version": "6.7.2",

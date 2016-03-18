@@ -8,8 +8,7 @@ Package.describe({
 });
 
 Npm.depends({
-  //'meteor-babel': '0.8.2',  // KEEP UPDATED if tarball is against a different version
-  'meteor-babel': 'https://github.com/gadicc/babel/tarball/5439e2ac422237e3c8eb57befedcb9f5eda9a916',
+  'meteor-babel': '0.8.2',
   'mongodb': '2.1.4'
 //  'babel-plugin-react-transform': '2.0.0'
 });
