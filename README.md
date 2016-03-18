@@ -55,7 +55,8 @@ it.  Pay attention to existing plugins & presets.
 Working with
 [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
 (but you need to remove `babel-root-slash-import`, which might break some
-of your testing, tracking #).
+of your testing, tracking in
+[#82](https://github.com/mantrajs/mantra-sample-blog-app/issues/82)).
 
 ## Upgrading from `v0.0.7-rc.1` and below
 
