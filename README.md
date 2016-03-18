@@ -40,7 +40,7 @@ react error catching.
 
 *Use with correct Meteor release, currently 1.3-rc.2*
 
-1. In your project root, `npm install --save react-transform-hmr react-transform-catch-errors react-redbox`.
+1. In your project root, `npm install --save react-transform-hmr react-transform-catch-errors redbox-react`.
 1. Make sure you have a `.babelrc` in your project root that resembles the
 sample at the end of this README.
 1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.11-rc.2`
