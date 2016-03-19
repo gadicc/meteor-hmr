@@ -1,5 +1,7 @@
 # vNEXT
 
+# v00.0.10-rc.3 (2016-03-19)
+
 # v00.0.9-rc.2 (2016-03-18)
 
 * `.babelrc` support!  See the README for upgrading.

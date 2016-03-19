@@ -14,7 +14,7 @@ Package.registerBuildPlugin({
 });
 
 Package.onUse(function (api) {
-  api.versionsFrom('1.3-rc.2');
+  api.versionsFrom('1.3-rc.3');
   api.use('isobuild:compiler-plugin@1.0.0');
   api.use('gadicc:babel-compiler-hot@0.0.12-rc.3');
 
