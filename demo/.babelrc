@@ -10,11 +10,7 @@
           }, {
             "transform": "react-transform-catch-errors",
             "imports": ["react", "redbox-react"]
-          }, {
-            // can be an NPM module name or a local path
-            // "transform": "./src/my-custom-transform"
           }]
-          // factoryMethods: ["React.createClass", "createClass"]
         }]
       ]
     }
