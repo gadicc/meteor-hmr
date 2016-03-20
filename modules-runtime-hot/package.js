@@ -1,7 +1,7 @@
 Package.describe({
   name: "gadicc:modules-runtime-hot",
-  // version: "0.6.1-rc.3",    // core version, KEEP UPDATED
-  version: "0.0.4-rc.2",
+  // version: "0.6.1-rc.4",    // core version, KEEP UPDATED
+  version: "0.0.5-rc.4",
   summary: 'Used by gadicc:ecmascript-hot',
   git: "https://github.com/benjamn/install",
   documentation: "README.md"
@@ -9,7 +9,7 @@ Package.describe({
 
 /*
 Npm.depends({
-  install: "0.6.0"    // core version, KEEP UPDATED
+  install: "0.6.1"    // core version, KEEP UPDATED
 });
 */
 
@@ -33,7 +33,7 @@ Package.onUse(function(api) {
   api.export("meteorInstall");
 
   // hot
-  api.versionsFrom('1.3-rc.2');
+  api.versionsFrom('1.3-rc.4');
   api.use('webapp', 'server');
   api.addFiles('modules-runtime-proxy.js', 'server');
 });

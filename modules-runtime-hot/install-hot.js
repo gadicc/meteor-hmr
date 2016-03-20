@@ -3,7 +3,7 @@ makeInstaller = function (options) {
 
   // These file extensions will be appended to required module identifiers
   // if they do not exactly match an installed module.
-  var extensions = options.extensions || [".js", ".json"];
+  var defaultExtensions = options.extensions || [".js", ".json"];
 
   // This constructor will be used to instantiate the module objects
   // passed to module factory functions (i.e. the third argument after
@@ -218,6 +218,10 @@ makeInstaller = function (options) {
     }
   }
 
+  function fileGetExtensions(file) {
+    return file.o && file.o.extensions || defaultExtensions;
+  }
+
   function fileAppendIdPart(file, part, extensions) {
     // Always append relative to a directory.
     while (file && ! fileIsDirectory(file)) {
@@ -249,34 +253,35 @@ makeInstaller = function (options) {
     return exactChild;
   }
 
-  function fileAppendId(file, id) {
+  function fileAppendId(file, id, extensions) {
     var parts = id.split("/");
-    var exts = file.o && file.o.extensions || extensions;
 
     // Use `Array.prototype.every` to terminate iteration early if
     // `fileAppendIdPart` returns a falsy value.
     parts.every(function (part, i) {
       return file = i < parts.length - 1
         ? fileAppendIdPart(file, part)
-        : fileAppendIdPart(file, part, exts);
+        : fileAppendIdPart(file, part, extensions);
     });
 
     return file;
   }
 
   function fileResolve(file, id, seenDirFiles) {
+    var extensions = fileGetExtensions(file);
+
     file =
       // Absolute module identifiers (i.e. those that begin with a `/`
       // character) are interpreted relative to the root directory, which
       // is a slight deviation from Node, which has access to the entire
       // file system.
-      id.charAt(0) === "/" ? fileAppendId(root, id) :
+      id.charAt(0) === "/" ? fileAppendId(root, id, extensions) :
       // Relative module identifiers are interpreted relative to the
       // current file, naturally.
-      id.charAt(0) === "." ? fileAppendId(file, id) :
+      id.charAt(0) === "." ? fileAppendId(file, id, extensions) :
       // Top-level module identifiers are interpreted as referring to
       // packages in `node_modules` directories.
-      nodeModulesLookup(file, id);
+      nodeModulesLookup(file, id, extensions);
 
     // If the identifier resolves to a directory, we use the same logic as
     // Node to find an `index.js` or `package.json` file to evaluate.
@@ -300,7 +305,7 @@ makeInstaller = function (options) {
           // appending it to the directory path before falling back to a
           // full fileResolve, which might return a package from a
           // node_modules directory.
-          file = fileAppendId(file, main) ||
+          file = fileAppendId(file, main, extensions) ||
             fileResolve(file, main, seenDirFiles);
 
           if (file) {
@@ -330,7 +335,7 @@ makeInstaller = function (options) {
     return file;
   };
 
-  function nodeModulesLookup(file, id) {
+  function nodeModulesLookup(file, id, extensions) {
     if (isFunction(override)) {
       id = override(id, file.m.id);
     }
@@ -338,7 +343,7 @@ makeInstaller = function (options) {
     if (isString(id)) {
       for (var resolved; file && ! resolved; file = file.p) {
         resolved = fileIsDirectory(file) &&
-          fileAppendId(file, "node_modules/" + id);
+          fileAppendId(file, "node_modules/" + id, extensions);
       }
 
       return resolved;

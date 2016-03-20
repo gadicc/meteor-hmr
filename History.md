@@ -1,5 +1,9 @@
 # vNEXT
 
+# v0.0.10-rc.4 (2016-03-20)
+
+* Release for Meteor `1.3-rc.4`
+
 # v0.0.10-rc.3 (2016-03-19)
 
 * Release for Meteor `1.3-rc.3`
