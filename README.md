@@ -40,7 +40,7 @@ react error catching.
 
 *Use with correct Meteor release, currently 1.3-rc.3*
 
-1. In your project root, `npm install --save-dev react-transform-hmr react-transform-catch-errors redbox-react`.
+1. In your project root, `npm install --save-dev babel-plugin-react-transform react-transform-hmr react-transform-catch-errors redbox-react`.
 1. Make sure you have a `.babelrc` in your project root that resembles the
 sample at the end of this README.
 1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.10-rc.3`
@@ -61,10 +61,12 @@ of your testing, tracking in
 ## Upgrading from `v0.0.7-rc.1` and below
 
 * Previously, we force-pushed `babel-plugin-react-transform` for you, but now
-we provide full `.babelrc` support.  So make sure you have a `.babelrc` in
-your project root that resembles the sample at the end of this README.
+we provide full `.babelrc` support.  So now you should
+`npm install --save-dev babel-plugin-react-transform'
+and make sure you have a `.babelrc` in
+your project root that resembles the sample at the end of this README. 
 
-* You should also `npm install --save react-transform-catch-errors react-redbox`
+* You should also `npm install --save-dev react-transform-catch-errors react-redbox`
 if you want to use the error catching support.
 
 * Previously we recommended to remove this package before deploy, but now with
@@ -175,9 +177,24 @@ messages, etc.~~
 
 ## Troubleshooting
 
-**Uncaught Error: Cannot find module 'react-transform-hmr'**
+**[server] Uncaught Error: Unknown plugin "react-transform" specific in .babelrc**
 
-Run `npm install --save react-transform-hmr` in your project root
+```
+   While processing files with gadicc:ecmascript-hot (for target os.linux.x86_64):
+
+   /home/dragon/.meteor/packages/gadicc_ecmascript-hot/...super long path.../option-manager.js:179:17:
+   Unknown plugin "react-transform" specified in
+   "/home/dragon/www/projects/wmd2/supervisor/.babelrc.env.development" at 0, attempted to
+   resolve relative to "/home/dragon/www/projects/wmd2/supervisor"
+   at
+```
+
+Run `npm install --save-dev babel-plugin-react-transform` in your project root
+(per the installation section in this README :)).
+
+**[client] Uncaught Error: Cannot find module 'react-transform-hmr'**
+
+Run `npm install --save-dev react-transform-hmr` in your project root
 (per the installation section in this README :)).
 
 ## How this works
