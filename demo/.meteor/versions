@@ -24,7 +24,7 @@ ejson@1.0.9-rc.4
 es5-shim@4.5.8-rc.4
 fastclick@1.0.9-rc.4
 gadicc:babel-compiler-hot@0.0.12-rc.3
-gadicc:ecmascript-hot@0.0.11-rc.5
+gadicc:ecmascript-hot@0.0.11-rc.4
 gadicc:hot@0.0.9
 gadicc:modules-runtime-hot@0.0.5-rc.4
 geojson-utils@1.0.6-rc.4
