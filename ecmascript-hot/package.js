@@ -1,6 +1,6 @@
 Package.describe({
   name: 'gadicc:ecmascript-hot',
-  // version: '0.4.1-rc.4'    // core version, KEEP UPDATED
+  // version: '0.4.1-rc.5'    // core version, KEEP UPDATED
   version: '0.0.11-rc.4',
   summary: 'Replacement ecmascript package providing react hotloading',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
