@@ -83,12 +83,12 @@ hot.transformStateless = function(source, path) {
   // const MyComponent = (prop1, prop2) => ();
   source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \(([\s\S]+?)\n\);\n/g,
     function(match, className, args, code) {
-      return 'class ' + className + ' extends React.Component {\n' +
+      return '\nclass ' + className + ' extends React.Component {\n' +
         '  render() {\n' +
         (args ? '    const ' + args + ' = this.props;\n' : '') +
         '    return (' + code + ')\n' +
         '  }\n' +
-        '}';
+        '}\n';
     });
 
   // const MyComponent = (prop1, prop2) => {};
@@ -96,14 +96,13 @@ hot.transformStateless = function(source, path) {
     function(match, className, args, code) {
       if (!match.match(/return\s+\(\s*\</))
         return match;
-      return 'class ' + className + ' extends React.Component {\n' +
+      return '\nclass ' + className + ' extends React.Component {\n' +
         '  render() {\n' +
         (args ? '    const ' + args + ' = this.props;\n' : '') +
         '    ' + code + '\n' +
         '  }\n' +
-        '}';
+        '}\n';
     });
-
 
   return source;
 }
