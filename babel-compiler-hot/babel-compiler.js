@@ -96,11 +96,11 @@ BCp.processFilesForTarget = function (inputFiles) {
     var path = packageName + '/' + inputFilePath;
 
     if (!hot.lastHash[path]
-        || !inputFilePath.match(/client/)
-        || inputFilePath.match(/test/)) {
-      // inputFile.getArch() !== "web.browser"
-      // packageName !== null
-      // but need to ignore test files?
+        || packageName !== null
+        || inputFile.getArch() !== 'web.browser'
+        || inputFilePath.match(/^tests\//)
+        || inputFilePath.match(/tests?\.jsx?$/)
+        || inputFilePath.match(/specs?\.jsx?$/) ) {
 
       hot.orig[path] = toBeAdded;
 

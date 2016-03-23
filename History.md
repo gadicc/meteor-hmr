@@ -2,6 +2,9 @@
 
 * Fix transformStateless() from munging newlines and breaking some code.
 * Use rawCollection() for serving hot.js via WebApp (without a Fiber).
+* Slight change on file match algorithm.
+* On reload, keep hot bundles from last 10s -- may help in future with server
+  restarts.
 
 # v0.0.10-rc.4 (2016-03-20)
 
