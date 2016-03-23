@@ -1,7 +1,7 @@
 Package.describe({
   name: 'gadicc:ecmascript-hot',
-  // version: '0.4.1-rc.6'    // core version, KEEP UPDATED
-  version: '0.0.11-rc.4',
+  // version: '0.4.1-rc.8'    // core version, KEEP UPDATED
+  version: '0.0.12-rc.8',
   summary: 'Replacement ecmascript package providing react hotloading',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: '../README.md'
@@ -16,14 +16,14 @@ Package.registerBuildPlugin({
 Package.onUse(function (api) {
   api.versionsFrom('1.3-rc.3');
   api.use('isobuild:compiler-plugin@1.0.0');
-  api.use('gadicc:babel-compiler-hot@0.0.12-rc.3');
+  api.use('gadicc:babel-compiler-hot@0.0.13-rc.8');
 
   api.imply('modules');
   api.imply('ecmascript-runtime');
   api.imply('babel-runtime');
   api.imply('promise');
 
-  api.use('gadicc:hot@0.0.9');
+  api.use('gadicc:hot@0.0.10');
   api.imply('gadicc:hot');
 
   api.addFiles("ecmascript.js", "server");

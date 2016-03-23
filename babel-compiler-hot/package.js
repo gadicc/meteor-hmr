@@ -1,7 +1,7 @@
 Package.describe({
   name: "gadicc:babel-compiler-hot",
-  // version: '6.5.2-rc.6'    // core version, KEEP UPDATED
-  version: '0.0.12-rc.3',
+  // version: '6.5.2-rc.8'    // core version, KEEP UPDATED
+  version: '0.0.13-rc.8',
   summary: 'React hotloading, used by gadicc:ecmascript-hot.',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: 'README.md'
