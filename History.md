@@ -1,5 +1,7 @@
 # vNEXT
 
+# v0.0.12-rc.8 (2016-03-23)
+
 * Fix transformStateless() from munging newlines and breaking some code.
 * Use rawCollection() for serving hot.js via WebApp (without a Fiber).
 * Slight change on file match algorithm.

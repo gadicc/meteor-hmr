@@ -5,7 +5,7 @@ check@1.1.2-rc.4
 ecmascript@0.4.1-rc.4
 ecmascript-runtime@0.2.8-rc.4
 ejson@1.0.9-rc.4
-gadicc:babel-compiler-hot@0.0.12-rc.3
+gadicc:babel-compiler-hot@0.0.13-rc.8
 jquery@1.11.6-rc.4
 meteor@1.1.12-rc.4
 modules@0.5.1-rc.4
