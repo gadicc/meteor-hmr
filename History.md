@@ -1,5 +1,8 @@
 # vNEXT
 
+* Fix transformStateless() from munging newlines and breaking some code.
+* Use rawCollection() for serving hot.js via WebApp (without a Fiber).
+
 # v0.0.10-rc.4 (2016-03-20)
 
 * Release for Meteor `1.3-rc.4`

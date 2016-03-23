@@ -23,13 +23,20 @@ WebApp.connectHandlers.use(function(req, res, next) {
 
   var hash = req.url.match(/\?hash=(.+)$/)[1];
 
-  var bundle = hot.col.findOne(hash);
-  if (!bundle) {
-    console.warn('[gadicc:hot] client requested unknown bundle?');
-    res.writeHead(404);
-    res.end();
-  }
+  hot.col._collection.rawCollection()
+    .findOne({ _id: hash }, function(err, bundle) {
+      if (err) {
+        throw err;
+      }
 
-  res.writeHead(200, {'Content-Type':'text/javascript'});
-  res.end(bundle.contents, 'utf8');
+      if (!bundle) {
+        console.warn('[gadicc:hot] client requested unknown bundle?');
+        res.writeHead(404);
+        res.end();
+      }
+
+      res.writeHead(200, {'Content-Type':'text/javascript'});
+      res.end(bundle.contents, 'utf8');
+
+    });
 });
