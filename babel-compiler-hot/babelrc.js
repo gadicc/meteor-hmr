@@ -30,16 +30,28 @@ if (!projRoot)
   throw new Error("Are you running inside a Meteor project dir?");
 
 var babelrcPath = path.join(projRoot, '.babelrc');
-var babelrcExists = fs.existsSync(babelrcPath);     // once on load
-var userBabelrcHash;
+var babelrc, babelrcRaw, babelrcHash;
 
-/*
- * meteor-babel 
- */
-if (babelrcExists) {
-  userBabelrcHash = crypto.createHash('sha1')
-    .update(fs.readFileSync(babelrcPath))
-    .digest('hex');
+if (fs.existsSync(babelrcPath)) {
+  babelrcRaw = fs.readFileSync(babelrcPath);
+} else {
+  console.log('Creating ' + babelrcPath);
+  babelrcRaw = Assets.getText('babelrc-skel');
+  fs.writeFileSync(babelrcPath, babelrcRaw);
+}
+
+babelrcHash = crypto.createHash('sha1').update(babelrcRaw).digest('hex');
+
+try {
+  babelrc = JSON.parse(babelrcRaw);
+} catch (err) {
+  console.log("Error parsing your .babelrc: " + err.message);
+  process.exit(); // could throw err if .babelrc was in meteor's file watcher
+}
+
+if (!babelrc.presets || babelrc.presets.indexOf('meteor') === -1) {
+  console.log('Your .babelrc must include at least { "presets": [ "meteor" ] }');
+  process.exit(); // could throw err if .babelrc was in meteor's file watcher
 }
 
 /*
@@ -47,16 +59,12 @@ if (babelrcExists) {
  * the right way.
  */
 mergeBabelrcOptions = function(options) {
-  if (babelrcExists) {
-    options.extends = babelrcPath;
-    return userBabelrcHash;
-  }
+  options.extends = babelrcPath;
+  return babelrcHash;
 }
 
 /*
  * Quit on .babelrc change (need to rebuild all files through babel).
- * We purposefully watch even if the file doesn't exist, to quit if it's
- * created too.
  */
 fs.watchFile(babelrcPath, function(event) {
   console.log("Your .babelrc was changed, please restart Meteor.");

@@ -1,5 +1,15 @@
 # vNEXT
 
+# v0.0.13-rc.10 (2016-03-24)
+
+* Works with Meteor 1.3 `rc.4 - rc.10`.
+
+* No longer auto-populate babelrc `presets` with `meteor`, to allow other
+  plugins to be loaded before those in the preset.  If you don't already
+  have a .babelrc, one will be created for you.  If you do, ensure you
+  have `{ "presets": "meteor" }`.  Also,
+  `npm install --save-dev babel-preset-meteor`.
+
 # v0.0.12-rc.8 (2016-03-23)
 
 * Fix transformStateless() from munging newlines and breaking some code.
