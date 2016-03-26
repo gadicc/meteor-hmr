@@ -1,5 +1,8 @@
 # vNEXT
 
+* Use JSON5 for parsing `.babelrc`, just like babel does.
+  This allows comments, etc, in your `.babelrc` file.
+
 # v0.0.13-rc.10 (2016-03-24)
 
 * Works with Meteor 1.3 `rc.4 - rc.10`.

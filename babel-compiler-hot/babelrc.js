@@ -21,6 +21,7 @@
 var fs = Npm.require('fs');
 var path = Npm.require('path');
 var crypto = Npm.require('crypto');
+var JSON5 = Npm.require('json5');
 
 // XXX better way to do this?
 var projRoot = process.cwd();
@@ -43,7 +44,7 @@ if (fs.existsSync(babelrcPath)) {
 babelrcHash = crypto.createHash('sha1').update(babelrcRaw).digest('hex');
 
 try {
-  babelrc = JSON.parse(babelrcRaw);
+  babelrc = JSON5.parse(babelrcRaw);
 } catch (err) {
   console.log("Error parsing your .babelrc: " + err.message);
   process.exit(); // could throw err if .babelrc was in meteor's file watcher
