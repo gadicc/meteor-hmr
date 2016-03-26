@@ -21,7 +21,7 @@
 var fs = Npm.require('fs');
 var path = Npm.require('path');
 var crypto = Npm.require('crypto');
-var JSON5 = Npm.require('json5');
+// var JSON5 = Npm.require('json5');  now from 'json5' package on atmosphere
 
 // XXX better way to do this?
 var projRoot = process.cwd();

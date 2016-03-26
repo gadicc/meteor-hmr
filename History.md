@@ -1,5 +1,9 @@
 # vNEXT
 
+# v0.0.14-rc.12 (2016-03-26)
+
+* Works with Meteor 1.3 `rc.4 - rc.12`
+
 * Fixed a bunch of issues that broke production and bundling:
   Don't transform stateless components, don't connect to Mongo,
   don't replace modules-runtime, don't block HCPs, and lastly,
