@@ -1,3 +1,6 @@
+if (process.env.NODE_ENV === 'production')
+  return;
+
 // console.log('[gadicc:hot] Overriding /packages/modules-runtime.js');
 
 var fs = Npm.require('fs');

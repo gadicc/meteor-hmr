@@ -1,3 +1,6 @@
+if (process.env.NODE_ENV === 'production')
+  return;
+
 /*
  * Intercept the 'changed' callback for observes on _ClientVersions updates.
  * If an HCP came right after a (successful) HMR, simply skip it (by not

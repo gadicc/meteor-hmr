@@ -1,11 +1,18 @@
-hot = {};
-
-hot.reset = function() {
-  hot.lastHash = {};
-  hot.bundles = {};
-  hot.orig = {};
+hot = {
+  lastHash: {},
+  bundles: {},
+  orig: {}
 };
-hot.reset();
+
+/*
+ * No HMR in production with our current model (but ideally, in the future)
+ */
+if (process.env.NODE_ENV === 'production') {
+  hot.process = function() {}
+  hot.transformStateless = function(source) { return source; }
+  // This also skips the Mongo connect.
+  return;
+}
 
 function extractRequires(content) {
   var requires = [], match, re = /require\((['"]+)(.+)\1\)/g;

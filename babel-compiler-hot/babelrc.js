@@ -61,7 +61,11 @@ if (!babelrc.presets || babelrc.presets.indexOf('meteor') === -1) {
  */
 mergeBabelrcOptions = function(options) {
   options.extends = babelrcPath;
-  return babelrcHash;
+  return {
+    babelrcHash: babelrcHash,
+    // Because .babelrc may contain env-specific configs
+    NODE_ENV: process.env.NODE_ENV
+  };
 }
 
 /*

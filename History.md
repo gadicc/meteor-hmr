@@ -1,7 +1,12 @@
 # vNEXT
 
+* Fixed a bunch of issues that broke production and bundling:
+  Don't transform stateless components, don't connect to Mongo,
+  don't replace modules-runtime, don't block HCPs, and lastly,
+  use NODE_ENV as part of the babel cache hash.
+
 * Use JSON5 for parsing `.babelrc`, just like babel does.
-  This allows comments, etc, in your `.babelrc` file.
+  This allows for comments, etc.
 
 # v0.0.13-rc.10 (2016-03-24)
 

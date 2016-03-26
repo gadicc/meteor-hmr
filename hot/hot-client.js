@@ -1,6 +1,9 @@
 var NEW_HMR = false;
 
-// gets injected into first meteorInstall call
+if (process.env.NODE_ENV === 'production')
+  return;
+
+// line below gets injected into first meteorInstall call
 //import ReactTransformHMR from 'react-transform-hmr';
 
 hot = {
