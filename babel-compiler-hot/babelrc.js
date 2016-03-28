@@ -64,7 +64,8 @@ mergeBabelrcOptions = function(options) {
   return {
     babelrcHash: babelrcHash,
     // Because .babelrc may contain env-specific configs
-    NODE_ENV: process.env.NODE_ENV
+    // Default is 'development' as per http://babeljs.io/docs/usage/options/
+    BABEL_ENV: process.env.BABEL_ENV || process.env.NODE_ENV || 'development'
   };
 }
 
