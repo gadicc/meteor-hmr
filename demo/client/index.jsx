@@ -17,3 +17,16 @@ Meteor.startup(function() {
   render(<AppWithStateless />, document.getElementById('root2'));
 
 });
+
+function readonly(target, key, descriptor) {
+  descriptor.writable = false;
+  return descriptor;
+}
+
+class Cat {
+  @readonly
+  meow() { }
+}
+
+window.cat = new Cat();
+window.cat.meow = 1;

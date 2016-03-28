@@ -1,4 +1,14 @@
 {
+  "presets": [ "meteor" ],
+  "plugins": [
+    "transform-decorators-legacy",
+    /*[
+      "transform-import-rewrite",
+      {
+        "a": 1
+      }
+    ]*/
+  ],
   "env": {
     "development": {
       "plugins": [
