@@ -24,7 +24,7 @@ var crypto = Npm.require('crypto');
 // var JSON5 = Npm.require('json5');  now from 'json5' package on atmosphere
 
 // XXX better way to do this?
-var projRoot = process.cwd();
+projRoot = process.cwd();
 while (projRoot && !fs.existsSync(path.join(projRoot, '.meteor')))
   projRoot = path.normalize(path.join(projRoot, '..'));
 if (!projRoot)
@@ -50,7 +50,14 @@ try {
   process.exit(); // could throw err if .babelrc was in meteor's file watcher
 }
 
-if (!babelrc.presets || babelrc.presets.indexOf('meteor') === -1) {
+/*
+ * XXX TODO Don't force { "presets": [ "meteor" ] }
+ * If they have a `presets` field set, they probably know what they're doing.
+ * If they don't, we can warn with the appropriate suggestion.
+ * Before enabling this, need to see what else the meteor preset includes;
+ * perhaps require a certain plugin if the preset isn't used, etc.
+ */
+if (!babelrc.presets || /* */ babelrc.presets.indexOf('meteor') === -1) {
   console.log('Your .babelrc must include at least { "presets": [ "meteor" ] }');
   process.exit(); // could throw err if .babelrc was in meteor's file watcher
 }

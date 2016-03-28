@@ -115,13 +115,19 @@ hot.transformStateless = function(source, path) {
 }
 
 /*
+ * Mongo code follows.
+ *
  * I'm pretty sure there's no way good way to communicate from a compiler plugin
  * to the actual app.  I did say hacky!
  */
 
-var portIndex = process.argv.indexOf('-p');
-var port = portIndex === -1 ? 3001 : parseInt(process.argv[portIndex+1]) + 1;
-var url = process.env.MONGO_URL || 'mongodb://localhost:'+port+'/meteor';
+var path = Npm.require('path');
+var fs = Npm.require('fs');
+
+var portFile = path.join(projRoot, '.meteor', 'local', 'db', 'METEOR-PORT');
+var port = parseInt(fs.readFileSync(portFile));
+
+var url = process.env.MONGO_URL || 'mongodb://127.0.0.1:'+port+'/meteor';
 var MongoClient = Npm.require('mongodb').MongoClient;
 
 MongoClient.connect(url, function(err, db) {

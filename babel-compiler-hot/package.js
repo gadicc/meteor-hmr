@@ -1,7 +1,11 @@
+// publish with 1.2.1 works
+// publish with 1.3 thinks its binary?
+// i did rm -rf .npm though
+
 Package.describe({
   name: "gadicc:babel-compiler-hot",
   // version: '6.5.2'    // core version, KEEP UPDATED
-  version: '0.0.19-rc.12',
+  version: '6.5.2-2',
   summary: 'React hotloading, used by gadicc:ecmascript-hot.',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: 'README.md'
@@ -16,8 +20,8 @@ Npm.depends({
 
 Package.onUse(function (api) {
   api.addFiles([
-    'hothacks.js',
     'babelrc.js',
+    'hothacks.js',
     'babel.js',
     'babel-compiler.js'
   ], 'server');

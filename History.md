@@ -1,7 +1,17 @@
 # vNEXT
 
-* Re-use `inputfile.getSourceHash()` instead of hashing twice.
+# v1.3.0-1 (2016-03-28)
+
+* Works with Meteor 1.3 (final) and `rc.4+`
+
+* Speed increase by re-using `inputfile.getSourceHash()` instead of hashing
+  twice.
+
 * Correctly hash on `BABEL_ENV` too (if it exists).
+
+* Use `127.0.0.1` instead of `localhost` for mongo url.
+
+* Use Meteor's `METEOR-PORT` file to figure out the mongo port.
 
 # v0.0.14-rc.12 (2016-03-26)
 
