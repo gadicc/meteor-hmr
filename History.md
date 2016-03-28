@@ -1,5 +1,8 @@
 # vNEXT
 
+* Re-use `inputfile.getSourceHash()` instead of hashing twice.
+* Correctly hash on `BABEL_ENV` too (if it exists).
+
 # v0.0.14-rc.12 (2016-03-26)
 
 * Works with Meteor 1.3 `rc.4 - rc.12`

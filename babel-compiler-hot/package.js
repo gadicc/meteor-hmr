@@ -10,7 +10,7 @@ Package.describe({
 Npm.depends({
   //'meteor-babel': '0.8.3',  // core version, KEEP UPDATED
   //'meteor-babel': 'file:///home/dragon/www/npm/gadicc-meteor-babel',
-  'meteor-babel': 'https://github.com/gadicc/babel/tarball/deeb76d04b2ab5b9963187914b3242b39858445a',
+  'meteor-babel': 'https://github.com/gadicc/babel/tarball/0f5519e0b6267cd11ac5e9140fe46aac260d038d',
   'mongodb': '2.1.4'
 });
 
