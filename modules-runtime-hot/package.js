@@ -35,6 +35,7 @@ Package.onUse(function(api) {
   // hot
   api.versionsFrom('1.3-rc.4');
   api.use('webapp', 'server');
+  api.use('meteorhacks:inject-initial@1.0.4', 'server');
   api.addFiles('modules-runtime-proxy.js', 'server');
 });
 

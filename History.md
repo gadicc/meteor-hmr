@@ -1,5 +1,8 @@
 # vNEXT
 
+* Fix browser caching issues by modifying boilerplate HTML and substituting
+  module-runtime's hot with module-runtime-hot's hash.
+
 # v1.3.0-1 (2016-03-28)
 
 * Works with Meteor 1.3 (final) and `rc.4+`
