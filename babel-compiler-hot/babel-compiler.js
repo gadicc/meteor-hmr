@@ -97,7 +97,7 @@ BCp.processFilesForTarget = function (inputFiles) {
     var path = packageName + '/' + inputFilePath;
 
     if (!hot.lastHash[path]
-        || packageName !== null
+        /* || packageName !== null */
         || inputFile.getArch() !== 'web.browser'
         || inputFilePath.match(/^tests\//)
         || inputFilePath.match(/tests?\.jsx?$/)
@@ -107,6 +107,7 @@ BCp.processFilesForTarget = function (inputFiles) {
 
     } else if (hot.lastHash[path] !== toBeAdded.hash) {
 
+        toBeAdded.packageName = packageName;
         hot.orig[path] = toBeAdded;
         partialBundle.push(toBeAdded);
 

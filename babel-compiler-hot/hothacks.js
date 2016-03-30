@@ -40,7 +40,11 @@ function getSub(tree, array, i) {
 function treeify(bundle) {
   var tree = {};
   bundle.forEach(function(file) {
-    var dirs = file.path.split('/');
+    var path = file.path;
+    if (file.packageName)
+      path = 'node_modules/meteor/' + file.packageName + '/' + path;
+
+    var dirs = path.split('/');
     var filename = dirs.pop();
 
     var sub = getSub(tree, dirs);
@@ -67,7 +71,7 @@ hot.process = function(bundle) {
     }) + ');\n';
 
   bundle.forEach(function(file) {
-    bundleStr += 'require("./' + file.path + '");\n';
+    // bundleStr += 'require("./' + file.path + '");\n';
   });
 
   // console.log(bundleStr);
