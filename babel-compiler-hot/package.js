@@ -27,6 +27,7 @@ Package.onUse(function (api) {
   ], 'server');
 
   api.addAssets('babelrc-skel', 'server');
+  api.addAssets('babelrc-client-skel', 'server');
 
   api.use('check@1.1.0');
 

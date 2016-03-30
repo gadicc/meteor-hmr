@@ -1,28 +1,11 @@
 {
-  "presets": [ "meteor" ],
-  "plugins": [
-    "transform-decorators-legacy",
-    /*[
-      "transform-import-rewrite",
-      {
-        "a": 1
-      }
-    ]*/
+  "presets": [
+    "meteor",
+    "es2015",
+    "stage-0",
+    "react",
   ],
-  "env": {
-    "development": {
-      "plugins": [
-        ["react-transform", {
-          "transforms": [{
-            "transform": "react-transform-hmr",
-            "imports": ["react"],
-            "locals": ["module"]
-          }, {
-            "transform": "react-transform-catch-errors",
-            "imports": ["react", "redbox-react"]
-          }]
-        }]
-      ]
-    }
-  }
+  "plugins": [
+//    "transform-decorators-legacy",
+  ]
 }

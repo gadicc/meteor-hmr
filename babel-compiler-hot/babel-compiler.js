@@ -55,7 +55,7 @@ BCp.processFilesForTarget = function (inputFiles) {
       var babelOptions = Babel.getDefaultOptions(self.extraFeatures);
 
       // hot
-      deps = mergeBabelrcOptions(babelOptions);
+      deps = mergeBabelrcOptions(babelOptions, inputFile);
       source = hot.transformStateless(source, inputFilePath);
       deps.sourceHash = toBeAdded.hash;
 

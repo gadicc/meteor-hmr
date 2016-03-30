@@ -34,16 +34,16 @@ Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-met
 **Current status (2016-03-18)**: Much more reliable HMR/HCP combo, .babelrc support,
 react error catching.
 
-**Current release (2016-03-24)**: `gadicc:ecmascript-hot@0.0.13-rc.10`
+**Current release (2016-03-24)**: `gadicc:ecmascript-hot@0.0.14-rc.12`
 
 ## How to Use
 
-*Use with correct Meteor release, currently 1.3-rc.4 - rc.10*
+*Use with correct Meteor release, currently 1.3-rc.4 - rc.12*
 
 1. In your project root, `npm install --save-dev babel-preset-meteor babel-plugin-react-transform react-transform-hmr react-transform-catch-errors redbox-react`.
 1. If you don't already have a `.babelrc`, one will be created for you.  Otherwise,
 ensure it resembles the sample at the end of this README.
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.13-rc.10`
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.14-rc.12`
 
 If you want `.babelrc` support without react hotloading, just take out
 the `react-transform` lines in that file.
@@ -87,8 +87,11 @@ regular client refresh will occur.  We might offer full HMR support in
 the future, but then you'd still need to add code to your existing
 modules to handle the update (with React we know what to do already).
 
-* App only, no packages - avoids need to link in package imports
-* Only works with file paths that include 'client' and exclude 'test'.
+* ~~App only, no packages - avoids need to link in package imports~~
+  (see Packages, below)
+* ~~Only works with file paths that include 'client' and exclude 'test'.~~
+* Works on any client code where the path doesn't begin with `tests/` or
+  end in `tests?.js` or `specs?.jsx` (the `?` means the `s` is optional).
 * Note the section below about stateless / functional / pure / "dumb" components.
 
 ## Stateless / Functional / Pure / "Dumb" Components
@@ -166,14 +169,21 @@ Source: @gaearon in
 
 Just do a browser refresh like normal (ctrl-R, etc).
 
-~~In situations we can't handle, we'll automatically resort to a regular
-Meteor client refresh.  If you ever need to do this yourself, just
-call `hot.reload()` on the client.  To disable the automatic
-behaviour, call `hot.disableReload()` in your app, once.~~
+If you experience the need to do this frequently, please report on GitHub.
 
-~~If the automatic refresh is happening in cases where you think it
-shouldn't, it can be useful to disable it to see the exact error
-messages, etc.~~
+Note, errors thrown in your app can break Meteor's HCP system, requiring
+a browser refresh regardless... we can't help with that.
+
+## Packages
+
+If you replace the `api.use('ecmascript')` in the `package.js` file with the
+`gadicc:ecmascript-hot@<currentVersion>`, you'll be able to use the hotloading
+while developing local packages, with one caveat:
+
+This only works for "new style" 1.3 module packages.  That means any reference
+inside of a file should refer to the local scope *only*, i.e. any dependencies
+should be imported via the `import X from Y;` syntax, and your code should not
+expect them to "just be available" because of Meteor's linker code.
 
 ## Troubleshooting
 
@@ -196,6 +206,16 @@ Run `npm install --save-dev babel-plugin-react-transform` in your project root
 
 Run `npm install --save-dev react-transform-hmr` in your project root
 (per the installation section in this README :)).
+
+**Disable HCP on fail for debugging**
+
+If you want to report an error with meteor-react-hotloader, but Meteor's HCP
+kicks in before you can see the error, you can disable HCP until the next
+page reload by typing the following line in your browser console:
+
+```js
+Reload._onMigrate(function() { return false; });
+```
 
 ## How this works
 
@@ -250,12 +270,28 @@ work to spawn another process to watch the files and communicate with mongo.
 ## Sample .babelrc
 
 There should be a `.babelrc` file in your project root.  If it doesn't exist,
-create it with the contents below.  If it does already exist, you need to
-merge in the `env->development->plugins->["react-transform",{}]` array, below.
+it will be created for you with the contents below.  If it does exist, it
+should include at least `{ "presets": "meteor" }`.  Consider also that until
+now it was ignored, so it might contain some configuration that could break
+your app.
 
 ```js
 {
-  "presets": [ "meteor" ],
+  "presets": [ "meteor" ]
+}
+```
+
+If `/server/.babelrc` or `/client/.babelrc` exist, they'll be used
+preferentially for these architectures.  We suggest you extend your
+root `.babelrc` and only keep target-specific config in these files.
+Here's an example client setup for react hotloading:
+
+**/client/.babelrc:**
+
+```js
+{
+  "extends": "../.babelrc",
+
   "env": {
     "development": {
       "plugins": [

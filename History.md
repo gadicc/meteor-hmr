@@ -1,5 +1,11 @@
 # vNEXT
 
+* Support for a `client/.babelrc` and `server/.clientrc` (that we recommend
+  extends your root `.babelrc`).  See the end of the README for the new
+  recommendations.  You should modify your `.babelrc` appropriately.  Amongst
+  other things, this allows us to use hotloading on the client without
+  breaking flowrouter-ssr on the server.
+
 * Fix browser caching issues by modifying boilerplate HTML and substituting
   module-runtime's hot with module-runtime-hot's hash.
 
