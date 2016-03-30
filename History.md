@@ -7,6 +7,11 @@
 
 * Package support :)  See README.
 
+* Fix problems with escaping single inverted commas (`\\'`) in hot bundle.
+
+* Fix some further newline munging which broke scripts where the last line
+  had a comment.
+
 # v1.3.0-1 (2016-03-28)
 
 * Works with Meteor 1.3 (final) and `rc.4+`

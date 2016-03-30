@@ -66,8 +66,9 @@ hot.process = function(bundle) {
   var tree = treeify(bundle);
   var bundleStr = 'meteorInstallHot(' +
     JSON.stringify(tree).replace(/\"__OF__(.*?)__CF__\"/g, function(m, f) {
-      return 'function(require,exports,module){' +
-        f.replace(/\\n/g, '\n').replace(/\\"/g, '"') + '}';
+      return 'function(require,exports,module){'
+        + f.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\'/g, "'")
+        + '\n}';
     }) + ');\n';
 
   bundle.forEach(function(file) {
