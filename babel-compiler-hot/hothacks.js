@@ -146,8 +146,8 @@ MongoClient.connect(url, function(err, db) {
   // console.info("[gadicc:hot - babel-compiler-hot] connected to db"); 
   hot.col = db.collection('__hot');
 
-  // on startup, delete bundles older than 10s
-  hot.col.deleteMany({ ctime: { $lt: Date.now() - 10000 }}, function(err) {
+  // on startup, delete bundles /* older than 10s */
+  hot.col.deleteMany({ /* ctime: { $lt: Date.now() - 10000 } */}, function(err) {
     if (err) console.log(err);
   });
 
