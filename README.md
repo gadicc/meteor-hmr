@@ -34,16 +34,16 @@ Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-met
 **Current status (2016-03-18)**: Much more reliable HMR/HCP combo, .babelrc support,
 react error catching.
 
-**Current release (2016-03-24)**: `gadicc:ecmascript-hot@0.0.14-rc.12`
+**Current release (2016-03-30)**: `gadicc:ecmascript-hot@1.3.0-2`
 
 ## How to Use
 
-*Use with correct Meteor release, currently 1.3-rc.4 - rc.12*
+*Use with correct Meteor release, currently 1.3 (final) or 1.3-rc.4+*
 
 1. In your project root, `npm install --save-dev babel-preset-meteor babel-plugin-react-transform react-transform-hmr react-transform-catch-errors redbox-react`.
 1. If you don't already have a `.babelrc`, one will be created for you.  Otherwise,
 ensure it resembles the sample at the end of this README.
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@0.0.14-rc.12`
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@1.3.0-2`
 
 If you want `.babelrc` support without react hotloading, just take out
 the `react-transform` lines in that file.

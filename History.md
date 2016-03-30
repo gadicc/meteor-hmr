@@ -1,5 +1,7 @@
 # vNEXT
 
+# v1.3.0-2 (2016-03-30)
+
 * Support for a `client/.babelrc` and `server/.clientrc` (that we recommend
   extends your root `.babelrc`).  See the end of the README for the new
   recommendations.  You should modify your `.babelrc` appropriately.  Amongst
