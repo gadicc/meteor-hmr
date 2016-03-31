@@ -40,8 +40,8 @@ WebApp.rawConnectHandlers.use(function(req, res, next) {
   res.writeHead(200, {
     'content-type': 'application/javascript; charset=UTF-8',
     'cache-control': 'public, max-age=31536000',
-    'etag': modulesRuntimeHot.hash,
-    'x-sourcemap': modulesRuntimeHot.sourceMapUrl
+    'etag': modulesRuntimeHot.hash
+    // 'x-sourcemap': modulesRuntimeHot.sourceMapUrl
   });
   res.end(contents, 'utf8');
 });
