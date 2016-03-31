@@ -1,5 +1,7 @@
 # vNEXT
 
+* Transform stateless components in `.js` files now too.
+
 # v1.3.0-2 (2016-03-30)
 
 * Support for a `client/.babelrc` and `server/.clientrc` (that we recommend

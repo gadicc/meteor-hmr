@@ -112,7 +112,7 @@ convert (during compilation) stateless components into regular components
 in certain cases.  This can go wrong so instead of trying to accomodate
 every format, we do this for MantraJS style components, that:
 
-  1. Is a `.jsx` and contains "import React"
+  1. Is a `.jsx` (and now even `.js`) and contains "import React"
   1. ~~Are in a directory (or subdir of a directory) called `components`~~
   1. Have exactly this format (const, root level indentation, newlines) -
   args can be blank.)

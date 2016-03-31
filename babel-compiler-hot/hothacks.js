@@ -88,7 +88,7 @@ hot.process = function(bundle) {
 
 hot.transformStateless = function(source, path) {
   // Support MantraJS style stateless components, see README
-  if (!source.match(/^import React/m) || !path.match(/jsx$/)) {
+  if (!source.match(/^import React/m) || !path.match(/\.jsx?$/)) {
     return source;
   }
 
@@ -103,7 +103,7 @@ hot.transformStateless = function(source, path) {
         '}\n';
     });
 
-  // const MyComponent = (prop1, prop2) => {};
+  // const MyComponent = (prop1, prop2) => { return ( < ... > ) };
   source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \{([\s\S]+?)\n\};\n/g,
     function(match, className, args, code) {
       if (!match.match(/return\s+\(\s*\</))
