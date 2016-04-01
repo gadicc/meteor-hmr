@@ -101,15 +101,16 @@ BCp.processFilesForTarget = function (inputFiles) {
         || inputFile.getArch() !== 'web.browser'
         || inputFilePath.match(/^tests\//)
         || inputFilePath.match(/tests?\.jsx?$/)
-        || inputFilePath.match(/specs?\.jsx?$/) ) {
+        || inputFilePath.match(/specs?\.jsx?$/)
+        || packageName === 'gadicc:ecmascript-hot' ) {
 
       hot.orig[path] = toBeAdded;
 
     } else if (hot.lastHash[path] !== toBeAdded.hash) {
 
-        toBeAdded.packageName = packageName;
-        hot.orig[path] = toBeAdded;
-        partialBundle.push(toBeAdded);
+      toBeAdded.packageName = packageName;
+      hot.orig[path] = toBeAdded;
+      partialBundle.push(toBeAdded);
 
     }
 
