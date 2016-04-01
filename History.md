@@ -1,6 +1,22 @@
 # vNEXT
 
-* Transform stateless components in `.js` files now too.
+# v1.3.0_4 (2016-04-01)
+
+* **Crucial fix** for the infinite loop affecting majority of deployments.
+  My sincere apologies for this slipping through.
+
+* Now that Meteor 1.3 is out, we're using proper versioning.  You no longer
+  need to specify the exact version to use, just put `gadicc:ecmascript-hot`
+  in your `packages` file and updates will arrive with `meteor update`.
+
+* Fix `Uncaught TypeError: Cannot read property 'c' of undefined` from
+  first load (since last release).
+
+* Disable (broken) sourcemap for modules-runtime.js.
+
+* ~~Transform stateless components in `.js` files now too.~~ As this was
+  a critical update, this potentially unstable feature has been delayed
+  until the next release.
 
 # v1.3.0-2 (2016-03-30)
 

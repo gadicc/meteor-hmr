@@ -31,19 +31,17 @@ something better/official comes along.
 
 Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-meteor-i-e-no-webpack/17523/
 
-**Current status (2016-03-18)**: Much more reliable HMR/HCP combo, .babelrc support,
-react error catching.
+**Current status (2016-04-01)**: Fix for broken deploys.
 
-**Current release (2016-03-30)**: `gadicc:ecmascript-hot@1.3.0-2`
+**Current release (2016-04-01)**: `gadicc:ecmascript-hot@1.3.0_4` (no more need
+to specify the version in your `packages` file; and you can now use `meteor update`)
 
 ## How to Use
-
-*Use with correct Meteor release, currently 1.3 (final) or 1.3-rc.4+*
 
 1. In your project root, `npm install --save-dev babel-preset-meteor babel-plugin-react-transform react-transform-hmr react-transform-catch-errors redbox-react`.
 1. If you don't already have a `.babelrc`, one will be created for you.  Otherwise,
 ensure it resembles the sample at the end of this README.
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot@1.3.0-2`
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot`
 
 If you want `.babelrc` support without react hotloading, just take out
 the `react-transform` lines in that file.
@@ -51,6 +49,10 @@ the `react-transform` lines in that file.
 NB: If you already had a `.babelrc` before this, realize that it might contain
 things that can break your Meteor build, but didn't before when Meteor ignored
 it.  Pay attention to existing plugins & presets.
+
+Note: This package does co-exist well with `autopublish`, since the hot updates
+come in via a subscription.  If you need `autopublish`, you'll need to restart
+Meteor in order to do a "hard" refresh of the client.
 
 Working with
 [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
