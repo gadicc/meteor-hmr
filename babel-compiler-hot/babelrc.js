@@ -23,12 +23,27 @@ var path = Npm.require('path');
 var crypto = Npm.require('crypto');
 // var JSON5 = Npm.require('json5');  now from 'json5' package on atmosphere
 
+var tmp = null;
+projRoot = process.cwd(); // package global
+
 // XXX better way to do this?
-projRoot = process.cwd();
-while (projRoot && !fs.existsSync(path.join(projRoot, '.meteor')))
+while (projRoot !== tmp && !fs.existsSync(path.join(projRoot, '.meteor'))) {
+  tmp = projRoot;  // used to detect drive root on windows too
   projRoot = path.normalize(path.join(projRoot, '..'));
-if (!projRoot)
-  throw new Error("Are you running inside a Meteor project dir?");
+}
+
+if (projRoot === tmp) {
+  // We stop processing this file here in a non-devel environment
+  // because a production build won't have a .meteor directory.
+  // We need it during the build process (which is also "production"),
+  // but for now we assume that this kind of error would be detected
+  // during development.  Would love to hear of alternative ways to do
+  // this.  Could maybe check for "local/star.json" to identify devel build.
+  if (process.env.NODE_ENV !== 'development')
+    return;
+  else
+    throw new Error("Are you running inside a Meteor project dir?");
+}
 
 var babelrc = { root: {}, client: {}, server: {} };
 for (var key in babelrc) {
