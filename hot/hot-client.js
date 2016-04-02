@@ -7,7 +7,6 @@ if (process.env.NODE_ENV === 'production')
 //import ReactTransformHMR from 'react-transform-hmr';
 
 hot = {
-  col: new Mongo.Collection('__hot'),
   failedOnce: false
 }
 
@@ -20,18 +19,17 @@ if (NEW_HMR) {
   });
 }
 
-Meteor.subscribe('__hot');
+var port = Meteor.settings.public.HOT_PORT;
+var wsUrl = 'ws://' + location.hostname + ':' + port + '/';
+var serverBase = 'http://' + location.hostname + ':' + port + '/hot.js?hash=';
 
-Meteor.startup(function() {
-  hot.col.find().observe({
-    added: function(doc) {
-      var script = document.createElement('script');
-      script.type = 'text/javascript';
-      script.src = '/hot.js?hash=' + doc._id;
-      document.head.appendChild(script);
-    }
-  });
-});
+var ws = new WebSocket(wsUrl);
+ws.onmessage = function(event) {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src = serverBase + event.data; 
+  document.head.appendChild(script);
+}
 
 /*
  * Takes install.js root and flattens it, so we can easily access modules by

@@ -31,9 +31,9 @@ something better/official comes along.
 
 Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-meteor-i-e-no-webpack/17523/
 
-**Current status (2016-04-01)**: Fix for broken deploys.
+**Current status (2016-04-01)**: Fix for broken deploys.  (04-02): SSR working.
 
-**Current release (2016-04-01)**: `gadicc:ecmascript-hot@1.3.0_4` (no more need
+**Current release (2016-04-02)**: `gadicc:ecmascript-hot@1.3.0_5` (no more need
 to specify the version in your `packages` file; and you can now use `meteor update`)
 
 ## How to Use
@@ -50,11 +50,13 @@ NB: If you already had a `.babelrc` before this, realize that it might contain
 things that can break your Meteor build, but didn't before when Meteor ignored
 it.  Pay attention to existing plugins & presets.
 
-Note: This package does co-exist well with `autopublish`, since the hot updates
-come in via a subscription.  If you need `autopublish`, you'll need to restart
-Meteor in order to do a "hard" refresh of the client.
+Notes:
 
-Working with
+1. We use an extra port for communication with the client.  By default this is
+Meteor's port + 2 (i.e., right after mongo), but you can override it with the
+`HOT_PORT` environment variable.
+
+1. Works great with
 [mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
 (but you need to remove `babel-root-slash-import`, which might break some
 of your testing, tracking in
@@ -234,11 +236,9 @@ These are awesome and this is the right way to go; nothing hacky here.
   manually construct a module tree that (hopefully) resembles Meteor's linker
   output (which we bypass; hence we only support specfic situations).
 
-1. Bundle this and store in Mongo (no other way to communicate with the running
-  app from a compiler plugin)
-
-1. Publish/subscribe id's of new bundles, insert script tag in the HEAD to
-  load it (and serve it from the server).
+1. Bundle this and send the bundle id via websocket to the client.  The client
+  then requests the new bundle by inserting a script tag into the HEAD (so
+  it will be loaded in the correct context).
 
 1. Patch meteorInstall's root, delete previous exports, climb the tree, and
   reevaluate.  This happens before the HCP, so if everything succeeded, we

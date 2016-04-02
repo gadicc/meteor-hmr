@@ -19,8 +19,8 @@ ecmascript@0.4.1
 ecmascript-runtime@0.2.8
 ejson@1.0.9
 es5-shim@4.5.8
-gadicc:babel-compiler-hot@6.5.2_5
-gadicc:ecmascript-hot@1.3.0_4
+gadicc:babel-compiler-hot@6.5.2_6
+gadicc:ecmascript-hot@1.3.0_5
 gadicc:hot@0.0.12
 gadicc:json5@0.5.0-0
 gadicc:modules-runtime-hot@0.6.1-0
@@ -30,7 +30,7 @@ htmljs@1.0.7
 http@1.1.3
 id-map@1.0.5
 jquery@1.11.6
-local-test:gadicc:ecmascript-hot@1.3.0_4
+local-test:gadicc:ecmascript-hot@1.3.0_5
 logging@1.0.10
 meteor@1.1.12
 meteorhacks:inject-initial@1.0.4

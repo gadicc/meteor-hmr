@@ -94,11 +94,12 @@ BCp.processFilesForTarget = function (inputFiles) {
     inputFile.addJavaScript(toBeAdded);
 
     // hot
-    var path = packageName + '/' + inputFilePath;
+    var inputFileArch = inputFile.getArch();
+    var path = inputFileArch + ':' + packageName + '/' + inputFilePath;
 
     if (!hot.lastHash[path]
         /* || packageName !== null */
-        || inputFile.getArch() !== 'web.browser'
+        || inputFileArch !== 'web.browser'
         || inputFilePath.match(/^tests\//)
         || inputFilePath.match(/tests?\.jsx?$/)
         || inputFilePath.match(/specs?\.jsx?$/)
@@ -108,6 +109,7 @@ BCp.processFilesForTarget = function (inputFiles) {
 
     } else if (hot.lastHash[path] !== toBeAdded.hash) {
 
+      // console.log('update', packageName, inputFilePath, 'old', hot.lastHash[path], 'new', toBeAdded.hash);
       toBeAdded.packageName = packageName;
       hot.orig[path] = toBeAdded;
       partialBundle.push(toBeAdded);

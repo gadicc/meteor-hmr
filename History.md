@@ -1,5 +1,19 @@
 # vNEXT
 
+# v1.3.0_4 (2016-04-02)
+
+* We now survive server code changes, so this now works for both
+  `imports` (that aren't beneath a `client` subdirectory) and
+  **SSR** code from mixed / "both" directories with shared code.  (#17)
+
+* We no longer rely on Mongo for communications, so we now require an
+  extra port.  By default this is Meteor's port + 2 (i.e., right after
+  mongo), but you can override it with the `HOT_PORT` environment variable.
+
+* Fixes the "non-stop reload" bug where changes to files in `public`
+  (and I guess, other shared directories with lots of files) could cause
+  a lot of restarts.  (#22)
+
 # v1.3.0_4 (2016-04-01)
 
 * **Crucial fix** for the infinite loop affecting majority of deployments.

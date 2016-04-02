@@ -14,6 +14,81 @@ if (process.env.NODE_ENV === 'production') {
   return;
 }
 
+/*
+ * This is how we work out if we're in a build plugin (inside of meteor-tool)
+ * or as a server package.  CODE BELOW THIS POINT SURVIVES A SERVER RELOAD.
+ */
+if (process.env.METEOR_PARENT_PID) {
+  Meteor.settings.public.HOT_PORT = parseInt(process.env.HOT_PORT);
+  return;
+}
+
+// This only actually happens in devel when reloading this plugin after change
+var gdata = global._babelCompilerGlobalData;
+if (!gdata) gdata = global._babelCompilerGlobalData = {};
+if (gdata.wss) gdata.wss.close();
+if (gdata.server) gdata.server.close();
+
+/*
+var id = Math.floor(Math.random() * 100);
+console.log('loading ' + id);
+process.on('exit', function() {
+  console.log('exiting ' + id);
+});
+*/
+
+var DEFAULT_METEOR_PORT = 3000;
+var HOT_PORT_INCREMENT = 2;
+
+var portIndex, HOT_PORT = process.env.HOT_PORT
+  || (process.env.PORT
+    && (parseInt(process.env.PORT) + HOT_PORT_INCREMENT ))
+  || (process.env.METEOR_PORT
+    && (parseInt(process.env.METEOR_PORT) + HOT_PORT_INCREMENT ));
+
+if (!HOT_PORT) {
+  portIndex = process.argv.indexOf('-p');
+  if (portIndex === -1)
+    portIndex = process.argv.indexOf('--port');
+  if (portIndex === -1)
+    HOT_PORT = DEFAULT_METEOR_PORT + HOT_PORT_INCREMENT;
+  else {
+    HOT_PORT = process.argv[portIndex+1].split(':');
+    HOT_PORT = parseInt(HOT_PORT[HOT_PORT.length-1]) + HOT_PORT_INCREMENT;
+  }
+}
+
+// Used above when running a server package (and not a build plugin)
+if (!process.env.HOT_PORT)
+  process.env.HOT_PORT = HOT_PORT;
+
+console.log('=> Starting gadicc:ecmascript-hot server on port ' + HOT_PORT + '.\n');
+
+var http = Npm.require('http');
+var server = http.createServer(function (req, res) {
+  var hash = req.url.match(/^\/hot.js\?hash=(.*)$/);
+  if (!(hash && (hash=hash[1]) && hot.bundles[hash])) {
+    res.writeHead(404);
+    res.end();
+    return;
+  }
+
+  res.writeHead(200, {'Content-Type': 'application/javascript; charset=UTF-8'});
+  res.end(hot.bundles[hash].contents, 'utf8');
+}).listen(HOT_PORT);
+gdata.server = server;
+
+var WebSocketServer = Npm.require('ws').Server;
+var wss = new WebSocketServer({ server: server });
+gdata.wss = wss;
+
+// straight out of https://www.npmjs.com/package/ws
+wss.broadcast = function broadcast(data) {
+  wss.clients.forEach(function each(client) {
+    client.send(data);
+  });
+};
+
 function extractRequires(content) {
   var requires = [], match, re = /require\((['"]+)(.+)\1\)/g;
   while (match = re.exec(content)) {
@@ -58,9 +133,6 @@ function treeify(bundle) {
 
 hot.process = function(bundle) {
   var id = Random.hexString(40);
-  hot.bundles[id] = bundle;
-  hot.lastBundleId = id;
-
   // console.log('[gadicc:hot] Creating a bundle for ' + bundle.length + ' change file(s)...');
 
   var tree = treeify(bundle);
@@ -71,19 +143,13 @@ hot.process = function(bundle) {
         + '\n}';
     }) + ');\n';
 
+  if (0)
   bundle.forEach(function(file) {
-    // bundleStr += 'require("./' + file.path + '");\n';
+    bundleStr += 'require("./' + file.path + '");\n';
   });
 
-  // console.log(bundleStr);
-
-  hot.col.insertOne({
-    _id: id,
-    ctime: Date.now(),
-    contents: bundleStr
-  }, function(err) {
-    if (err) console.log(err);
-  });
+  hot.bundles[id] = { contents: bundleStr };
+  wss.broadcast(id);
 }
 
 hot.transformStateless = function(source, path) {
@@ -119,40 +185,3 @@ hot.transformStateless = function(source, path) {
 
   return source;
 }
-
-/*
- * Mongo code follows.
- *
- * I'm pretty sure there's no way good way to communicate from a compiler plugin
- * to the actual app.  I did say hacky!
- */
-
-var path = Npm.require('path');
-var fs = Npm.require('fs');
-
-var portFile = path.join(projRoot, '.meteor', 'local', 'db', 'METEOR-PORT');
-var port = parseInt(fs.readFileSync(portFile));
-
-var url = process.env.MONGO_URL || 'mongodb://127.0.0.1:'+port+'/meteor';
-var MongoClient = Npm.require('mongodb').MongoClient;
-
-MongoClient.connect(url, function(err, db) {
-  if (err) {
-    console.error('[gadicc:hot] Failed to connect to your Mongo database ' +
-      'on "' + url + '". Try MONGO_URL environment variable or "-p PORT" ' +
-      'when running Meteor.');
-    throw new Error(err);
-  }
-
-  // console.info("[gadicc:hot - babel-compiler-hot] connected to db"); 
-  hot.col = db.collection('__hot');
-
-  // on startup, delete bundles /* older than 10s */
-  hot.col.deleteMany({ /* ctime: { $lt: Date.now() - 10000 } */}, function(err) {
-    if (err) console.log(err);
-  });
-
-  process.on('exit', function() {
-    db.close();
-  });
-});
