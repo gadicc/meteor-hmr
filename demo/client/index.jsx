@@ -2,6 +2,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import { App } from './App.jsx';
 import { AppWithStateless } from './AppWithStateless.jsx';
+import Both from '../both/hello.jsx';
 
 Meteor.startup(function() {
   var rootDiv = document.createElement('div');
@@ -16,8 +17,15 @@ Meteor.startup(function() {
 
   render(<AppWithStateless />, document.getElementById('root2'));
 
+  var rootDiv3 = document.createElement('div');
+  rootDiv3.id = 'root3';
+  document.body.appendChild(rootDiv3);
+
+  render(<Both />, document.getElementById('root3'));
+
 });
 
+/*
 function readonly(target, key, descriptor) {
   descriptor.writable = false;
   return descriptor;
@@ -30,3 +38,4 @@ class Cat {
 
 window.cat = new Cat();
 window.cat.meow = 1;
+*/
