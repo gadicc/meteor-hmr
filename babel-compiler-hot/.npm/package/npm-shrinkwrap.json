@@ -1,14 +1,14 @@
 {
   "dependencies": {
     "meteor-babel": {
-      "version": "0.8.3",
-      "resolved": "https://github.com/gadicc/babel/tarball/0f5519e0b6267cd11ac5e9140fe46aac260d038d",
-      "from": "https://github.com/gadicc/babel/tarball/0f5519e0b6267cd11ac5e9140fe46aac260d038d",
+      "version": "0.8.4",
+      "resolved": "https://github.com/gadicc/babel/tarball/deb276cc6eac2e02014c616318f4ed6b4401ec9e",
+      "from": "https://github.com/gadicc/babel/tarball/deb276cc6eac2e02014c616318f4ed6b4401ec9e",
       "dependencies": {
         "babel-core": {
           "version": "6.7.4",
           "resolved": "https://registry.npmjs.org/babel-core/-/babel-core-6.7.4.tgz",
-          "from": "babel-core@>=6.6.5 <7.0.0",
+          "from": "babel-core@>=6.7.4 <7.0.0",
           "dependencies": {
             "babel-code-frame": {
               "version": "6.7.4",
@@ -382,7 +382,7 @@
         "babel-preset-meteor": {
           "version": "6.6.7",
           "resolved": "https://registry.npmjs.org/babel-preset-meteor/-/babel-preset-meteor-6.6.7.tgz",
-          "from": "babel-preset-meteor@>=6.6.6 <7.0.0",
+          "from": "babel-preset-meteor@>=6.6.7 <7.0.0",
           "dependencies": {
             "amdefine": {
               "version": "1.0.0",
@@ -764,7 +764,7 @@
                 "minimist": {
                   "version": "0.0.8",
                   "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz",
-                  "from": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
+                  "from": "minimist@0.0.8"
                 }
               }
             },
@@ -1052,7 +1052,7 @@
                     "esutils": {
                       "version": "2.0.2",
                       "resolved": "https://registry.npmjs.org/esutils/-/esutils-2.0.2.tgz",
-                      "from": "esutils@>=2.0.2 <3.0.0"
+                      "from": "esutils@>=2.0.0 <3.0.0"
                     },
                     "lodash": {
                       "version": "3.10.1",
@@ -1073,7 +1073,7 @@
         "babel-runtime": {
           "version": "5.8.38",
           "resolved": "https://registry.npmjs.org/babel-runtime/-/babel-runtime-5.8.38.tgz",
-          "from": "babel-runtime@>=5.8.35 <6.0.0",
+          "from": "babel-runtime@>=5.8.38 <6.0.0",
           "dependencies": {
             "core-js": {
               "version": "1.2.6",

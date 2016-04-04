@@ -1,6 +1,10 @@
 # vNEXT
 
-# v1.3.0_4 (2016-04-02)
+# v1.3.1_1 (2016-04-04)
+
+* For Meteor 1.3.1.
+
+# v1.3.0_5 (2016-04-02)
 
 * We now survive server code changes, so this now works for both
   `imports` (that aren't beneath a `client` subdirectory) and
