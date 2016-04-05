@@ -54,7 +54,6 @@ function addInputFile(inputFile) {
   if (timeout) clearTimeout(timeout);
 
   inputFiles.push(inputFile);
-  sendInputFiles();
 
   timeout = setTimeout(sendInputFiles, 2);
 }

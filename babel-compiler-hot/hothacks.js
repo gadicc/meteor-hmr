@@ -133,7 +133,16 @@ function treeify(bundle) {
   return tree;
 }
 
-hot.process = function(bundle) {
+var lastTime;
+hot.process = function(bundle, isFake) {
+  if (isFake)
+    lastTime = Date.now();
+  else if (lastTime)
+    console.log('\n[gadicc:hot] Saved an extra ' + (Date.now() - lastTime) + ' ms');
+
+  if (!bundle.length)
+    return;
+
   var id = Random.hexString(40);
   // console.log('[gadicc:hot] Creating a bundle for ' + bundle.length + ' change file(s)...');
 
@@ -197,9 +206,9 @@ var fs = Npm.require('fs');
 var path = Npm.require('path');
 var child_process = Npm.require('child_process');
 
-// aka, let's nope right out of figuring out the correct package dir, sorry :)
-var forkFile = path.join(projRoot, '.meteor', 'local', 'gadicc_hot-accelerator.js');
-fs.writeFileSync(forkFile, Assets.getText('accelerator.js'));
+var forkFile = path.join(projRoot, '.meteor', 'local', 'build', 'programs',
+  'server', 'assets', 'packages', 'gadicc_babel-compiler-hot', 'accelerator.js');
+console.log('[gadicc:hot] ' + forkFile);
 
 var fork = gdata.fork = child_process.fork(forkFile);
 

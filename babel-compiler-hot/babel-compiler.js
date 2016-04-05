@@ -11,12 +11,12 @@ BabelCompiler = function BabelCompiler(extraFeatures) {
 var BCp = BabelCompiler.prototype;
 var excludedFileExtensionPattern = /\.es5\.js$/i;
 
-BCp.processFilesForTarget = function (inputFiles, fake) {
+BCp.processFilesForTarget = function (inputFiles, isFake) {
   var self = this;
 
   // hot
   var partialBundle = [];
-  hot.forFork(inputFiles, this, fake);
+  hot.forFork(inputFiles, this, isFake);
 
   inputFiles.forEach(function (inputFile) {
     var source = inputFile.getContentsAsString();
@@ -122,7 +122,7 @@ BCp.processFilesForTarget = function (inputFiles, fake) {
   }); /* inputFiles.forEach */
 
   // hot
-  if (partialBundle.length) hot.process(partialBundle);
+  hot.process(partialBundle, isFake);
 };
 
 BCp.setDiskCacheDirectory = function (cacheDir) {
