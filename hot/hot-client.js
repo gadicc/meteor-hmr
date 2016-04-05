@@ -30,6 +30,9 @@ ws.onmessage = function(event) {
   script.src = serverBase + event.data; 
   document.head.appendChild(script);
 }
+ws.onopen = function() {
+  console.log('[gadicc:hot] Connected and ready.');
+}
 
 /*
  * Takes install.js root and flattens it, so we can easily access modules by
