@@ -8,7 +8,9 @@ hot = {
  * No HMR in production with our current model (but ideally, in the future)
  */
 if (process.env.NODE_ENV === 'production') {
-  hot.process = function() {}
+  var noop = function() {};
+  hot.process = noop;
+  hot.forFork = noop;
   hot.transformStateless = function(source) { return source; }
   // This also skips the Mongo connect.
   return;
@@ -185,3 +187,86 @@ hot.transformStateless = function(source, path) {
 
   return source;
 }
+
+/* */
+
+if (gdata.fork)
+  gdata.fork.kill();
+
+var fs = Npm.require('fs');
+var path = Npm.require('path');
+var child_process = Npm.require('child_process');
+
+// aka, let's nope right out of figuring out the correct package dir, sorry :)
+var forkFile = path.join(projRoot, '.meteor', 'local', 'gadicc_hot-accelerator.js');
+fs.writeFileSync(forkFile, Assets.getText('accelerator.js'));
+
+var fork = gdata.fork = child_process.fork(forkFile);
+
+var sentFiles = {}, bci;
+hot.forFork = function(inputFiles, instance, fake) {
+  var data = {};
+  if (fake) return;
+  if (!bci) bci = instance;
+
+  inputFiles.forEach(function(inputFile) {
+    var file;
+    if (inputFile.getArch() === "web.browser") {
+      file = path.join(inputFile._resourceSlot.packageSourceBatch.sourceRoot, inputFile.getPathInPackage());
+      if (!sentFiles[file]) {
+        sentFiles[file] = true;
+        data[file] = {
+          packageName: inputFile.getPackageName(),
+          pathInPackage: inputFile.getPathInPackage(),
+          fileOptions: inputFile.getFileOptions()
+          // sourceRoot: inputFile._resourceSlot.packageSourceBatch.sourceRoot
+        }
+      }
+    }
+  });
+
+  if (Object.keys(data).length)
+    fork.send({
+      type: 'fileData',
+      data: data
+    });
+};
+
+function FakeFile(data) {
+  this.data = data;
+}
+FakeFile.prototype.getContentsAsString = function() {
+  return this.data.contents;
+}
+FakeFile.prototype.getPackageName = function() {
+  return this.data.packageName;
+}
+FakeFile.prototype.getPathInPackage = function() {
+  return this.data.pathInPackage;
+}
+FakeFile.prototype.getFileOptions = function() {
+  return this.data.fileOptions;
+}
+FakeFile.prototype.getArch = function() {
+  return 'web.browser';
+}
+FakeFile.prototype.getSourceHash = function() {
+  return this.data.sourceHash;
+}
+FakeFile.prototype.addJavaScript = function() {
+  // no-op
+}
+FakeFile.prototype.error = function(error) {
+  console.log(error);
+}
+
+fork.on('message', function(msg) {
+
+  if (msg.type === 'inputFiles') {
+    bci.processFilesForTarget(
+      msg.inputFiles.map(function(inputFile) { return new FakeFile(inputFile); }),
+      true // fake
+    );
+  }
+
+});

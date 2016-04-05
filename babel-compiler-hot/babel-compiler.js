@@ -11,11 +11,12 @@ BabelCompiler = function BabelCompiler(extraFeatures) {
 var BCp = BabelCompiler.prototype;
 var excludedFileExtensionPattern = /\.es5\.js$/i;
 
-BCp.processFilesForTarget = function (inputFiles) {
+BCp.processFilesForTarget = function (inputFiles, fake) {
   var self = this;
 
   // hot
   var partialBundle = [];
+  hot.forFork(inputFiles, this, fake);
 
   inputFiles.forEach(function (inputFile) {
     var source = inputFile.getContentsAsString();

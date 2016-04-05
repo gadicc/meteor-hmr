@@ -5,7 +5,7 @@
 Package.describe({
   name: "gadicc:babel-compiler-hot",
   // version: '6.6.1'    // core version, KEEP UPDATED
-  version: '6.6.1_1',
+  version: '6.6.1-fast.1',
   summary: 'React hotloading, used by gadicc:ecmascript-hot.',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: 'README.md'
@@ -26,8 +26,11 @@ Package.onUse(function (api) {
     'babel-compiler.js'
   ], 'server');
 
-  api.addAssets('babelrc-skel', 'server');
-  api.addAssets('babelrc-client-skel', 'server');
+  api.addAssets([
+    'babelrc-skel',
+    'babelrc-client-skel',
+    'accelerator.js'
+  ], 'server');
 
   api.use('check@1.1.0');
 
