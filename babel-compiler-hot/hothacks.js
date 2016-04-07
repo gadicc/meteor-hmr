@@ -206,8 +206,14 @@ var fs = Npm.require('fs');
 var path = Npm.require('path');
 var child_process = Npm.require('child_process');
 
-var forkFile = path.join(projRoot, '.meteor', 'local', 'build', 'programs',
-  'server', 'assets', 'packages', 'gadicc_babel-compiler-hot', 'accelerator.js');
+// we can't read straight from program assets because at build plugin time they
+// won't be created yet.
+// var forkFile = path.join(projRoot, '.meteor', 'local', 'build', 'programs',
+//  'server', 'assets', 'packages', 'gadicc_babel-compiler-hot', 'accelerator.js');
+
+var forkFile = path.join(projRoot, '.meteor', 'local', 'gadicc_hot-accel.js');
+fs.writeFileSync(forkFile, Assets.getText('accelerator.js'));
+
 console.log('[gadicc:hot] ' + forkFile);
 
 var fork = gdata.fork = child_process.fork(forkFile);
