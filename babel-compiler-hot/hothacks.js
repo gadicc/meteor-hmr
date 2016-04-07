@@ -28,8 +28,6 @@ if (process.env.METEOR_PARENT_PID) {
 // This only actually happens in devel when reloading this plugin after change
 var gdata = global._babelCompilerGlobalData;
 if (!gdata) gdata = global._babelCompilerGlobalData = {};
-if (gdata.wss) gdata.wss.close();
-if (gdata.server) gdata.server.close();
 
 /*
 var id = Math.floor(Math.random() * 100);
@@ -63,105 +61,6 @@ if (!HOT_PORT) {
 // Used above when running a server package (and not a build plugin)
 if (!process.env.HOT_PORT)
   process.env.HOT_PORT = HOT_PORT;
-
-console.log('=> Starting gadicc:ecmascript-hot server on port ' + HOT_PORT + '.\n');
-
-var http = Npm.require('http');
-var server = http.createServer(function (req, res) {
-  var hash = req.url.match(/^\/hot.js\?hash=(.*)$/);
-  if (!(hash && (hash=hash[1]) && hot.bundles[hash])) {
-    res.writeHead(404);
-    res.end();
-    return;
-  }
-
-  res.writeHead(200, {'Content-Type': 'application/javascript; charset=UTF-8'});
-  res.end(hot.bundles[hash].contents, 'utf8');
-}).listen(HOT_PORT);
-gdata.server = server;
-
-var WebSocketServer = Npm.require('ws').Server;
-var wss = new WebSocketServer({ server: server });
-gdata.wss = wss;
-
-// straight out of https://www.npmjs.com/package/ws
-wss.broadcast = function broadcast(data) {
-  wss.clients.forEach(function each(client) {
-    client.send(data);
-  });
-};
-
-function extractRequires(content) {
-  var requires = [], match, re = /require\((['"]+)(.+)\1\)/g;
-  while (match = re.exec(content)) {
-    requires.push(match[2]);
-  }
-  return requires;
-}
-
-// Given an object and ['a', 'b'], returns a ref to { a: { b: THIS }}
-function getSub(tree, array, i) {
-  if (!i)
-    i = 0;
-  if (i === 0 && !array.length)
-    return tree;
-  if (!tree[array[i]])
-    tree[array[i]] = {};
-  if (i === array.length-1)
-    return tree[array[i]];
-  else
-    return getSub(tree[array[i]], array, i+1);
-}
-
-// Given a bundle, output a "tree" in the format meteorInstall expects
-function treeify(bundle) {
-  var tree = {};
-  bundle.forEach(function(file) {
-    var path = file.path;
-    if (file.packageName)
-      path = 'node_modules/meteor/' + file.packageName + '/' + path;
-
-    var dirs = path.split('/');
-    var filename = dirs.pop();
-
-    var sub = getSub(tree, dirs);
-    var requires = extractRequires(file.data);
-
-    sub[filename] = requires.concat(
-      '__OF__' + file.data + '__CF__');
-  });
-  return tree;
-}
-
-var lastTime;
-hot.process = function(bundle, isFake) {
-  if (isFake)
-    lastTime = Date.now();
-  else if (lastTime)
-    console.log('\n[gadicc:hot] Saved an extra ' + (Date.now() - lastTime) + ' ms');
-
-  if (!bundle.length)
-    return;
-
-  var id = Random.hexString(40);
-  // console.log('[gadicc:hot] Creating a bundle for ' + bundle.length + ' change file(s)...');
-
-  var tree = treeify(bundle);
-  var bundleStr = 'meteorInstallHot(' +
-    JSON.stringify(tree).replace(/\"__OF__(.*?)__CF__\"/g, function(m, f) {
-      return 'function(require,exports,module){'
-        + f.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\'/g, "'")
-        + '\n}';
-    }) + ');\n';
-
-  if (0)
-  bundle.forEach(function(file) {
-    bundleStr += 'require("./' + file.path + '");\n';
-  });
-
-  hot.bundles[id] = { contents: bundleStr };
-  wss.broadcast(id);
-}
 
 hot.transformStateless = function(source, path) {
   // Support MantraJS style stateless components, see README
@@ -199,9 +98,6 @@ hot.transformStateless = function(source, path) {
 
 /* */
 
-if (gdata.fork)
-  gdata.fork.kill();
-
 var fs = Npm.require('fs');
 var path = Npm.require('path');
 var child_process = Npm.require('child_process');
@@ -214,9 +110,71 @@ var child_process = Npm.require('child_process');
 var forkFile = path.join(projRoot, '.meteor', 'local', 'gadicc_hot-accel.js');
 fs.writeFileSync(forkFile, Assets.getText('accelerator.js'));
 
-console.log('[gadicc:hot] ' + forkFile);
+// XXX check peer deps ws, meteor-babel
 
-var fork = gdata.fork = child_process.fork(forkFile);
+console.log('[gadicc:hot] ' + forkFile);
+console.log('=> Starting gadicc:ecmascript-hot server on port ' + HOT_PORT + '.\n');
+
+var fork;
+
+function startFork() {
+  fork = gdata.fork = child_process.fork(forkFile, [HOT_PORT]);
+
+  fork.send({
+    type: 'initPayload',
+    babelrc: babelrc
+  });
+
+  fork.on('message', function(msg) {
+
+    if (msg.type === 'closed') {
+      // This global is detected by the new instance
+      gdata.fork = null;
+      return;
+    }
+
+    if (msg.type === 'inputFiles') {
+      bci.processFilesForTarget(
+        msg.inputFiles.map(function(inputFile) { return new FakeFile(inputFile); }),
+        true // fake
+      );
+      return;
+    }
+
+    console.log('[gadicc:hot] Build plugin got unknown message: '
+      + JSON.stringify(msg));
+  });  
+
+}
+
+// this only ever happens when upgrading the build plugin (e.g. devel, upgrade)
+var waiting = false;
+if (gdata.fork) {
+  waiting = {};
+  gdata.fork.on('message', function(msg) {
+    if (msg.type === 'closed') {
+      console.log('[gadicc:hot] Switching to new accelerator instance.');
+      startFork();
+
+      if (waiting.setCacheDir)
+        fork.send({ type: 'setCacheDir', dir: waiting.setCacheDir });
+      if (waiting.fileData)
+        fork.send({ type: 'fileData', data: waiting.fileData });
+
+      waiting = false;
+    }
+  });
+  gdata.fork.send({ type: 'close' });
+} else {
+  startFork();
+}
+
+hot.setCacheDir = function(cacheDir) {
+  if (waiting)
+    waiting.setCacheDir = cacheDir;
+  else
+    fork.send({ type: 'setCacheDir', dir: cacheDir });
+}
 
 var sentFiles = {}, bci;
 hot.forFork = function(inputFiles, instance, fake) {
@@ -224,6 +182,15 @@ hot.forFork = function(inputFiles, instance, fake) {
   if (fake) return;
   if (!bci) bci = instance;
 
+/*
+    if (!hot.lastHash[path]
+        // || packageName !== null 
+        || inputFileArch !== 'web.browser'
+        || inputFilePath.match(/^tests\//)
+        || inputFilePath.match(/tests?\.jsx?$/)
+        || inputFilePath.match(/specs?\.jsx?$/)
+        || packageName === 'gadicc:ecmascript-hot' ) {
+*/
   inputFiles.forEach(function(inputFile) {
     var file;
     if (inputFile.getArch() === "web.browser") {
@@ -240,48 +207,13 @@ hot.forFork = function(inputFiles, instance, fake) {
     }
   });
 
-  if (Object.keys(data).length)
-    fork.send({
-      type: 'fileData',
-      data: data
-    });
-};
-
-function FakeFile(data) {
-  this.data = data;
-}
-FakeFile.prototype.getContentsAsString = function() {
-  return this.data.contents;
-}
-FakeFile.prototype.getPackageName = function() {
-  return this.data.packageName;
-}
-FakeFile.prototype.getPathInPackage = function() {
-  return this.data.pathInPackage;
-}
-FakeFile.prototype.getFileOptions = function() {
-  return this.data.fileOptions;
-}
-FakeFile.prototype.getArch = function() {
-  return 'web.browser';
-}
-FakeFile.prototype.getSourceHash = function() {
-  return this.data.sourceHash;
-}
-FakeFile.prototype.addJavaScript = function() {
-  // no-op
-}
-FakeFile.prototype.error = function(error) {
-  console.log(error);
-}
-
-fork.on('message', function(msg) {
-
-  if (msg.type === 'inputFiles') {
-    bci.processFilesForTarget(
-      msg.inputFiles.map(function(inputFile) { return new FakeFile(inputFile); }),
-      true // fake
-    );
+  if (Object.keys(data).length) {
+    if (waiting)
+      waiting.fileData = data;
+    else
+      fork.send({
+        type: 'fileData',
+        data: data
+      });
   }
-
-});
+};

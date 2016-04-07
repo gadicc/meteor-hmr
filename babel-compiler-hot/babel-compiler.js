@@ -11,12 +11,11 @@ BabelCompiler = function BabelCompiler(extraFeatures) {
 var BCp = BabelCompiler.prototype;
 var excludedFileExtensionPattern = /\.es5\.js$/i;
 
-BCp.processFilesForTarget = function (inputFiles, isFake) {
+BCp.processFilesForTarget = function (inputFiles) {
   var self = this;
 
   // hot
-  var partialBundle = [];
-  hot.forFork(inputFiles, this, isFake);
+  hot.forFork(inputFiles, this);
 
   inputFiles.forEach(function (inputFile) {
     var source = inputFile.getContentsAsString();
@@ -86,46 +85,17 @@ BCp.processFilesForTarget = function (inputFiles, isFake) {
         throw e;
       }
 
-      // hot
       toBeAdded.data = result.code;
       toBeAdded.hash = result.hash;
       toBeAdded.sourceMap = result.map;
     }
 
     inputFile.addJavaScript(toBeAdded);
-
-    // hot
-    var inputFileArch = inputFile.getArch();
-    var path = inputFileArch + ':' + packageName + '/' + inputFilePath;
-
-    if (!hot.lastHash[path]
-        /* || packageName !== null */
-        || inputFileArch !== 'web.browser'
-        || inputFilePath.match(/^tests\//)
-        || inputFilePath.match(/tests?\.jsx?$/)
-        || inputFilePath.match(/specs?\.jsx?$/)
-        || packageName === 'gadicc:ecmascript-hot' ) {
-
-      hot.orig[path] = toBeAdded;
-
-    } else if (hot.lastHash[path] !== toBeAdded.hash) {
-
-      // console.log('update', packageName, inputFilePath, 'old', hot.lastHash[path], 'new', toBeAdded.hash);
-      toBeAdded.packageName = packageName;
-      hot.orig[path] = toBeAdded;
-      partialBundle.push(toBeAdded);
-
-    }
-
-    hot.lastHash[path] = toBeAdded.hash;
-
-  }); /* inputFiles.forEach */
-
-  // hot
-  hot.process(partialBundle, isFake);
+  });
 };
 
 BCp.setDiskCacheDirectory = function (cacheDir) {
+  hot.setCacheDir(cacheDir);
   Babel.setCacheDir(cacheDir);
 };
 

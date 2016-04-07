@@ -45,7 +45,9 @@ if (projRoot === tmp) {
     throw new Error("Are you running inside a Meteor project dir?");
 }
 
-var babelrc = { root: {}, client: {}, server: {} };
+// now used in hothacks to send to accel
+//var 
+babelrc = { root: {}, client: {}, server: {} };
 for (var key in babelrc) {
   var obj = babelrc[key];
   obj.path = path.join(projRoot, key=='root'?'':key, '.babelrc');
