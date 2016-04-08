@@ -1,3 +1,7 @@
+var fs = Npm.require('fs');
+var path = Npm.require('path');
+var child_process = Npm.require('child_process');
+
 hot = {
   lastHash: {},
   bundles: {},
@@ -62,10 +66,25 @@ if (!HOT_PORT) {
 if (!process.env.HOT_PORT)
   process.env.HOT_PORT = HOT_PORT;
 
+function toRegExp(input) {
+  if (typeof input === 'string')
+    return new RegExp(input);
+  else if (Object.prototype.toString.call(input) === '[object Array]')
+    return new RegExp(input[0], input[1]);
+  else
+    throw new Error("Don't know how to interpret pattern", input);
+}
+
+var pkg = JSON.parse(fs.readFileSync(path.join(projRoot, 'package.json')));
+var pkgSettings = pkg['ecmascript-hot'];
+var tsSettings = pkgSettings && pkgSettings.transformStateless;
+var tsPathMatch = tsSettings && tsSettings.pathMatch
+  ? toRegExp(tsSettings.pathMatch) : /\.jsx$/;
+var tsSourceMatch = tsSettings && tsSettings.sourceMatch
+  ? toRegExp(tsSettings.sourceMatch) : /^import React/m;
+
 hot.transformStateless = function(source, path) {
-  // Support MantraJS style stateless components, see README
-          /// XXX .js will be enabled again in the next release
-  if (!source.match(/^import React/m) || !path.match(/\.jsx$/)) {
+  if (!(source.match(tsSourceMatch) && path.match(tsPathMatch))) {
     return source;
   }
 
@@ -98,10 +117,6 @@ hot.transformStateless = function(source, path) {
 
 /* */
 
-var fs = Npm.require('fs');
-var path = Npm.require('path');
-var child_process = Npm.require('child_process');
-
 // we can't read straight from program assets because at build plugin time they
 // won't be created yet.
 // var forkFile = path.join(projRoot, '.meteor', 'local', 'build', 'programs',
@@ -123,7 +138,8 @@ function startFork() {
   fork.send({
     type: 'initPayload',
     data: {
-      babelrc: babelrc
+      babelrc: babelrc,
+      pkgSettings: pkgSettings
     }
   });
 

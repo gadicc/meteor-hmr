@@ -33,18 +33,18 @@ Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-met
 
 **Current status (2016-04-01)**: Fix for broken deploys.  (04-02): SSR working.
 
-**Current release (2016-04-02)**: `gadicc:ecmascript-hot@1.3.0_5` (no more need
-to specify the version in your `packages` file; and you can now use `meteor update`)
+**Current release**: There's no more need to specify the version in your `packages`
+file; remove it and `meteor update` for the latest stable version.
 
 ## How to Use
 
-1. In your project root, `npm install --save-dev babel-preset-meteor babel-plugin-react-transform react-transform-hmr react-transform-catch-errors redbox-react`.
+1. In your project root, `npm install --save-dev babel-preset-meteor babel-plugin-react-transform react-transform-hmr react-transform-catch-errors redbox-react`
 1. If you don't already have a `.babelrc`, one will be created for you.  Otherwise,
 ensure it resembles the sample at the end of this README.
 1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot`
 
 If you want `.babelrc` support without react hotloading, just take out
-the `react-transform` lines in that file.
+the `react-transform` lines in your `client/.babelrc`.
 
 NB: If you already had a `.babelrc` before this, realize that it might contain
 things that can break your Meteor build, but didn't before when Meteor ignored
@@ -116,7 +116,9 @@ convert (during compilation) stateless components into regular components
 in certain cases.  This can go wrong so instead of trying to accomodate
 every format, we do this for MantraJS style components, that:
 
-  1. Is a `.jsx` (and now even `.js`) and contains "import React"
+  1. Is a `.jsx` and contains "import React" at the beginning of a line.
+    You can fine tune these settings in your package.json, see SETTINGS
+    below.
   1. ~~Are in a directory (or subdir of a directory) called `components`~~
   1. Have exactly this format (const, root level indentation, newlines) -
   args can be blank.)
@@ -177,6 +179,39 @@ If you experience the need to do this frequently, please report on GitHub.
 
 Note, errors thrown in your app can break Meteor's HCP system, requiring
 a browser refresh regardless... we can't help with that.
+
+## Settings (in package.json)
+
+You may optionally override various defaults (shown below) by adding
+an `ecmascript-hot` key to your `package.json` file:
+
+```js
+  "ecmascript-hot": {
+    "transformStateless": {
+      "pathMatch": "\\.jsx$",
+      "sourceMatch": [ "^import React", "m" ]
+    }
+  }
+```
+
+### transformStateless
+
+To get `transformStateless` in `.js` files too (and not just `.jsx`),
+you can do:
+
+```js
+  "ecmascript-hot": {
+    "transformStateless": {
+      "pathMatch": "\\.jsx?$",
+    }
+  }
+```
+
+i.e., just add a question mark ("?") before the end, to make the 'x'
+optional.
+
+Both `*Match` keys take regular expressions, so you could use the
+`sourceMatch` to e.g. whitelist/blacklist by your own criteria.
 
 ## Packages
 

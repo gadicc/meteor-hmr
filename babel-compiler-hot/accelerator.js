@@ -46,6 +46,13 @@ handlers.close = function() {
 
 handlers.initPayload = function(data) {
   babelrc = data.babelrc;
+
+  pkgSettings = data.pkgSettings;
+  tsSettings = pkgSettings && pkgSettings.transformStateless;
+  tsPathMatch = tsSettings && tsSettings.pathMatch
+    ? toRegExp(tsSettings.pathMatch) : /\.jsx$/;
+  tsSourceMatch = tsSettings && tsSettings.sourceMatch
+    ? toRegExp(tsSettings.sourceMatch) : /^import React/m;
 };
 
 handlers.packageDir = function(dir) {
@@ -268,10 +275,20 @@ hot.process = function(bundle) {
   wss.broadcast(id);
 }
 
+function toRegExp(input) {
+  if (typeof input === 'string')
+    return new RegExp(input);
+  else if (Object.prototype.toString.call(input) === '[object Array]')
+    return new RegExp(input[0], input[1]);
+  else
+    throw new Error("Don't know how to interpret pattern", input);
+}
+
+// set in initPayload
+var pkgSettings, tsSettings, tsPathMatch, tsSourceMatch;
+
 hot.transformStateless = function(source, path) {
-  // Support MantraJS style stateless components, see README
-          /// XXX .js will be enabled again in the next release
-  if (!source.match(/^import React/m) || !path.match(/\.jsx$/)) {
+  if (!(source.match(tsSourceMatch) && path.match(tsPathMatch))) {
     return source;
   }
 

@@ -1,5 +1,14 @@
 # vNEXT
 
+* Much faster reloads (for shared files too) by externalizing more code into
+  the accelerator.js forked process (#26).
+
+* Fixed `Failed to parse SourceMap: http://localhost:3000/packages/undefined`
+  by being more careful to clear the cache from an older broken version (#21).
+
+* Ability to customize what files are passed to `transformStateless` with
+  a likewise named field in the `package.json`'s `ecmascript-hot` key (#18).
+
 # v1.3.1_1 (2016-04-04)
 
 * For Meteor 1.3.1.
