@@ -16,7 +16,7 @@ Npm.depends({
   //'meteor-babel': '0.8.4',  // core version, KEEP UPDATED
   //'meteor-babel': 'file:///home/dragon/www/npm/gadicc-meteor-babel',
   'meteor-babel': 'https://github.com/gadicc/babel/tarball/deb276cc6eac2e02014c616318f4ed6b4401ec9e',
-  // ws, available via Meteor
+  'ws': '1.0.1' // avilable via Meteor but we need it for accelerator.js
 });
 
 Package.onUse(function (api) {

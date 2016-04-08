@@ -122,7 +122,9 @@ function startFork() {
 
   fork.send({
     type: 'initPayload',
-    babelrc: babelrc
+    data: {
+      babelrc: babelrc
+    }
   });
 
   fork.on('message', function(msg) {
@@ -157,7 +159,9 @@ if (gdata.fork) {
       startFork();
 
       if (waiting.setCacheDir)
-        fork.send({ type: 'setCacheDir', dir: waiting.setCacheDir });
+        fork.send({ type: 'setCacheDir', data: waiting.setCacheDir });
+      if (waiting.packageDir)
+        fork.send({ type: 'packageDir', data: waiting.packageDir });
       if (waiting.fileData)
         fork.send({ type: 'fileData', data: waiting.fileData });
 
@@ -173,10 +177,10 @@ hot.setCacheDir = function(cacheDir) {
   if (waiting)
     waiting.setCacheDir = cacheDir;
   else
-    fork.send({ type: 'setCacheDir', dir: cacheDir });
+    fork.send({ type: 'setCacheDir', data: cacheDir });
 }
 
-var sentFiles = {}, bci;
+var sentFiles = {}, bci, packageDir;
 hot.forFork = function(inputFiles, instance, fake) {
   var data = {};
   if (fake) return;
@@ -193,6 +197,28 @@ hot.forFork = function(inputFiles, instance, fake) {
 */
   inputFiles.forEach(function(inputFile) {
     var file;
+    if (!packageDir) {
+      packageDir = Object.keys(inputFile._resourceSlot.sourceProcessor.isopack.pluginWatchSet.files)
+        .find(function(file) {
+          return file.match(/packages\/(?:gadicc_)?babel-compiler-hot/)
+        });
+      if (packageDir) {
+        packageDir = packageDir.substr(0, packageDir.indexOf('babel-compiler-hot') + 18);
+        if (waiting)
+          waiting.packageDir = packageDir;
+        else
+          fork.send({ type: 'packageDir', data: packageDir });
+      }
+
+      /*
+      console.log(4, inputFile.getPathInPackage());
+      //console.log(inputFile);
+      console.log(5, inputFile._resourceSlot.sourceProcessor.isopack);
+      console.log(6, inputFile._resourceSlot.packageSourceBatch.unibuild);
+      console.log(7, inputFile._resourceSlot.packageSourceBatch.sourceRoot);      
+      */
+    }
+
     if (inputFile.getArch() === "web.browser") {
       file = path.join(inputFile._resourceSlot.packageSourceBatch.sourceRoot, inputFile.getPathInPackage());
       if (!sentFiles[file]) {

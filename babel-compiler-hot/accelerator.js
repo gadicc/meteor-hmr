@@ -2,7 +2,7 @@ var fs = require('fs');
 var path = require('path');
 var http = require('http');
 var crypto = require('crypto');
-var WebSocketServer = require('ws').Server;
+//var WebSocketServer = require('ws').Server;
 
 /* arguments from hothacks.js */
 
@@ -24,65 +24,89 @@ var server = http.createServer(function (req, res) {
   res.end(hot.bundles[hash].contents, 'utf8');
 }).listen(HOT_PORT);
 
-var wss = new WebSocketServer({ server: server });
+// websocketserver setup below
 
-// straight out of https://www.npmjs.com/package/ws
-wss.broadcast = function broadcast(data) {
-  wss.clients.forEach(function each(client) {
-    client.send(data);
+var handlers = {};
+var babelrc, packageDir, node_modules, meteorBabel, WebSocketServer,
+  wss, pendingSetCacheDir;
+
+process.on('message', function(msg) {
+  if (handlers[msg.type])
+    return handlers[msg.type](msg.data);
+  console.log('[gadicc-hot-fork] Unknown message: ' + JSON.stringify(msg));
+});
+
+handlers.close = function() {
+  server.close();
+  wss.close();
+  process.send({type: 'closed'});
+  process.disconnect();
+  process.exit();  
+};
+
+handlers.initPayload = function(data) {
+  babelrc = data.babelrc;
+};
+
+handlers.packageDir = function(dir) {
+  packageDir = dir;
+
+  // published package vs local package
+  if (packageDir.match(/\+os\+/))
+    node_modules = path.join(packageDir, 'npm', 'node_modules');
+  else
+    node_modules = path.join(packageDir, '.npm', 'package', 'node_modules');
+
+  // modules via Npm.depends in package.js
+  meteorBabel = require(path.join(node_modules, 'meteor-babel'));
+  WebSocketServer = require(path.join(node_modules, 'ws')).Server;
+
+  wss = new WebSocketServer({ server: server });
+
+  // straight out of https://www.npmjs.com/package/ws
+  wss.broadcast = function broadcast(data) {
+    wss.clients.forEach(function each(client) {
+      client.send(data);
+    });
+  };
+
+  if (pendingSetCacheDir) {
+    handlers.setCacheDir(pendingSetCacheDir);
+    pendingSetCacheDir = false;
+  }
+};
+
+handlers.setCacheDir = function(dir) {
+  if (!packageDir) {
+    pendingSetCacheDir = dir;
+    return;
+  }
+
+  bc.setDiskCacheDirectory(dir);
+
+  // First compile takes ages (probably from loading all the plugins),
+  // so let's just get it out the way.
+  //
+  // Regrettably this polutes the disk, perhaps we should compute the
+  // hash ourselves and unlink; would require utils.deepHash and
+  // meteorBabelVersion.
+  var options = Babel.getDefaultOptions();
+  if (babelrc.client.exists)
+    options.extends = babelrc.client.path;
+  else
+    options.extends = babelrc.root.path;
+  options.filename = options.sourceFileName = 'gadicc-cachebuster.js';
+  Babel.compile("import React from 'react';\n", options, {
+    sourceHash: crypto.randomBytes(20).toString('hex')
   });
 };
 
-var babelrc;
-
-process.on('message', function(msg) {
-
-  switch (msg.type) {
-
-    case 'close':
-      server.close();
-      wss.close();
-      process.send({type: 'closed'});
-      process.disconnect();
-      process.exit();
-      return;
-
-    case 'initPayload':
-      babelrc = msg.babelrc;
-      return;
-
-    case 'setCacheDir':
-      bc.setDiskCacheDirectory(msg.dir);
-
-      // First compile takes ages (probably from loading all the plugins),
-      // so let's just get it out the way.
-      //
-      // Regrettably this polutes the disk, perhaps we should compute the
-      // hash ourselves and unlink; requires utils.deepHash and
-      // meteorBabelVersion.
-      var options = Babel.getDefaultOptions();
-      if (babelrc.client.exists)
-        options.extends = babelrc.client.path;
-      else
-        options.extends = babelrc.root.path;
-      options.filename = options.sourceFileName = 'gadicc-cachebuster.js';
-      Babel.compile("import React from 'react';\n", options, {
-        sourceHash: crypto.randomBytes(20).toString('hex')
-      });
-      return;
-
-    // get file data from build plugin   
-    case 'fileData':
-      // console.log('got ' + Object.keys(msg.data).length);
-      // hothacks.js guarantees that these are all new
-      for (var key in msg.data)
-        fs.watch(key, onChange.bind(null, key, msg.data[key]));
-      return;
-
-  }
-
-  console.log('[gadicc-hot-fork] Unknown message: ' + JSON.stringify(msg));
-});
+// get file data from build plugin   
+handlers.fileData = function(files) {
+  // hothacks.js guarantees that these are all new
+  for (var key in files)
+    fs.watch(key, onChange.bind(null, key, files[key]));
+};
 
 /* handle file changes */
 
@@ -136,8 +160,8 @@ function sendInputFiles() {
 
 /* Dupe code from rest of package */
 
-var packageDir = '/home/dragon/.meteor/packages/gadicc_babel-compiler-hot/.6.6.2-beta.1.4sue43++os+web.browser+web.cordova';
-var meteorBabel = require(packageDir + '/npm/node_modules/meteor-babel');
+//var packageDir = '/home/dragon/.meteor/packages/gadicc_babel-compiler-hot/.6.6.2-beta.1.4sue43++os+web.browser+web.cordova';
+//var meteorBabel = require(packageDir + '/npm/node_modules/meteor-babel');
 
 /* babelrc.js */
 
