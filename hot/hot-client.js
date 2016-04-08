@@ -28,7 +28,7 @@ var ws = {};
 ws.onmessage = function(event) {
   var script = document.createElement('script');
   script.type = 'text/javascript';
-  script.src = serverBase + event.data; 
+  script.src = serverBase + event.data;
   document.head.appendChild(script);
 }
 
@@ -44,12 +44,18 @@ ws.onerror = function(error) {
 */
 
 ws.onclose = function() {
-  if (!ws.reconnecting) {
-    ws.reconnecting = true;
+  if (ws.reconnecting > 20000) {
+    console.log('[gadicc:hot] Giving up.  Reload this page when the server '
+      + 'is running again.');
+    return;
+  } else if (ws.reconnecting) {
+    ws.reconnecting *= 2;
+  } else {
+    ws.reconnecting = 100;
     console.log('[gadicc:hot] Disconnected, attempting to reconnect...');
   }
   
-  setTimeout(ws.open, 100);
+  setTimeout(ws.open, ws.reconnecting);
 }
 
 ws.open = function() {

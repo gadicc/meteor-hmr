@@ -9,6 +9,9 @@
 * Ability to customize what files are passed to `transformStateless` with
   a likewise named field in the `package.json`'s `ecmascript-hot` key (#18).
 
+* hot-client: more useful debug info for failures, more resilliency in
+  maintaining a connection to the server.
+
 # v1.3.1_1 (2016-04-04)
 
 * For Meteor 1.3.1.
