@@ -470,6 +470,9 @@ BCp.processFilesForTarget = function (inputFiles) {
       toBeAdded.data = result.code;
       toBeAdded.hash = result.hash;
       toBeAdded.sourceMap = result.map;
+
+      // hot
+      toBeAdded.packageName = packageName;
     }
 
     partialBundle.push(toBeAdded);
