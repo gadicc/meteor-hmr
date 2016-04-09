@@ -162,7 +162,7 @@ function archType(arch) {
  * Wow, in the end, this is all we need and babel does the rest in
  * the right way.
  */
-mergeBabelrcOptions = function(options, inputFile) {
+var mergeBabelrcOptions = function(options, inputFile) {
   var arch = archType(inputFile.getArch());
 
   var obj = babelrc[arch];

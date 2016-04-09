@@ -1,6 +1,6 @@
 var fs = Npm.require('fs');
 var path = Npm.require('path');
-var Accelerator = Npm.require('meteor-hotload-accelerator');
+var Accelerator = Npm.require('meteor-hotload-accelerator').default;
 
 hot = {
   lastHash: {},
@@ -117,19 +117,10 @@ hot.transformStateless = function(source, path) {
 
 /* */
 
-// we can't read straight from program assets because at build plugin time they
-// won't be created yet.
-// var forkFile = path.join(projRoot, '.meteor', 'local', 'build', 'programs',
-//  'server', 'assets', 'packages', 'gadicc_babel-compiler-hot', 'accelerator.js');
-
-
-
 var fork;
 
 function startFork() {
-  console.log(5);
   fork = gdata.fork = new Accelerator(HOT_PORT);
-  console.log(6);
 
   fork.send({
     type: 'initPayload',
@@ -138,8 +129,6 @@ function startFork() {
       pkgSettings: pkgSettings
     }
   });
-
-  console.log(1);
 
   fork.on('message', function(msg) {
 
