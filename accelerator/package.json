@@ -1,0 +1,20 @@
+{
+  "name": "meteor-hotload-accelerator",
+  "version": "0.0.1",
+  "description": "Used by gadicc:ecmascript-hot meteor package",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "meteor",
+    "hotload",
+    "hmr"
+  ],
+  "author": "Gadi Cohen",
+  "license": "ISC",
+  "dependencies": {
+    "meteor-babel": "https://github.com/gadicc/babel/tarball/deb276cc6eac2e02014c616318f4ed6b4401ec9e",
+    "ws": "^1.0.1"
+  }
+}

@@ -1,6 +1,6 @@
 var fs = Npm.require('fs');
 var path = Npm.require('path');
-var child_process = Npm.require('child_process');
+var Accelerator = Npm.require('meteor-hotload-accelerator');
 
 hot = {
   lastHash: {},
@@ -115,18 +115,6 @@ hot.transformStateless = function(source, path) {
   return source;
 }
 
-/* figure out package source dir */
-
-var versions = {};
-(fs.readFileSync(path.join(projRoot, '.meteor', 'versions'), 'utf8'))
-  .split('\n')
-  .forEach(function(line) {
-    line = line.split('@');
-    versions[line[0]] = line[1];
-  });
-console.log(versions);
-
-
 /* */
 
 // we can't read straight from program assets because at build plugin time they
@@ -134,16 +122,14 @@ console.log(versions);
 // var forkFile = path.join(projRoot, '.meteor', 'local', 'build', 'programs',
 //  'server', 'assets', 'packages', 'gadicc_babel-compiler-hot', 'accelerator.js');
 
-var forkFile = path.join(projRoot, '.meteor', 'local', 'gadicc_hot-accel.js');
-fs.writeFileSync(forkFile, Assets.getText('accelerator.js'));
 
-console.log('[gadicc:hot] ' + forkFile);
-console.log('=> Starting gadicc:ecmascript-hot server on port ' + HOT_PORT + '.\n');
 
 var fork;
 
 function startFork() {
-  fork = gdata.fork = child_process.fork(forkFile, [HOT_PORT]);
+  console.log(5);
+  fork = gdata.fork = new Accelerator(HOT_PORT);
+  console.log(6);
 
   fork.send({
     type: 'initPayload',
@@ -152,6 +138,8 @@ function startFork() {
       pkgSettings: pkgSettings
     }
   });
+
+  console.log(1);
 
   fork.on('message', function(msg) {
 
@@ -186,8 +174,6 @@ if (gdata.fork) {
 
       if (waiting.setCacheDir)
         fork.send({ type: 'setCacheDir', data: waiting.setCacheDir });
-      if (waiting.packageDir)
-        fork.send({ type: 'packageDir', data: waiting.packageDir });
       if (waiting.fileData)
         fork.send({ type: 'fileData', data: waiting.fileData });
 
@@ -206,7 +192,7 @@ hot.setCacheDir = function(cacheDir) {
     fork.send({ type: 'setCacheDir', data: cacheDir });
 }
 
-var sentFiles = {}, bci, packageDir;
+var sentFiles = {}, bci;
 hot.forFork = function(inputFiles, instance, fake) {
   var data = {};
   if (fake) return;
@@ -223,29 +209,6 @@ hot.forFork = function(inputFiles, instance, fake) {
 */
   inputFiles.forEach(function(inputFile) {
     var file;
-    if (!packageDir) {
-      packageDir = Object.keys(inputFile._resourceSlot.sourceProcessor.isopack.pluginWatchSet.files)
-        .find(function(file) {
-          return file.match(/packages\/(?:gadicc_)?babel-compiler-hot/)
-        });
-      if (packageDir) {
-        console.log('found package dir', packageDir);
-        packageDir = packageDir.substr(0, packageDir.indexOf('babel-compiler-hot') + 18);
-        if (waiting)
-          waiting.packageDir = packageDir;
-        else
-          fork.send({ type: 'packageDir', data: packageDir });
-      }
-
-      /*
-      console.log(4, inputFile.getPathInPackage());
-      //console.log(inputFile);
-      console.log(5, inputFile._resourceSlot.sourceProcessor.isopack);
-      console.log(6, inputFile._resourceSlot.packageSourceBatch.unibuild);
-      console.log(7, inputFile._resourceSlot.packageSourceBatch.sourceRoot);
-      */
-    }
-
     if (inputFile.getArch() === "web.browser") {
       file = path.join(inputFile._resourceSlot.packageSourceBatch.sourceRoot, inputFile.getPathInPackage());
       if (!sentFiles[file]) {

@@ -1094,20 +1094,27 @@
         }
       }
     },
-    "ws": {
-      "version": "1.0.1",
-      "resolved": "https://registry.npmjs.org/ws/-/ws-1.0.1.tgz",
-      "from": "ws@1.0.1",
+    "meteor-hotload-accelerator": {
+      "version": "0.0.1",
+      "resolved": "file:../../../accelerator",
+      "from": "../../../accelerator",
       "dependencies": {
-        "options": {
-          "version": "0.0.6",
-          "resolved": "https://registry.npmjs.org/options/-/options-0.0.6.tgz",
-          "from": "options@>=0.0.5"
-        },
-        "ultron": {
-          "version": "1.0.2",
-          "resolved": "https://registry.npmjs.org/ultron/-/ultron-1.0.2.tgz",
-          "from": "ultron@>=1.0.0 <1.1.0"
+        "ws": {
+          "version": "1.0.1",
+          "resolved": "https://registry.npmjs.org/ws/-/ws-1.0.1.tgz",
+          "from": "ws@>=1.0.1 <2.0.0",
+          "dependencies": {
+            "options": {
+              "version": "0.0.6",
+              "resolved": "https://registry.npmjs.org/options/-/options-0.0.6.tgz",
+              "from": "options@>=0.0.5"
+            },
+            "ultron": {
+              "version": "1.0.2",
+              "resolved": "https://registry.npmjs.org/ultron/-/ultron-1.0.2.tgz",
+              "from": "ultron@>=1.0.0 <1.1.0"
+            }
+          }
         }
       }
     }

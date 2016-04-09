@@ -13,10 +13,11 @@ Package.describe({
 });
 
 Npm.depends({
+  // DONT FORGET TO UPDATE `meteor-babel in meteor-hotload-accelerator` TOO!
   //'meteor-babel': '0.8.4',  // core version, KEEP UPDATED
   //'meteor-babel': 'file:///home/dragon/www/npm/gadicc-meteor-babel',
   'meteor-babel': 'https://github.com/gadicc/babel/tarball/deb276cc6eac2e02014c616318f4ed6b4401ec9e',
-  'ws': '1.0.1' // avilable via Meteor but we need it for accelerator.js
+  'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator'
 });
 
 Package.onUse(function (api) {
@@ -29,8 +30,7 @@ Package.onUse(function (api) {
 
   api.addAssets([
     'babelrc-skel',
-    'babelrc-client-skel',
-    'accelerator.js'
+    'babelrc-client-skel'
   ], 'server');
 
   api.use('check@1.1.0');

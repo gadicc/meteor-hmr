@@ -2,15 +2,18 @@ var fs = require('fs');
 var path = require('path');
 var http = require('http');
 var crypto = require('crypto');
-//var WebSocketServer = require('ws').Server;
 
-/* arguments from hothacks.js */
-
-// argv[0] == node bin
-// argv[1] == this script
-var HOT_PORT = process.argv[2];
+var meteorBabel = require('meteor-babel');
+var WebSocketServer = require('ws').Server;
 
 /* */
+
+// process.argv[0] <-- full node binary path
+// process.argv[1] <-- full path for this file
+var HOT_PORT = process.argv[2];
+
+console.log('=> Starting gadicc:ecmascript-hot server on port ' + HOT_PORT + '.\n');
+
 
 var server = http.createServer(function (req, res) {
   var hash = req.url.match(/^\/hot.js\?hash=(.*)$/);
@@ -24,11 +27,17 @@ var server = http.createServer(function (req, res) {
   res.end(hot.bundles[hash].contents, 'utf8');
 }).listen(HOT_PORT);
 
-// websocketserver setup below
+var wss = new WebSocketServer({ server: server });
+
+// straight out of https://www.npmjs.com/package/ws
+wss.broadcast = function broadcast(data) {
+  wss.clients.forEach(function each(client) {
+    client.send(data);
+  });
+};
 
 var handlers = {};
-var babelrc, packageDir, node_modules, meteorBabel, WebSocketServer,
-  wss, pendingSetCacheDir;
+var babelrc;
 
 process.on('message', function(msg) {
   if (handlers[msg.type])
@@ -55,40 +64,7 @@ handlers.initPayload = function(data) {
     ? toRegExp(tsSettings.sourceMatch) : /^import React/m;
 };
 
-handlers.packageDir = function(dir) {
-  packageDir = dir;
-
-  // published package vs local package
-  if (packageDir.match(/\+os\+/))
-    node_modules = path.join(packageDir, 'npm', 'node_modules');
-  else
-    node_modules = path.join(packageDir, '.npm', 'package', 'node_modules');
-
-  // modules via Npm.depends in package.js
-  meteorBabel = require(path.join(node_modules, 'meteor-babel'));
-  WebSocketServer = require(path.join(node_modules, 'ws')).Server;
-
-  wss = new WebSocketServer({ server: server });
-
-  // straight out of https://www.npmjs.com/package/ws
-  wss.broadcast = function broadcast(data) {
-    wss.clients.forEach(function each(client) {
-      client.send(data);
-    });
-  };
-
-  if (pendingSetCacheDir) {
-    handlers.setCacheDir(pendingSetCacheDir);
-    pendingSetCacheDir = false;
-  }
-};
-
 handlers.setCacheDir = function(dir) {
-  if (!packageDir) {
-    pendingSetCacheDir = dir;
-    return;
-  }
-
   bc.setDiskCacheDirectory(dir);
 
   // First compile takes ages (probably from loading all the plugins),
