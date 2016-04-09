@@ -115,6 +115,18 @@ hot.transformStateless = function(source, path) {
   return source;
 }
 
+/* figure out package source dir */
+
+var versions = {};
+(fs.readFileSync(path.join(projRoot, '.meteor', 'versions'), 'utf8'))
+  .split('\n')
+  .forEach(function(line) {
+    line = line.split('@');
+    versions[line[0]] = line[1];
+  });
+console.log(versions);
+
+
 /* */
 
 // we can't read straight from program assets because at build plugin time they
@@ -124,8 +136,6 @@ hot.transformStateless = function(source, path) {
 
 var forkFile = path.join(projRoot, '.meteor', 'local', 'gadicc_hot-accel.js');
 fs.writeFileSync(forkFile, Assets.getText('accelerator.js'));
-
-// XXX check peer deps ws, meteor-babel
 
 console.log('[gadicc:hot] ' + forkFile);
 console.log('=> Starting gadicc:ecmascript-hot server on port ' + HOT_PORT + '.\n');
@@ -219,6 +229,7 @@ hot.forFork = function(inputFiles, instance, fake) {
           return file.match(/packages\/(?:gadicc_)?babel-compiler-hot/)
         });
       if (packageDir) {
+        console.log('found package dir', packageDir);
         packageDir = packageDir.substr(0, packageDir.indexOf('babel-compiler-hot') + 18);
         if (waiting)
           waiting.packageDir = packageDir;
@@ -231,7 +242,7 @@ hot.forFork = function(inputFiles, instance, fake) {
       //console.log(inputFile);
       console.log(5, inputFile._resourceSlot.sourceProcessor.isopack);
       console.log(6, inputFile._resourceSlot.packageSourceBatch.unibuild);
-      console.log(7, inputFile._resourceSlot.packageSourceBatch.sourceRoot);      
+      console.log(7, inputFile._resourceSlot.packageSourceBatch.sourceRoot);
       */
     }
 

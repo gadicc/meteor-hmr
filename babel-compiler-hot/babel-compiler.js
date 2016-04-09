@@ -95,7 +95,8 @@ BCp.processFilesForTarget = function (inputFiles) {
 };
 
 BCp.setDiskCacheDirectory = function (cacheDir) {
-  hot.setCacheDir(cacheDir);
+  if (hot.setCacheDir) // false during publish?
+    hot.setCacheDir(cacheDir);
   Babel.setCacheDir(cacheDir);
 };
 
