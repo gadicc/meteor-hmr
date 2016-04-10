@@ -75,13 +75,60 @@ function toRegExp(input) {
     throw new Error("Don't know how to interpret pattern", input);
 }
 
-var pkg = JSON.parse(fs.readFileSync(path.join(projRoot, 'package.json')));
+var tsSettings, tsPathMatch, tsSourceMatch;
+var packageJsonPath = path.join(projRoot, 'package.json');
+var pkg = JSON.parse(fs.readFileSync(packageJsonPath));
 var pkgSettings = pkg['ecmascript-hot'];
-var tsSettings = pkgSettings && pkgSettings.transformStateless;
-var tsPathMatch = tsSettings && tsSettings.pathMatch
-  ? toRegExp(tsSettings.pathMatch) : /\.jsx$/;
-var tsSourceMatch = tsSettings && tsSettings.sourceMatch
-  ? toRegExp(tsSettings.sourceMatch) : /^import React/m;
+
+function updateSettings() {
+  tsSettings = pkgSettings && pkgSettings.transformStateless;
+  tsPathMatch = tsSettings && tsSettings.pathMatch
+    ? toRegExp(tsSettings.pathMatch) : /\.jsx$/;
+  tsSourceMatch = tsSettings && tsSettings.sourceMatch
+    ? toRegExp(tsSettings.sourceMatch) : /^import React/m;
+
+  babelOtherDeps.ecmaHotPkgJson = pkgSettings;
+}
+
+updateSettings();
+
+if (pkgSettings) {
+  fs.watch(packageJsonPath, function() {
+    var oldPkgSettings = pkgSettings;
+
+    packageJsonPath = path.join(projRoot, 'package.json');
+    pkg = JSON.parse(fs.readFileSync(packageJsonPath));
+    pkgSettings = pkg['ecmascript-hot'];
+
+    if (JSON.stringify(oldPkgSettings) !== JSON.stringify(pkgSettings)) {
+
+      console.log('\n[gadicc:hot] package.json\'s `ecmascript-hot` section '
+        + 'was modified, please restart Meteor.');
+      process.exit();
+      return;
+
+      // FOR THE BELOW CODE TO WORK WE NEED TO GET METEOR TO REBUILD ALL EXISTING
+      // FILES, SO UNTIL WE CAN DO THAT, JUST EXIT.
+
+      console.log('\n[gadicc:hot] package.json\'s `ecmascript-hot` section '
+        + 'modified, updating...');
+
+      updateSettings();
+
+        // Note, this assumes that that accelerator will
+        //   1. not perform any init actions (true in 0.0.2)
+        //   2. store this data in a way that will be re-used (true in 0.0.2)
+        fork.send({
+          type: 'initPayload',
+          data: {
+            babelrc: babelrc,
+            pkgSettings: pkgSettings
+          }
+        });
+
+    }
+  });
+}
 
 hot.transformStateless = function(source, path) {
   if (!(source.match(tsSourceMatch) && path.match(tsPathMatch))) {
@@ -176,7 +223,7 @@ if (gdata.fork) {
 
 // If we're exiting, tell the fork to shutdown too
 process.on('exit', function() {
-  fork.send({ type: 'close '});
+  fork.send({ type: 'close' });
 });
 
 hot.setCacheDir = function(cacheDir) {

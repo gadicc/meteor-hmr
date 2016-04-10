@@ -134,6 +134,9 @@ if (!babelrc.root.contents.presets /* || babelrc.presets.indexOf('meteor') === -
   process.exit(); // could throw err if .babelrc was in meteor's file watcher
 }
 
+// package global; used in hothacks.js to cover relevent package.json aswell.
+babelOtherDeps = {};
+
 function archType(arch) {
   if (arch.substr(0, 4) === 'web.')
     return 'client';
@@ -160,6 +163,9 @@ mergeBabelrcOptions = function(options, inputFile) {
 
     // Because .babelrc may contain env-specific configs
     // Default is 'development' as per http://babeljs.io/docs/usage/options/
-    BABEL_ENV: process.env.BABEL_ENV || process.env.NODE_ENV || 'development'
+    BABEL_ENV: process.env.BABEL_ENV || process.env.NODE_ENV || 'development',
+
+    // From other files, e.g. hothacks pkgSettings
+    otherDeps: babelOtherDeps
   };
 }
