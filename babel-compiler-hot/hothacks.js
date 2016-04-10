@@ -174,6 +174,11 @@ if (gdata.fork) {
   startFork();
 }
 
+// If we're exiting, tell the fork to shutdown too
+process.on('exit', function() {
+  fork.send({ type: 'close '});
+});
+
 hot.setCacheDir = function(cacheDir) {
   if (waiting)
     waiting.setCacheDir = cacheDir;
