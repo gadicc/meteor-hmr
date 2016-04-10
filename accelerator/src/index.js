@@ -11,9 +11,7 @@ class Accelerator {
     this.child = child_process.fork(forkFile, [port]);
 
     this.child.on('message', (msg) => {
-      console.log(1);
       this.listeners.forEach(listener => listener(msg));
-      console.log(2);
     });
   }
 

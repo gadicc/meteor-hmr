@@ -62,6 +62,8 @@ handlers.initPayload = function(data) {
     ? toRegExp(tsSettings.pathMatch) : /\.jsx$/;
   tsSourceMatch = tsSettings && tsSettings.sourceMatch
     ? toRegExp(tsSettings.sourceMatch) : /^import React/m;
+
+  babelOtherDeps.ecmaHotPkgJson = pkgSettings;
 };
 
 handlers.setCacheDir = function(dir) {
@@ -150,6 +152,9 @@ function sendInputFiles() {
 
 // babelrc processing done in build plugin
 
+// package global; used in hothacks.js to cover relevent package.json aswell.
+var babelOtherDeps = {};
+
 function archType(arch) {
   if (arch.substr(0, 4) === 'web.')
     return 'client';
@@ -176,7 +181,11 @@ var mergeBabelrcOptions = function(options, inputFile) {
 
     // Because .babelrc may contain env-specific configs
     // Default is 'development' as per http://babeljs.io/docs/usage/options/
-    BABEL_ENV: process.env.BABEL_ENV || process.env.NODE_ENV || 'development'
+    BABEL_ENV: process.env.BABEL_ENV || process.env.NODE_ENV || 'development',
+
+    // From other files, e.g. hothacks pkgSettings
+    otherDeps: babelOtherDeps
+
   };
 }
 

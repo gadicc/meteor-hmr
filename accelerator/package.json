@@ -1,6 +1,6 @@
 {
   "name": "meteor-hotload-accelerator",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Used by gadicc:ecmascript-hot meteor package",
   "main": "lib/index.js",
   "scripts": {
