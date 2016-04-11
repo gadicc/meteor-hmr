@@ -31,7 +31,7 @@ BCp.processFilesForTarget = function (inputFiles) {
       sourceMap: null,
       bare: !! fileOptions.bare
     };
-    var deps;
+    var deps, origSource;
 
     // If you need to exclude a specific file within a package from Babel
     // compilation, pass the { transpile: false } options to api.addFiles
@@ -56,6 +56,7 @@ BCp.processFilesForTarget = function (inputFiles) {
 
       // hot
       deps = mergeBabelrcOptions(babelOptions, inputFile);
+      origSource = source;
       source = hot.transformStateless(source, inputFilePath);
       deps.sourceHash = toBeAdded.hash;
 
@@ -73,8 +74,12 @@ BCp.processFilesForTarget = function (inputFiles) {
         });
       } catch (e) {
         if (e.loc) {
+          console.log(source);
           inputFile.error({
-            message: e.message,
+            message: e.message + (source !== origSource
+              ? ' on ecmascript-hot TRANSFORMED file, possible false positive:\n'
+                + source.split('\n').slice(e.loc.line-5, e.loc.line+5).join('\n')
+              : ''),
             line: e.loc.line,
             column: e.loc.column,
           });

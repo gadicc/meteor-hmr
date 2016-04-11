@@ -12,6 +12,10 @@
 * hot-client: more useful debug info for failures, more resilliency in
   maintaining a connection to the server.
 
+* More useful warning when a compile error occured on a transformed file.
+* Improved stateless matching, don't get confused by single line functions
+  next to functional stateless components.
+
 # v1.3.1_1 (2016-04-04)
 
 * For Meteor 1.3.1.

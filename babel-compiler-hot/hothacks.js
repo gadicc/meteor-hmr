@@ -135,9 +135,13 @@ hot.transformStateless = function(source, path) {
     return source;
   }
 
-  // const MyComponent = (prop1, prop2) => ();
-  source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \(([\s\S]+?)\n\);\n/g,
-    function(match, className, args, code) {
+  // const MyComponent = ({prop1, prop2}) => ();
+  // const MyComponent = (props) => ();
+  // const MyComponent = (props, context) => ();  TODO context
+  source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \(([\s\S]+?)(\n\S+)/g,
+    function(match, className, args, code, rest) {
+      if (rest !== '\n);')
+        return match;
       return '\nclass ' + className + ' extends React.Component {\n' +
         '  render() {\n' +
         (args ? '    const ' + args + ' = this.props;\n' : '') +
@@ -147,9 +151,9 @@ hot.transformStateless = function(source, path) {
     });
 
   // const MyComponent = (prop1, prop2) => { return ( < ... > ) };
-  source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \{([\s\S]+?)\n\};\n/g,
-    function(match, className, args, code) {
-      if (!match.match(/return\s+\(\s*\</))
+  source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \{([\s\S]+?)(\n\S+)/g,
+    function(match, className, args, code, rest) {
+      if (rest !== '\n};' || !code.match(/return\s+\(\s*\</))
         return match;
       return '\nclass ' + className + ' extends React.Component {\n' +
         '  render() {\n' +
