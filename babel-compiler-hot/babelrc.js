@@ -18,6 +18,23 @@
  *
  */
 
+/*
+ * This is how we work out if we're in a build plugin (inside of meteor-tool)
+ * or as a server package.
+ */
+if (process.env.METEOR_PARENT_PID) {
+
+  // Our new way to ensure that the meteor preset is at required version
+  var checkNpmVersions = Package['tmeasday:check-npm-versions'].checkNpmVersions;
+  checkNpmVersions({
+    'babel-preset-meteor': '^6.6.7'
+  }, 'gadicc:ecmascript-hot');
+
+  // Nothing else in this file needs to be run on the server (vs build plugin)
+  return;
+}
+
+
 var fs = Npm.require('fs');
 var path = Npm.require('path');
 var crypto = Npm.require('crypto');

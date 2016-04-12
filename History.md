@@ -16,6 +16,9 @@
 * Improved stateless matching, don't get confused by single line functions
   next to functional stateless components.
 
+* Use checkNpmVersions to ensure that `babel-preset-meteor` is up-to-date,
+  now that we don't include it directly.
+
 # v1.3.1_1 (2016-04-04)
 
 * For Meteor 1.3.1.

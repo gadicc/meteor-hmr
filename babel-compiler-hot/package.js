@@ -38,9 +38,12 @@ Package.onUse(function (api) {
 
   // hot
   api.versionsFrom('1.3.1');
-  api.use('random');
-  api.use('underscore');
-  api.use('gadicc:json5@0.5.0-0');
+  api.use([
+    'random',
+    'underscore',
+    'gadicc:json5@0.5.0-0',
+    'tmeasday:check-npm-versions@0.3.0'
+  ], 'server');
 
   api.export('Babel', 'server');
   api.export('BabelCompiler', 'server');
