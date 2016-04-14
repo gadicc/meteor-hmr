@@ -10,9 +10,23 @@ var WebSocketServer = require('ws').Server;
 
 // process.argv[0] <-- full node binary path
 // process.argv[1] <-- full path for this file
-var HOT_PORT = process.argv[2];
+var ACCEL_ID = process.argv[2];
+var HOT_PORT = process.argv[3];
 
-console.log('=> Starting gadicc:ecmascript-hot server on port ' + HOT_PORT + '.\n');
+console.log('=> Starting gadicc:ecmascript-hot Accelerator(' + ACCEL_ID
+  + ') on port ' + HOT_PORT + '.\n');
+
+function log(/* arguments */) {
+  var args = Array.prototype.slice.call(arguments);
+  var pre = '\n[gadicc:hot] Accelerator(' + ACCEL_ID + '): ';
+
+  if (typeof args[0] === 'string')
+    args[0] =  pre + args[0];
+  else
+    args.splice(0, 0, pre);
+
+  console.log.apply(console, args);
+}
 
 var server = http.createServer(function (req, res) {
   var hash = req.url.match(/^\/hot.js\?hash=(.*)$/);
@@ -40,21 +54,32 @@ var babelrc;
 
 process.on('disconnect', function() {
   // unclear from docs if this works within the child!
-  console.log('\n\n[gadicc:hot] Accelerator disconnect event received, '
-    + 'exiting.\n');
+  log('disconnect event received, exiting.');
   handlers.close();
 });
 
 process.on('message', function(msg) {
   if (handlers[msg.type])
     return handlers[msg.type](msg.data);
-  console.log('[gadicc:hot] Accelerator got unknown message: '
-    + JSON.stringify(msg));
+  log('unknown message: ' + JSON.stringify(msg));
 });
 
 handlers.close = function() {
-  wss.close();
-  server.close();
+  try {
+    wss.close();
+  } catch (err) {
+    log('error closing websocket server (safe to ignore)');
+    log('message', err.message);
+    log('name', err.name);
+  }
+
+  try {
+    server.close();
+  } catch (err) {
+    if (err.message !== 'Not running')
+      throw err;
+  }
+
   if (process.connected) {
     process.send({type: 'closed'});
     process.disconnect();
@@ -113,7 +138,7 @@ function onChange(file, inputFile, event) {
   lastCall[file] = now;
 
   if (event === 'rename') {
-    console.log('[gadicc:hot] TODO, rename support.', file);
+    log('TODO, rename support.', file);
     return;
   }
 
@@ -342,7 +367,7 @@ FakeFile.prototype.addJavaScript = function() {
   // no-op
 }
 FakeFile.prototype.error = function(error) {
-  console.log(error);
+  log(error);
 }
 
 /* babel.js */
