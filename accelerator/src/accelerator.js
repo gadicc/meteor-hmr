@@ -6,7 +6,6 @@ var crypto = require('crypto');
 var meteorBabel = require('meteor-babel');
 var WebSocketServer = require('ws').Server;
 
-
 /* */
 
 // process.argv[0] <-- full node binary path
@@ -43,18 +42,8 @@ process.on('disconnect', function() {
   // unclear from docs if this works within the child!
   console.log('\n\n[gadicc:hot] Accelerator disconnect event received, '
     + 'exiting.\n');
-  close();
+  handlers.close();
 });
-
-// Probably not needed if the above works, but cheap to test.  Can be removed
-// if we confirm the above triggers over time.
-setInterval(function() {
-  if (!process.connected) {
-    console.log('\n\n[gadicc:hot] Accelerator no longer connected, '
-      + 'exiting.\n');
-    handlers.close();
-  }
-}, 1000)
 
 process.on('message', function(msg) {
   if (handlers[msg.type])

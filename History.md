@@ -23,6 +23,8 @@
 * Fixes for cases where, if Meteor died unexpectantly, the accelerator
   process would live on forever and prevent restarts (#26)
 
+* Fixes for running in `meteor test` environment (#27, #37).
+
 # v1.3.1_1 (2016-04-04)
 
 * For Meteor 1.3.1.
