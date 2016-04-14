@@ -83,13 +83,17 @@ the `react-transform` lines in that file.
 
 ## Where this works and doesn't
 
-*This section isn't finished yet.*
-
 NB: **This only works on React components**.  If you change a file that
 is imported by non-react by modules that aren't react components, a
 regular client refresh will occur.  We might offer full HMR support in
 the future, but then you'd still need to add code to your existing
 modules to handle the update (with React we know what to do already).
+
+Related: if you change non-react code in a file that has a react
+component too, since we don't know any better, we'll patch the (unchanged)
+react component and still block the full refresh, meaning your old code
+will still run.  To avoid this, either ctrl-R in such situations or
+don't mix code and react components in the same file.
 
 * ~~App only, no packages - avoids need to link in package imports~~
   (see Packages, below)

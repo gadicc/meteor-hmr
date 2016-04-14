@@ -30,6 +30,9 @@ if (process.env.METEOR_PARENT_PID) {
     'babel-preset-meteor': '^6.6.7'
   }, 'gadicc:ecmascript-hot');
 
+  // Ideally we should still read in babelrc's and only warn if they use the
+  // preset.
+
   // Nothing else in this file needs to be run on the server (vs build plugin)
   return;
 }

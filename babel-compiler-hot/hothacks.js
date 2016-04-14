@@ -10,8 +10,10 @@ hot = {
 
 /*
  * No HMR in production with our current model (but ideally, in the future)
+ * nor in test mode.  Note, we can't use Meteor.isTest here which isn't
+ * available inside a build plugin.
  */
-if (process.env.NODE_ENV === 'production') {
+if (process.env.NODE_ENV === 'production' || process.env.TEST_METADATA) {
   var noop = function() {};
   hot.process = noop;
   hot.forFork = noop;

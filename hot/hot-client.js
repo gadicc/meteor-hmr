@@ -1,6 +1,6 @@
 var NEW_HMR = false;
 
-if (process.env.NODE_ENV === 'production')
+if (process.env.NODE_ENV === 'production' || Meteor.isTest)
   return;
 
 // line below gets injected into first meteorInstall call
