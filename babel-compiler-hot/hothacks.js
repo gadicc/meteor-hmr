@@ -8,27 +8,23 @@ hot = {
   orig: {}
 };
 
-// Note, no Meteor.isTest in a build plugins.  In babelrc.js too.
-function isTest() {
-  return process.env.TEST_METADATA && process.env.TEST_METADATA.isTest;
-}
-
 /*
  * No HMR in production with our current model (but ideally, in the future)
- * nor in test mode.  
+ * nor in test mode (note, no Meteor.isTest in a build plugin; and the test
+ * below will only be true inside of a build plugin in test mode.
  */
-if (process.env.NODE_ENV === 'production' || isTest()) {
+if (process.env.NODE_ENV === 'production' || process.argv[2] === 'test') {
   var noop = function() {};
   hot.process = noop;
   hot.forFork = noop;
   hot.transformStateless = function(source) { return source; }
-  // This also skips the Mongo connect.
+  // This also skips loading the Accelereator.
   return;
 }
 
 /*
- * This is how we work out if we're in a build plugin (inside of meteor-tool)
- * or as a server package.  CODE BELOW THIS POINT SURVIVES A SERVER RELOAD.
+ * This evalutes to true if we're running as a server package (vs a build
+ * plugin inside of meteor-tool).  CODE BELOW THIS POINT SURVIVES A SERVER RELOAD.
  */
 if (process.env.METEOR_PARENT_PID) {
   Meteor.settings.public.HOT_PORT = parseInt(process.env.HOT_PORT);
