@@ -13,11 +13,15 @@
   maintaining a connection to the server.
 
 * More useful warning when a compile error occured on a transformed file.
+
 * Improved stateless matching, don't get confused by single line functions
   next to functional stateless components.
 
 * Use checkNpmVersions to ensure that `babel-preset-meteor` is up-to-date,
   now that we don't include it directly.
+
+* Fixes for cases where, if Meteor died unexpectantly, the accelerator
+  process would live on forever and prevent restarts (#26)
 
 # v1.3.1_1 (2016-04-04)
 

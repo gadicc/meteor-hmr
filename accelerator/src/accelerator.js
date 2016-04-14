@@ -14,7 +14,6 @@ var HOT_PORT = process.argv[2];
 
 console.log('=> Starting gadicc:ecmascript-hot server on port ' + HOT_PORT + '.\n');
 
-
 var server = http.createServer(function (req, res) {
   var hash = req.url.match(/^\/hot.js\?hash=(.*)$/);
   if (!(hash && (hash=hash[1]) && hot.bundles[hash])) {
@@ -39,17 +38,37 @@ wss.broadcast = function broadcast(data) {
 var handlers = {};
 var babelrc;
 
+process.on('disconnect', function() {
+  // unclear from docs if this works within the child!
+  console.log('\n\n[gadicc:hot] Accelerator disconnect event received, '
+    + 'exiting.\n');
+  close();
+});
+
+// Probably not needed if the above works, but cheap to test.  Can be removed
+// if we confirm the above triggers over time.
+setInterval(function() {
+  if (!process.connected) {
+    console.log('\n\n[gadicc:hot] Accelerator no longer connected, '
+      + 'exiting.\n');
+    handlers.close();
+  }
+}, 1000)
+
 process.on('message', function(msg) {
   if (handlers[msg.type])
     return handlers[msg.type](msg.data);
-  console.log('[gadicc-hot-fork] Unknown message: ' + JSON.stringify(msg));
+  console.log('[gadicc:hot] Accelerator got unknown message: '
+    + JSON.stringify(msg));
 });
 
 handlers.close = function() {
-  server.close();
   wss.close();
-  process.send({type: 'closed'});
-  process.disconnect();
+  server.close();
+  if (process.connected) {
+    process.send({type: 'closed'});
+    process.disconnect();
+  }
   process.exit();  
 };
 
@@ -104,7 +123,7 @@ function onChange(file, inputFile, event) {
   lastCall[file] = now;
 
   if (event === 'rename') {
-    console.log('todo, rename support', file);
+    console.log('[gadicc:hot] TODO, rename support.', file);
     return;
   }
 
