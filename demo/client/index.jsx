@@ -1,7 +1,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { App } from './App.jsx';
-import { AppWithStateless } from './AppWithStateless.jsx';
+import { AppWithStateless } from './AppWithStateless';
 import Both from '../both/hello.jsx';
 
 Meteor.startup(function() {

@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Something = () => (
-  <div>Something  better</div>
+  <div>Something very awesome :))</div>
 );
 
 export default Something;

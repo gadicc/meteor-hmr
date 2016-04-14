@@ -1,9 +1,9 @@
 import React from 'react';
 
-const Stateless = ({prop1,prop2}) => (
+const Stateless = (props) => (
   <div>
-    <Stateless1 />
-    <Stateless2 />
+    <Stateless1 {...props} />
+    <Stateless2 {...props} />
   </div>
 );
 
