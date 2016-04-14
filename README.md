@@ -194,7 +194,8 @@ an `ecmascript-hot` key to your `package.json` file:
     "transformStateless": {
       "pathMatch": "\\.jsx$",
       "sourceMatch": [ "^import React", "m" ]
-    }
+    },
+  "babelEnvForTesting": "production",
   }
 ```
 
@@ -216,6 +217,18 @@ optional.
 
 Both `*Match` keys take regular expressions, so you could use the
 `sourceMatch` to e.g. whitelist/blacklist by your own criteria.
+
+### babelEnvForTesting
+
+```js
+{
+  "ecmascript-hot": {
+    "babelEnvForTesting": "production",     // default
+    "babelEnvForTesting": "development",    // any other value you want
+    "babelEnvForTesting": "default"         // will use existing BABEL_ENV if set
+  }
+}
+```
 
 ## Packages
 

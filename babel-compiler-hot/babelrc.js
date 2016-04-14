@@ -19,8 +19,7 @@
  */
 
 /*
- * This is how we work out if we're in a build plugin (inside of meteor-tool)
- * or as a server package.
+ * True if we're in a server package (vs build-plugin inside of meteor-tool)
  */
 if (process.env.METEOR_PARENT_PID) {
   if (Meteor.isTest)
@@ -39,6 +38,9 @@ if (process.env.METEOR_PARENT_PID) {
   return;
 }
 
+/*
+ * Code below here is run in the build plugin only
+ */
 
 var fs = Npm.require('fs');
 var path = Npm.require('path');

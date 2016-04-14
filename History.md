@@ -25,6 +25,9 @@
 
 * Fixes for running in `meteor test` environment (#27, #37).
 
+* Default to setting BABEL_ENV="production" in test environment (to avoid
+  react HMR stuff), overridable in `package.json` (see README) - #38.
+
 # v1.3.1_1 (2016-04-04)
 
 * For Meteor 1.3.1.

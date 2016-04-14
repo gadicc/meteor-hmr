@@ -33,6 +33,7 @@
     "transformStateless": {
       "pathMatch": "\\.jsx$",
       "sourceMatch": [ "^import React", "m" ]
-    }
+    },
+    "babelEnvForTesting": "production"
   }
 }
