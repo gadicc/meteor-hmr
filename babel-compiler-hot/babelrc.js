@@ -23,6 +23,8 @@
  * or as a server package.
  */
 if (process.env.METEOR_PARENT_PID) {
+  if (Meteor.isTest)
+    return;
 
   // Our new way to ensure that the meteor preset is at required version
   var checkNpmVersions = Package['tmeasday:check-npm-versions'].checkNpmVersions;

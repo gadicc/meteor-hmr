@@ -5,10 +5,10 @@ const forkFile = path.join(__dirname, 'accelerator.js');
 
 class Accelerator {
 
-  constructor(port) {
+  constructor(port, id) {
     this.listeners = [];
 
-    this.child = child_process.fork(forkFile, [port]);
+    this.child = child_process.fork(forkFile, [id, port]);
 
     this.child.on('message', (msg) => {
       this.listeners.forEach(listener => listener(msg));

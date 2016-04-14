@@ -8,12 +8,16 @@ hot = {
   orig: {}
 };
 
+// Note, no Meteor.isTest in a build plugins.  In babelrc.js too.
+function isTest() {
+  return process.env.TEST_METADATA && process.env.TEST_METADATA.isTest;
+}
+
 /*
  * No HMR in production with our current model (but ideally, in the future)
- * nor in test mode.  Note, we can't use Meteor.isTest here which isn't
- * available inside a build plugin.
+ * nor in test mode.  
  */
-if (process.env.NODE_ENV === 'production' || process.env.TEST_METADATA) {
+if (process.env.NODE_ENV === 'production' || isTest()) {
   var noop = function() {};
   hot.process = noop;
   hot.forFork = noop;
@@ -171,9 +175,11 @@ hot.transformStateless = function(source, path) {
 /* */
 
 var fork;
+if (!gdata.accelId)
+  gdata.accelId = 0;
 
 function startFork() {
-  fork = gdata.fork = new Accelerator(HOT_PORT);
+  fork = gdata.fork = new Accelerator(HOT_PORT, ++gdata.accelId);
 
   fork.send({
     type: 'initPayload',
