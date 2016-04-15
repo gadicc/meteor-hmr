@@ -18,7 +18,8 @@ Npm.depends({
   //'meteor-babel': 'file:///home/dragon/www/npm/gadicc-meteor-babel',
   'meteor-babel': 'https://github.com/gadicc/babel/tarball/deb276cc6eac2e02014c616318f4ed6b4401ec9e',
   //'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator'
-  'meteor-hotload-accelerator': '0.0.6'
+  'meteor-hotload-accelerator': '0.0.6',
+  'mkdirp': '0.5.1'
 });
 
 Package.onUse(function (api) {

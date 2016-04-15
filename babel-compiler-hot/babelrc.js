@@ -3,7 +3,7 @@
  *
  *   * https://forums.meteor.com/t/meteor-1-3-and-babel-options/15275
  *   * https://github.com/meteor/meteor/issues/6351
- */ 
+ */
 
 /*
  * Needed in core:
@@ -45,6 +45,7 @@ if (process.env.METEOR_PARENT_PID) {
 var fs = Npm.require('fs');
 var path = Npm.require('path');
 var crypto = Npm.require('crypto');
+var mkdirp = Npm.require('mkdirp');
 // var JSON5 = Npm.require('json5');  now from 'json5' package on atmosphere
 
 var tmp = null;
@@ -70,7 +71,7 @@ if (projRoot === tmp) {
 }
 
 // now used in hothacks to send to accel
-//var 
+//var
 babelrc = { root: {}, client: {}, server: {} };
 for (var key in babelrc) {
   var obj = babelrc[key];
@@ -80,6 +81,8 @@ for (var key in babelrc) {
   if (key === 'root' && !obj.exists) {
     console.log('Creating ' + obj.path);
     obj.raw = Assets.getText('babelrc-skel');
+    var dir = path.dirname(obj.path);
+    mkdirp.sync(dir);
     fs.writeFileSync(obj.path, obj.raw);
     obj.exists = true;
   }
@@ -88,13 +91,15 @@ for (var key in babelrc) {
   if (key === 'client' && !obj.exists) {
     console.log('Creating ' + obj.path);
     obj.raw = Assets.getText('babelrc-client-skel');
+    var dir = path.dirname(obj.path);
+    mkdirp.sync(dir);
     fs.writeFileSync(obj.path, obj.raw);
-    obj.exists = true;    
+    obj.exists = true;
   }
 
   if (obj.exists) {
 
-    if (!obj.raw) 
+    if (!obj.raw)
       obj.raw = fs.readFileSync(obj.path, 'utf8');
 
     obj.hash = crypto.createHash('sha1').update(obj.raw).digest('hex');
@@ -103,7 +108,7 @@ for (var key in babelrc) {
       obj.contents = JSON5.parse(obj.raw);
     } catch (err) {
       console.log("Error parsing your " + key + "/.babelrc: " + err.message);
-      process.exit(); // could throw err if .babelrc was in meteor's file watcher      
+      process.exit(); // could throw err if .babelrc was in meteor's file watcher
     }
 
     // Maybe we should allow anything and hash appropriately?  But then we'd
