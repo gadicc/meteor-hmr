@@ -23,6 +23,18 @@ On the other hand, `babel-compiler-hot` and `modules-runtime-hot` will wrap the 
 
 Probably you want to specify a specific release explicitly, i.e. `gadicc:ecmascript-hot@=1.3.1-fast.9` (note the `@=`).  Usually in other Meteor packages we'll bump the major version first, which makes things a bit easier.  For wrapper packages, however, this is not possible, as we want to remain tied to the Meteor release we're wrapping.
 
+### What should work in a release
+
+Currently there's no automated testing, as writing tests for a lot of what this package does would be quite complicated.  For now there are just a few things we must check before announcing a new release:
+
+* Hotloading (and thus .babelrc) works in:
+
+  * App with local packages (e.g. during package devel)
+  * App with downloadded packages (e.g. typical user usage)
+  * App builds and the build runs (e.g. for deployment)
+
+In theory we should also check that all the different NODE_ENV setups etc work.
+
 ## Working on the Accelerator
 
 If you need to edit code from the accelerator, you should adjust `babel-compiler-hot`'s `package.js` to `Npm.depend()` on your local files.  You'll see an example commented out above the currently published version which I use for my home dir and you can adjust accordingly.
@@ -30,3 +42,4 @@ If you need to edit code from the accelerator, you should adjust `babel-compiler
 ## Styling / linting
 
 Coming soon :)
+
