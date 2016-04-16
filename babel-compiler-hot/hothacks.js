@@ -1,14 +1,15 @@
 /*
  * This evalutes to true if we're running as a server package (vs a build
- * plugin inside of meteor-tool).  CODE BELOW THIS POINT SURVIVES A SERVER RELOAD.
+ * plugin inside of meteor-tool).
  */
-if (process.env.METEOR_PARENT_PID) {
+if (process.env.APP_ID) {
   Meteor.settings.public.HOT_PORT = parseInt(process.env.HOT_PORT);
   return;
 }
 
 /*
  * The rest of the code in this file only runs as build plugin.
+ * CODE BELOW THIS POINT SURVIVES A SERVER RELOAD.
  */
 
 var fs = Npm.require('fs');

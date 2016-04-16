@@ -21,7 +21,7 @@
 /*
  * True if we're in a server package (vs build-plugin inside of meteor-tool)
  */
-if (process.env.METEOR_PARENT_PID) {
+if (process.env.APP_ID) {
   if (Meteor.isTest)
     return;
 
@@ -48,10 +48,10 @@ var crypto = Npm.require('crypto');
 var mkdirp = Npm.require('mkdirp');
 // var JSON5 = Npm.require('json5');  now from 'json5' package on atmosphere
 
-var tmp = null;
-projRoot = process.cwd(); // package global
-
 // XXX better way to do this?
+var tmp = null;
+projRoot = process.cwd();
+
 while (projRoot !== tmp && !fs.existsSync(path.join(projRoot, '.meteor'))) {
   tmp = projRoot;  // used to detect drive root on windows too
   projRoot = path.normalize(path.join(projRoot, '..'));
