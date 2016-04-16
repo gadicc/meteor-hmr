@@ -261,6 +261,27 @@ hot.setCacheDir = function(cacheDir) {
     fork.send({ type: 'setCacheDir', data: cacheDir });
 }
 
+// These next two from meteor/tools/static-assets/server/mini-files.js
+var convertToOSPath = function (standardPath, partialPath) {
+  if (process.platform === "win32") {
+    return toDosPath(standardPath, partialPath);
+  }
+
+  return standardPath;
+};
+var toDosPath = function (p, partialPath) {
+  if (p[0] === '/' && ! partialPath) {
+    if (! /^\/[A-Za-z](\/|$)/.test(p))
+      throw new Error("Surprising path: " + p);
+    // transform a previously windows path back
+    // "/C/something" to "c:/something"
+    p = p[1] + ":" + p.slice(2);
+  }
+
+  p = p.replace(/\//g, '\\');
+  return p;
+};
+
 var sentFiles = {}, bci;
 hot.forFork = function(inputFiles, instance, fake) {
   var data = {};
@@ -279,7 +300,10 @@ hot.forFork = function(inputFiles, instance, fake) {
   inputFiles.forEach(function(inputFile) {
     var file;
     if (inputFile.getArch() === "web.browser") {
-      file = path.join(inputFile._resourceSlot.packageSourceBatch.sourceRoot, inputFile.getPathInPackage());
+      file = convertToOSPath(path.join(
+        inputFile._resourceSlot.packageSourceBatch.sourceRoot,
+        inputFile.getPathInPackage()
+      ));
       if (!sentFiles[file]) {
         sentFiles[file] = true;
         data[file] = {
