@@ -243,7 +243,7 @@ expect them to "just be available" because of Meteor's linker code.
 
 ## Troubleshooting
 
-**[server] Uncaught Error: Unknown plugin "react-transform" specific in .babelrc**
+**[server] Uncaught Error: Unknown plugin "XXX" specified in .babelrc**
 
 ```
    While processing files with gadicc:ecmascript-hot (for target os.linux.x86_64):
@@ -255,8 +255,27 @@ expect them to "just be available" because of Meteor's linker code.
    at
 ```
 
-Run `npm install --save-dev babel-plugin-react-transform` in your project root
-(per the installation section in this README :)).
+where obvoiusly XXX is some arbitrary plugin name.
+
+Run `npm install --save-dev babel-plugin-XXX` in your project root (like we
+recommend when adding any new plugin at the bottom of this README).
+
+**[server] Uncaught Error: Unknown preset "XXX" specified in .babelrc**
+
+```
+   While processing files with gadicc:ecmascript-hot (for target os.linux.x86_64):
+
+   /home/dragon/.meteor/packages/gadicc_ecmascript-hot/...super long path.../option-manager.js:179:17:
+   Unknown preset "stage-0" specified in
+   "/home/dragon/www/projects/wmd2/supervisor/.babelrc" at 0, attempted to
+   resolve relative to "/home/dragon/www/projects/wmd2/supervisor"
+   at
+```
+
+where obvoiusly XXX is some arbitrary preset name.
+
+Run `npm install --save-dev babel-preset-XXX` in your project root (like we
+recommend when adding any new preset at the bottom of this README).
 
 **[client] Uncaught Error: Cannot find module 'react-transform-hmr'**
 
@@ -371,3 +390,19 @@ Here's an example client setup for react hotloading:
   }
 }
 ```
+
+If you add any new **plugins** or **presets** in your `.babelrc` files, you need to `npm install` them too.  e.g. if you add:
+
+```js
+{
+  plugins: [ 'transform-decorators-legacy' ]
+}
+```
+
+you need to:
+
+```sh
+$ npm install --save-dev babel-plugin-transform-decorators-legacy
+```
+
+The name of the npm package is almost always the name of the plugin preceded by `babel-plugin-`, unless the README or npmjs.com says otherwise.
