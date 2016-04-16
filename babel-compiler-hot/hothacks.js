@@ -91,7 +91,8 @@ if (pkgSettings) {
  * nor in test mode (note, no Meteor.isTest in a build plugin; and the test
  * below will only be true inside of a build plugin in test mode.
  */
-if (process.env.NODE_ENV === 'production' || process.argv[2] === 'test') {
+if (process.env.NODE_ENV === 'production'
+    || process.argv[2] === 'test' || process.argv[2] === 'test-packages') {
   var noop = function() {};
   hot.process = noop;
   hot.forFork = noop;
@@ -158,7 +159,7 @@ hot.transformStateless = function(source, path) {
   // const MyComponent = ({prop1, prop2}) => ();
   // const MyComponent = (props) => ();
   // const MyComponent = (props, context) => ();  TODO context
-  source = source.replace(/\nconst ([A-Z][^ ]+) = \((.*?)\) => \(([\s\S]+?)(\n\S+)/g,
+  source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \(([\s\S]+?)(\n\S+)/g,
     function(match, className, args, code, rest) {
       if (rest !== '\n);')
         return match;
@@ -171,7 +172,7 @@ hot.transformStateless = function(source, path) {
     });
 
   // const MyComponent = (prop1, prop2) => { return ( < ... > ) };
-  source = source.replace(/\nconst ([A-Z][^ ]+) = \((.*?)\) => \{([\s\S]+?)(\n\S+)/g,
+  source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \{([\s\S]+?)(\n\S+)/g,
     function(match, className, args, code, rest) {
       if (rest !== '\n};' || !code.match(/return\s+\(\s*\</))
         return match;
@@ -221,7 +222,7 @@ function startFork() {
 
     console.log('[gadicc:hot] Build plugin got unknown message: '
       + JSON.stringify(msg));
-  });
+  });  
 
 }
 
@@ -267,7 +268,7 @@ hot.forFork = function(inputFiles, instance, fake) {
 
 /*
     if (!hot.lastHash[path]
-        // || packageName !== null
+        // || packageName !== null 
         || inputFileArch !== 'web.browser'
         || inputFilePath.match(/^tests\//)
         || inputFilePath.match(/tests?\.jsx?$/)

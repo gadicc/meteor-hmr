@@ -124,8 +124,8 @@ every format, we do this for MantraJS style components, that:
     You can fine tune these settings in your package.json, see SETTINGS
     below.
   1. ~~Are in a directory (or subdir of a directory) called `components`~~
-  1. Have exactly this format (const, root level indentation, newlines) -
-  args can be blank.)
+  1. Have exactly this format (const, identifier begins with uppercase,
+  root level indentation, newlines) - args can be blank.)
 
 ```js
 const MyComponent = ({prop1, prop2}) => (

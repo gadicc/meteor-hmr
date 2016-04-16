@@ -23,10 +23,14 @@
 * Fixes for cases where, if Meteor died unexpectantly, the accelerator
   process would live on forever and prevent restarts (#26)
 
-* Fixes for running in `meteor test` environment (#27, #37).
-
 * Default to setting BABEL_ENV="production" in test environment (to avoid
   react HMR stuff), overridable in `package.json` (see README) - #38.
+
+* Stateless transform: only match on `const UppercaseIdentifier` which
+  reduces the risk of false positives, thanks @clayne11!  (our first PR!)
+
+* Fixes for running in `meteor test` and `meteor test-packages`
+  environments (#27, #37).  Thanks also to @clayne11.
 
 # v1.3.1_1 (2016-04-04)
 
