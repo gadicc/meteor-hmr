@@ -196,18 +196,6 @@
                     }
                   }
                 },
-                "mkdirp": {
-                  "version": "0.5.1",
-                  "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
-                  "from": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
-                  "dependencies": {
-                    "minimist": {
-                      "version": "0.0.8",
-                      "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz",
-                      "from": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
-                    }
-                  }
-                },
                 "source-map-support": {
                   "version": "0.2.10",
                   "resolved": "https://registry.npmjs.org/source-map-support/-/source-map-support-0.2.10.tgz",
@@ -761,18 +749,6 @@
               "resolved": "https://registry.npmjs.org/minimist/-/minimist-1.2.0.tgz",
               "from": "https://registry.npmjs.org/minimist/-/minimist-1.2.0.tgz"
             },
-            "mkdirp": {
-              "version": "0.5.1",
-              "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
-              "from": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
-              "dependencies": {
-                "minimist": {
-                  "version": "0.0.8",
-                  "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz",
-                  "from": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
-                }
-              }
-            },
             "ms": {
               "version": "0.7.1",
               "resolved": "https://registry.npmjs.org/ms/-/ms-0.7.1.tgz",
@@ -1100,9 +1076,9 @@
       }
     },
     "meteor-hotload-accelerator": {
-      "version": "0.0.6",
-      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-0.0.6.tgz",
-      "from": "meteor-hotload-accelerator@0.0.6",
+      "version": "0.0.7",
+      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-0.0.7.tgz",
+      "from": "meteor-hotload-accelerator@0.0.7",
       "dependencies": {
         "ws": {
           "version": "1.1.0",
@@ -1120,6 +1096,18 @@
               "from": "ultron@>=1.0.0 <1.1.0"
             }
           }
+        }
+      }
+    },
+    "mkdirp": {
+      "version": "0.5.1",
+      "resolved": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
+      "from": "https://registry.npmjs.org/mkdirp/-/mkdirp-0.5.1.tgz",
+      "dependencies": {
+        "minimist": {
+          "version": "0.0.8",
+          "resolved": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz",
+          "from": "https://registry.npmjs.org/minimist/-/minimist-0.0.8.tgz"
         }
       }
     }

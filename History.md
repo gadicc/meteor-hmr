@@ -1,21 +1,27 @@
 # vNEXT
 
-* Much faster reloads (for shared files too) by externalizing more code into
-  the accelerator.js forked process (#26).
+* Much faster reloads (for shared files too) by running an external
+  "Accelerator" forked process.  You can read a bit more about this in the
+  update HOW THIS WORKS section of the README (#26).
 
 * Fixed `Failed to parse SourceMap: http://localhost:3000/packages/undefined`
   by being more careful to clear the cache from an older broken version (#21).
 
 * Ability to customize what files are passed to `transformStateless` with
   a likewise named field in the `package.json`'s `ecmascript-hot` key (#18).
-
-* hot-client: more useful debug info for failures, more resilliency in
-  maintaining a connection to the server.
+  See the README for more info, this allows you to use functional stateless
+  components in `.js` files too, for example.
 
 * More useful warning when a compile error occured on a transformed file.
 
 * Improved stateless matching, don't get confused by single line functions
   next to functional stateless components.
+
+* Stateless transform: only match on `const UppercaseIdentifier` which
+  reduces the risk of false positives, thanks @clayne11!  (our first PR!)
+
+* hot-client: more useful debug info for failures, more resilliency in
+  maintaining a connection to the server.
 
 * Use checkNpmVersions to ensure that `babel-preset-meteor` is up-to-date,
   now that we don't include it directly.
@@ -23,14 +29,11 @@
 * Fixes for cases where, if Meteor died unexpectantly, the accelerator
   process would live on forever and prevent restarts (#26)
 
-* Default to setting BABEL_ENV="production" in test environment (to avoid
-  react HMR stuff), overridable in `package.json` (see README) - #38.
-
-* Stateless transform: only match on `const UppercaseIdentifier` which
-  reduces the risk of false positives, thanks @clayne11!  (our first PR!)
-
 * Fixes for running in `meteor test` and `meteor test-packages`
   environments (#27, #37).  Thanks also to @clayne11.
+
+* Default to setting BABEL_ENV="production" in test environment (to avoid
+  react HMR stuff), overridable in `package.json` (see README) - #38.
 
 # v1.3.1_1 (2016-04-04)
 

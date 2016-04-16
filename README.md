@@ -284,13 +284,20 @@ and
 plugins (which use his [react-proxy](https://github.com/gaearon/react-proxy) too).
 These are awesome and this is the right way to go; nothing hacky here.
 
-1. In the (replaced) ecmascript compiler plugin, watch for changed files and
-  manually construct a module tree that (hopefully) resembles Meteor's linker
-  output (which we bypass; hence we only support specfic situations).
+1. We provide a replacement `ecmascript-hot` compiler plugin, which honors
+  `.babelrc` files and performs transforms on stateless functions.  We keep
+  a running list of all files handled by this plugin, which is passed over
+  to our "accelerator".
 
-1. Bundle this and send the bundle id via websocket to the client.  The client
-  then requests the new bundle by inserting a script tag into the HEAD (so
-  it will be loaded in the correct context).
+1. The accelerator is a separate (forked) process, which watches those files
+  and on changes constructs a module tree that (hopefully) resembles Meteor's
+  linker output (which we bypass; hence we only support `import`s and nothing
+  from from `api.use()` in packagess, for example).
+
+1. The accelerator also runs an http server (to serve bundles) and a websocket
+  server (to notify the client of new bundles ids).  The client requests said
+  bundles by inserting a script tag into the HEAD (so it will be loaded in the
+  correct context).
 
 1. Patch meteorInstall's root, delete previous exports, climb the tree, and
   reevaluate.  This happens before the HCP, so if everything succeeded, we

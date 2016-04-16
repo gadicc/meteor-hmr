@@ -6,7 +6,7 @@ Package.describe({
   name: "gadicc:babel-compiler-hot",
   // version: '6.6.1'    // core version, KEEP UPDATED
   // version: '6.6.1_1',
-  version: '6.6.2-beta.9',
+  version: '6.6.2-beta.10',
   summary: 'React hotloading, used by gadicc:ecmascript-hot.',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: 'README.md'
@@ -18,7 +18,7 @@ Npm.depends({
   //'meteor-babel': 'file:///home/dragon/www/npm/gadicc-meteor-babel',
   'meteor-babel': 'https://github.com/gadicc/babel/tarball/deb276cc6eac2e02014c616318f4ed6b4401ec9e',
   //'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator'
-  'meteor-hotload-accelerator': '0.0.6',
+  'meteor-hotload-accelerator': '0.0.7',
   'mkdirp': '0.5.1'
 });
 
