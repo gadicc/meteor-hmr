@@ -372,25 +372,10 @@ FakeFile.prototype.error = function(error) {
 
 /* babel.js */
 
-function validateExtraFeatures(extraFeatures) {
-  if (extraFeatures) {
-    /*
-    check(extraFeatures, {
-      // Modify options to enable React/JSX syntax.
-      react: Match.Optional(Boolean),
-      // Improve compatibility in older versions of Internet Explorer.
-      jscript: Match.Optional(Boolean)
-    });
-    */
-  }
-}
-
 /**
  * Returns a new object containing default options appropriate for
  */
 function getDefaultOptions(extraFeatures) {
-  validateExtraFeatures(extraFeatures);
-
   // See https://github.com/meteor/babel/blob/master/options.js for more
   // information about what the default options are.
   var options = meteorBabel.getDefaultOptions(extraFeatures);
@@ -405,7 +390,8 @@ function getDefaultOptions(extraFeatures) {
 var Babel = {
   getDefaultOptions: getDefaultOptions,
 
-  validateExtraFeatures: validateExtraFeatures,
+  // Deprecated, now a no-op.
+  validateExtraFeatures: Function.prototype,
 
   compile: function (source, options, deps) {
     options = options || getDefaultOptions();
@@ -425,7 +411,6 @@ var Babel = {
  * @param {Object} extraFeatures The same object that getDefaultOptions takes
  */
 var BabelCompiler = function BabelCompiler(extraFeatures) {
-  Babel.validateExtraFeatures(extraFeatures);
   this.extraFeatures = extraFeatures;
 };
 

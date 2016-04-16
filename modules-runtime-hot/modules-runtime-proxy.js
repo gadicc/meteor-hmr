@@ -22,7 +22,7 @@ Inject.rawModHtml('mdoules-runtime-proxy', function(html, res) {
     .replace(
       // Substitute module-runtime-hot's hash
       /src="\/packages\/modules-runtime.js\?hash=.+"/,
-      'src="\/packages\/modules-runtime.js\?hash=' + modulesRuntimeHot.hash + '&hot=2"'
+      'src="\/packages\/modules-runtime.js\?hash=' + modulesRuntimeHot.hash + '&hot=1"'
     );
     /*
     .replace(
