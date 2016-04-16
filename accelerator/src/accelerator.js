@@ -84,7 +84,7 @@ handlers.close = function() {
     process.send({type: 'closed'});
     process.disconnect();
   }
-  process.exit();  
+  process.exit();
 };
 
 handlers.initPayload = function(data) {
@@ -120,7 +120,7 @@ handlers.setCacheDir = function(dir) {
   });
 };
 
-// get file data from build plugin   
+// get file data from build plugin
 handlers.fileData = function(files) {
   // hothacks.js guarantees that these are all new
   for (var key in files)
@@ -314,7 +314,7 @@ hot.transformStateless = function(source, path) {
   // const MyComponent = ({prop1, prop2}) => ();
   // const MyComponent = (props) => ();
   // const MyComponent = (props, context) => ();  TODO context
-  source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \(([\s\S]+?)(\n\S+)/g,
+  source = source.replace(/\nconst ([A-Z][^ ]+) = \((.*?)\) => \(([\s\S]+?)(\n\S+)/g,
     function(match, className, args, code, rest) {
       if (rest !== '\n);')
         return match;
@@ -327,7 +327,7 @@ hot.transformStateless = function(source, path) {
     });
 
   // const MyComponent = (prop1, prop2) => { return ( < ... > ) };
-  source = source.replace(/\nconst ([^ ]+) = \((.*?)\) => \{([\s\S]+?)(\n\S+)/g,
+  source = source.replace(/\nconst ([A-Z][^ ]+) = \((.*?)\) => \{([\s\S]+?)(\n\S+)/g,
     function(match, className, args, code, rest) {
       if (rest !== '\n};' || !code.match(/return\s+\(\s*\</))
         return match;
