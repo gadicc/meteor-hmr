@@ -25,6 +25,12 @@ Meteor.startup(function() {
 
 });
 
+import { NICE } from './colors';
+console.log('orig NICE', NICE);
+module.hot.accept('./colors', function() {
+  console.log('new NICE', require('./colors').NICE);
+});
+
 /*
 function readonly(target, key, descriptor) {
   descriptor.writable = false;

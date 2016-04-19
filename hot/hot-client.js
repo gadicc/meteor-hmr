@@ -134,9 +134,10 @@ function walkFileTree(root, tree, func, oldRoot) {
 
 /*
  * Given a File, find every other module which requires it, up to
- * a module with a module.hot key.  On each crawl, call func(file).
+ * a module that can self-accept or accept the new dep.  On each
+ * crawl, call func(file).
  */ 
-function requirersUntilHot(file, func) {
+function requirersUntilHot(file, origId, func) {
   // console.log(file.m.id);
 
   if (!file)
@@ -147,18 +148,15 @@ function requirersUntilHot(file, func) {
 
   func(file);
 
-  if (!file.m.hot) {
+  if (!file.m.hot._selfAccepted && !file.m.hot._acceptedDependencies[origId]) {
     let id = file.m.id.replace(/\/index.js$/, '');
 
     if (modulesRequiringMe[id])
       modulesRequiringMe[id].forEach(function(moduleId) {
-        requirersUntilHot(allModules[moduleId], func);
+        requirersUntilHot(allModules[moduleId], origId, func);
       });
     else {
       console.error('[gadicc:hot] ' + file.m.id + ' is not hot and nothing requires it');
-      //console.log("[gadicc:hot] You should restart Meteor");
-      
-      //hot.reload();
       hot.failedOnce = true;
     }
   }
@@ -186,24 +184,47 @@ meteorInstallHot = function(tree) {
 
   // Then, delete up to hot and reevaluate
   walkFileTree(root, tree, function(file, moduleCodeArray) {
-    requirersUntilHot(file, function (file) {
+    var changedFile = file;
+
+    requirersUntilHot(file, file.m.id, function (file) {
       // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
       delete file.m.exports; // re-force install.js fileEvaluate()
 
-      if (file.m.hot) {
-        // console.debug('[gadicc:hot] Found module.hot in ' + file.m.id);
+      if (file.m.hot._selfAccepted) {
+        // console.debug('[gadicc:hot] ' + file.m.id + ' can self accept');
+
         try {
-          file.m.hot.accept();
-          // require(file.m.id);
+
+          require(file.m.id);
+
         } catch (e) {
+
+          hot.failedOnce = true;
+
+          if (typeof file.m.hot._selfAccepted === 'function')
+            file.m.hot._selfAccepted(e);
+
           console.error('[gadicc:hot] An error occured trying to accept hmr for ' + file.m.id);
           console.error(e);
-          //console.log('[gadicc:hot] Consider restarting Meteor.');
 
-          //hot.reload();
-          hot.failedOnce = true;
         }
+
+      } else if (file.m.hot._acceptedDependencies[changedFile.m.id]) {
+
+        try {
+
+          file.m.hot._acceptedDependencies[changedFile.m.id]();
+
+        } catch (e) {
+
+          hot.failedOnce = true;
+          console.error('[gadicc:hot] An error occured trying to accept hmr for ' + file.m.id);
+          console.error(e);
+
+        }
+
       }
+
     });
   });
 }
@@ -218,17 +239,6 @@ var allModules;
 modulesRuntime.meteorInstall = Package['modules'].meteorInstall = function(tree) {
   hot.firstTree = tree;
 
-  // Inject react-transform-hmr into the tree
-  /*
-  if (!tree.node_modules)
-    tree.node_modules = {};
-  tree.node_modules['react-transform-hmr'] = [
-    function(require,exports,module) {
-      module.exports = ReactTransformHMR
-    }
-  ];
-  */
-
   var require = origMeteorInstall.apply(this, arguments);
 
   allModules = hot.allModules = flattenRoot(root);
@@ -238,7 +248,8 @@ modulesRuntime.meteorInstall = Package['modules'].meteorInstall = function(tree)
     // forEach on all reqs [ 'react', './blah', function(...) ]
     module.slice(0, module.length-1).forEach(function(req) {
 
-      // "react", etc will never be reloaded in this implementation
+      // npm and meteor packages will never be reloaded in this implementation
+      // so we skip any req not beginning with a "." or a "/"
       if (!req.match(/^[\.\/]{1,1}/))
         return;
 
@@ -258,16 +269,6 @@ modulesRuntime.meteorInstall = Package['modules'].meteorInstall = function(tree)
         modulesRequiringMe[req].push(file.m.id);
     });
 
-    if (module.indexOf('react-transform-hmr') !== -1) {
-      // console.log('match', file.m.id);
-      file.m.hot = {
-        accept: function() {
-          // console.debug('[gadicc:hot] hot.accept() called for ' + file.m.id);
-          // This is probably important I should probably read the webpack spec :)
-          require(file.m.id);
-        }
-      };
-    }
   });
 
   return require;

@@ -64,5 +64,5 @@ if (Meteor.isServer) {
   };
 }
 
-meteorInstall = makeInstaller(options);
-// meteorInstall = mhot.makeInstaller(options);
+// meteorInstall = makeInstaller(options);
+meteorInstall = mhot.makeInstaller(options);

@@ -4,6 +4,9 @@
   "Accelerator" forked process.  You can read a bit more about this in the
   update HOW THIS WORKS section of the README (#26).
 
+* *Basic* HMR support for non-react hotloaders.  We provide a `hot.accept()`
+  implementation only, and only on the client - for now.
+
 * Fixed `Failed to parse SourceMap: http://localhost:3000/packages/undefined`
   by being more careful to clear the cache from an older broken version (#21).
 

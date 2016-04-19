@@ -83,17 +83,9 @@ the `react-transform` lines in that file.
 
 ## Where this works and doesn't
 
-NB: **This only works on React components**.  If you change a file that
-is imported by non-react by modules that aren't react components, a
-regular client refresh will occur.  We might offer full HMR support in
-the future, but then you'd still need to add code to your existing
-modules to handle the update (with React we know what to do already).
+NB: **This only works "out the box" on React components**.  If you change a file that is imported by non-react by modules that aren't react components, a regular client refresh will occur.  For hotloading to work, files must know how to "accept" the updated modules.  The react hotloading code knows how to do this for react components and their imports.  Other hotloaders *may* (or may not) work with the *very basic* HMR support provided by this project.  No other files will "magically" update themselves.  See http://webpack.github.io/docs/hot-module-replacement.html for the basic idea; BUT: we only provide `hot.accept()`, and on the client only, for now.
 
-Related: if you change non-react code in a file that has a react
-component too, since we don't know any better, we'll patch the (unchanged)
-react component and still block the full refresh, meaning your old code
-will still run.  To avoid this, either ctrl-R in such situations or
-don't mix code and react components in the same file.
+Related: if you change non-react code in a file that has a react component too, since we don't know any better, we'll patch the (unchanged) react component and still block the full refresh, meaning your old code will still run (unless, of course, it's used by the react component).  To avoid this, either ctrl-R in such situations or don't mix code and react components in the same file.
 
 * ~~App only, no packages - avoids need to link in package imports~~
   (see Packages, below)

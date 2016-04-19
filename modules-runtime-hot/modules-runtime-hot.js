@@ -1,13 +1,9 @@
-mhot = {
-  modules: {},
-  acceptFuncs: {}
-};
-
-var hot = mhot;
+mhot = {};
 
 /*
  * resolvePath("/client/foo/bar", "../baz") === "/client/foo/baz"
  * XXX TODO optimize, merge with install methods
+ * XXX part of this is duplicated in hot-client!
  */
 function resolvePath(moduleId, requirePath) {
   if (requirePath.substr(0,1) === '/')
@@ -26,6 +22,10 @@ function resolvePath(moduleId, requirePath) {
     requirePath = '/node_modules/' + requirePath;
   }
 
+  // sorry; TODO
+  var hot = {
+    modules: window.hot.allModules
+  };
 
   // XXX improve
   if (!hot.modules[requirePath]) {
@@ -47,28 +47,70 @@ function resolvePath(moduleId, requirePath) {
   return requirePath;
 }
 
-var moduleHotFuncs = {
+
+function Module(id, parent) {
+  this.id = id;
+  this.parent = parent;
+
+  if (1 /* TODO overridable default based on Meteor.isDevelopment? */) {
+    this.hot = Object.create(moduleHotProto);
+    for (var key in moduleHotProps)
+      this.hot[key] = _.clone(moduleHotProps[key]);
+
+    this.hot._m = this;
+    this.parents = [];
+    //hot.modules[id] = this;
+  }
+};
+
+// https://github.com/webpack/webpack/blob/master/lib/HotModuleReplacement.runtime.js
+var moduleHotProto = {
   // http://webpack.github.io/docs/hot-module-replacement.html#accept
-  accept: function(deps, callback) {
+  accept: function(dep, callback) {
     var module = this._m;
 
-    if (typeof deps === "undefined")
+    if (typeof dep === "undefined")
       this._selfAccepted = true;
-    else if (typeof deps === "function")
-      this._selfAccepted = deps;
-    else {
-      if (typeof deps === "string")
-        deps = [deps];
-      
-      deps.forEach(function(path) {
-        path = resolvePath(module.id, path);
-        if (!hot.acceptFuncs[path])
-          hot.acceptFuncs[path] = [];
-        hot.acceptFuncs[path].push(callback);
-      });
+    else if (typeof dep === "function")
+      this._selfAccepted = dep;
+    else if (typeof dep === "object") {
+      console.warn("[gadicc:hot] Support for hotloading dependencies is not well tested: "
+        + module.id);
+      for(var i = 0; i < dep.length; i++)
+        this._acceptedDependencies[resolvePath(module.id, dep[i])] = callback;
+    } else if (typeof dep === "string") {
+      console.warn("[gadicc:hot] Support for hotloading dependencies is not well tested: "
+        + module.id);
+      this._acceptedDependencies[resolvePath(module.id, dep)] = callback;
+    } else {
+      throw new Error("[gadicc:hot] Invalid argument for hot.accept(): ",
+        typeof dep, dep);
     }
   }
 };
+
+var moduleHotProps = {
+  _acceptedDependencies: {},
+  _selfAccepted: false
+};
+
+mhot.makeInstaller = function(options) {
+  options.Module = Module;
+
+  return makeInstaller(options);
+};
+
+/*
+ * code below used a slightly different approach that we could still go back to
+ */
+return;
+
+mhot = {
+  modules: {},
+  acceptFuncs: {}
+};
+
+var hot = mhot;
 
 function flattenTree(tree, out, path) {
   if (!out) out = {};
@@ -120,18 +162,6 @@ hot.meteorInstallHot = function(tree) {
     findAndAccept(id, require);
   });
 }
-
-function Module(id, parent) {
-  this.id = id;
-  this.parent = parent;
-
-  if (1 /* TODO overridable default based on Meteor.isDevelopment */) {
-    this.hot = Object.create(moduleHotFuncs);
-    this.hot._m = this;
-    this.parents = [];
-    hot.modules[id] = this;
-  }
-};
 
 hot.makeInstaller = function(options) {
   options.Module = Module;
