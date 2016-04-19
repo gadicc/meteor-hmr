@@ -1,8 +1,10 @@
 ## Description of Problem
 
-*Please copy and paste the full error from the console, if it occcured*
+Describe your problem here...
 
+* [ ] I switched back to the regular `ecmascript` and the problem went away.
 
+*Please copy and paste the full error from the console, if one occcured.*
 
 If the error occured on a particular file, please paste the full file here:
 
