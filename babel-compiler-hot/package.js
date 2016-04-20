@@ -17,8 +17,8 @@ Npm.depends({
   //'meteor-babel': '0.9.2',  // core version, KEEP UPDATED
   //'meteor-babel': 'file:///home/dragon/www/npm/gadicc-meteor-babel',
   'meteor-babel': 'https://github.com/gadicc/babel/tarball/94c32b8ac5949f92f9073ba78cc08655b36ae8fa',
-  //'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator'
-  'meteor-hotload-accelerator': '0.0.7',
+  'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator',
+  //'meteor-hotload-accelerator': '0.0.7',
   'mkdirp': '0.5.1'
 });
 
@@ -40,7 +40,7 @@ Package.onUse(function (api) {
     'random',
     'underscore',
     'gadicc:json5@0.5.0-0',
-    'tmeasday:check-npm-versions@0.3.0'
+    'tmeasday:check-npm-versions@0.3.0',
   ], 'server');
 
   api.export('Babel', 'server');

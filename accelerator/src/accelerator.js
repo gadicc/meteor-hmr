@@ -5,6 +5,7 @@ var crypto = require('crypto');
 
 var meteorBabel = require('meteor-babel');
 var WebSocketServer = require('ws').Server;
+require('babel-polyfill');
 
 /* */
 

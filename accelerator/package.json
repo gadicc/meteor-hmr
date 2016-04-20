@@ -1,9 +1,8 @@
 {
   "name": "meteor-hotload-accelerator",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Used by gadicc:ecmascript-hot meteor package",
   "main": "lib/index.js",
-
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "compile": "babel src --out-dir lib",
@@ -17,6 +16,7 @@
   "author": "Gadi Cohen",
   "license": "MIT",
   "dependencies": {
+    "babel-polyfill": "^6.7.4",
     "meteor-babel": "https://github.com/gadicc/babel/tarball/deb276cc6eac2e02014c616318f4ed6b4401ec9e",
     "ws": "^1.0.1"
   },
