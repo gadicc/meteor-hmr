@@ -1,4 +1,3 @@
 {
-  "extends": "../.babelrc",
-  "plugins": [ "react-hot-loader/babel" ]
+  "extends": "../.babelrc"
 }
