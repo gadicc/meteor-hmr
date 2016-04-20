@@ -26,10 +26,14 @@ if (process.env.APP_ID) {
     return;
 
   // Our new way to ensure that the meteor preset is at required version
-  var checkNpmVersions = Package['tmeasday:check-npm-versions'].checkNpmVersions;
-  checkNpmVersions({
-    'babel-preset-meteor': '^6.6.7'
-  }, 'gadicc:ecmascript-hot');
+  // Only necessary to warn in development; these packages are only used in
+  // the build process, and aren't packed for deployment.
+  if (process.env.NODE_ENV === 'development') {
+    var checkNpmVersions = Package['tmeasday:check-npm-versions'].checkNpmVersions;
+    checkNpmVersions({
+      'babel-preset-meteor': '^6.6.7'
+    }, 'gadicc:ecmascript-hot');
+  }
 
   // Ideally we should still read in babelrc's and only warn if they use the
   // preset.
