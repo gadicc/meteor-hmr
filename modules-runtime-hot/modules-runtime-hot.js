@@ -1,4 +1,4 @@
-mhot = {};
+mhot = { };
 
 /*
  * resolvePath("/client/foo/bar", "../baz") === "/client/foo/baz"
@@ -63,6 +63,22 @@ function Module(id, parent) {
   }
 };
 
+// XXX
+mhot.hotDepModules = [];
+if (Meteor.isClient)
+  Meteor.startup(function() {
+    if (!window.hot.hotDepModules)
+      window.hot.hotDepModules = Package['modules-runtime'].mhot.hotDepModules;
+  });
+
+function hotDepModuleWarn(module) {
+  if (!mhot.hotDepModules.includes(module)) {
+    mhot.hotDepModules.push(module);
+    console.warn("[gadicc:hot] Support for hotloading dependencies is not "
+      + "well tested: " + module.id + " (copied into hot.hotDepModules)");
+  }
+}
+
 // https://github.com/webpack/webpack/blob/master/lib/HotModuleReplacement.runtime.js
 var moduleHotProto = {
   // http://webpack.github.io/docs/hot-module-replacement.html#accept
@@ -74,13 +90,11 @@ var moduleHotProto = {
     else if (typeof dep === "function")
       this._selfAccepted = dep;
     else if (typeof dep === "object") {
-      console.warn("[gadicc:hot] Support for hotloading dependencies is not well tested: "
-        + module.id);
+      hotDepModuleWarn(module);
       for(var i = 0; i < dep.length; i++)
         this._acceptedDependencies[resolvePath(module.id, dep[i])] = callback;
     } else if (typeof dep === "string") {
-      console.warn("[gadicc:hot] Support for hotloading dependencies is not well tested: "
-        + module.id);
+      hotDepModuleWarn(module);
       this._acceptedDependencies[resolvePath(module.id, dep)] = callback;
     } else {
       throw new Error("[gadicc:hot] Invalid argument for hot.accept(): ",
