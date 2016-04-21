@@ -13,9 +13,6 @@ var excludedFileExtensionPattern = /\.es5\.js$/i;
 BCp.processFilesForTarget = function (inputFiles) {
   var self = this;
 
-  // hot
-  hot.forFork(inputFiles, this);
-
   inputFiles.forEach(function (inputFile) {
     var source = inputFile.getContentsAsString();
     var packageName = inputFile.getPackageName();
@@ -99,8 +96,6 @@ BCp.processFilesForTarget = function (inputFiles) {
 };
 
 BCp.setDiskCacheDirectory = function (cacheDir) {
-  if (hot.setCacheDir) // false during publish?
-    hot.setCacheDir(cacheDir);
   Babel.setCacheDir(cacheDir);
 };
 

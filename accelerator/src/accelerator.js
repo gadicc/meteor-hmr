@@ -343,34 +343,6 @@ hot.transformStateless = function(source, path) {
   return source;
 }
 
-function FakeFile(data) {
-  this.data = data;
-}
-FakeFile.prototype.getContentsAsString = function() {
-  return this.data.contents;
-}
-FakeFile.prototype.getPackageName = function() {
-  return this.data.packageName;
-}
-FakeFile.prototype.getPathInPackage = function() {
-  return this.data.pathInPackage;
-}
-FakeFile.prototype.getFileOptions = function() {
-  return this.data.fileOptions;
-}
-FakeFile.prototype.getArch = function() {
-  return 'web.browser';
-}
-FakeFile.prototype.getSourceHash = function() {
-  return this.data.sourceHash;
-}
-FakeFile.prototype.addJavaScript = function() {
-  // no-op
-}
-FakeFile.prototype.error = function(error) {
-  log(error);
-}
-
 /* babel.js */
 
 /**

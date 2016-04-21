@@ -10,7 +10,7 @@ Package.describe({
 
 Package.registerBuildPlugin({
   name: 'compile-ecmascript-hot',
-  use: ['gadicc:babel-compiler-hot'],
+  use: ['gadicc:babel-compiler-hot', 'gadicc:hot-build'],
   sources: ['plugin.js']
 });
 
@@ -19,6 +19,7 @@ Package.onUse(function (api) {
   api.use('isobuild:compiler-plugin@1.0.0');
   // api.use('gadicc:babel-compiler-hot@6.6.1_1');
   api.use('gadicc:babel-compiler-hot@6.6.2-beta.14');
+  api.use('gadicc:hot-build@0.0.1');
 
   api.imply('modules');
   api.imply('ecmascript-runtime');

@@ -1,7 +1,13 @@
+var hot = new Hot({
+  uses: [ 'babel-compiler' ]
+});
+
 Plugin.registerCompiler({
   extensions: ['js', 'jsx'],
 }, function () {
-  return new BabelCompiler({
+  var compiler = new BabelCompiler({
     react: true
   });
+
+  return hot.wrap(compiler);
 });
