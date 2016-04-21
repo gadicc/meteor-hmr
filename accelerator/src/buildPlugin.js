@@ -44,7 +44,7 @@ const buildPluginContext = new vm.createContext({
 
 class BuildPlugin {
 
-  constructor(id, name, path) {
+  constructor(id, name, path, addJavaScript) {
     this.id = id;
     this.name = name;
     this.path = path;
@@ -52,9 +52,7 @@ class BuildPlugin {
     buildPluginIds[id] = this;
 
     this.FakeFile = class extends FakeFile {
-      addJavaScript(js) {
-        console.log('5JS', js);
-      }
+      addJavaScript = addJavaScript;
     }
 
     this.load();

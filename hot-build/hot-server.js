@@ -1,3 +1,13 @@
+// Never run as a server package (only as a build plugin)
+if (process.env.APP_ID)
+  return;
+
+if (process.env.INSIDE_ACCELERATOR) {
+  Hot = function() {};
+  Hot.prototype.wrap = function(compiler) { return compiler; }
+  return;
+}
+
 var path = Npm.require('path');
 var fs = Npm.require('fs');
 
@@ -113,7 +123,7 @@ Hot.prototype.send = function(payload) {
     return;
 
   payload.pluginId = this.id;
-  Hot.fork.send(payload);
+  Hot.send(payload);
 }
 
 Hot.prototype.setDiskCacheDirectory = function(cacheDir) {
@@ -146,7 +156,7 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
   if (Object.keys(data).length)
     this.send({
       type: 'fileData',
-      data: data
+      files: data
     });
 };
 

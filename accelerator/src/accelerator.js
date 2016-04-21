@@ -1,6 +1,7 @@
 import fs from 'fs';
 import http from 'http';
 import crypto from 'crypto';
+import _ from 'lodash';
 
 import { Server as WebSocketServer } from 'ws';
 import 'babel-polyfill';
@@ -13,6 +14,8 @@ import BuildPlugin from './buildPlugin';
 // process.argv[1] <-- full path for this file
 const ACCEL_ID = process.argv[2];
 const HOT_PORT = process.argv[3];
+
+process.env.INSIDE_ACCELERATOR = true;
 
 console.log('=> Starting gadicc:ecmascript-hot Accelerator(' + ACCEL_ID
   + ') on port ' + HOT_PORT + '.\n');
@@ -89,8 +92,15 @@ handlers.close = function() {
   process.exit();
 };
 
+var bundleQueue = [];
+function addJavaScript(source) {
+  bundleQueue.push(source);
+  hot.process(bundleQueue);
+  bundleQueue = [];
+}
+
 handlers.PLUGIN_INIT = function({id, name, path}) {
-  new BuildPlugin(id, name, path);
+  new BuildPlugin(id, name, path, addJavaScript);
 }
 
 handlers.setDiskCacheDirectory = function({dir}, plugin) {
@@ -115,16 +125,16 @@ handlers.setDiskCacheDirectory = function({dir}, plugin) {
 };
 
 // get file data from build plugin
-handlers.fileData = function({files}) {
+handlers.fileData = function({files, pluginId}) {
   // hothacks.js guarantees that these are all new
   for (var key in files)
-    fs.watch(key, onChange.bind(null, key, files[key]));
+    fs.watch(key, onChange.bind(null, key, pluginId, files[key]));
 };
 
 /* handle file changes */
 
 var lastCall = {};
-function onChange(file, inputFile, event) {
+function onChange(file, pluginId, inputFile, event) {
   // de-dupe 2 calls for same event
   var now = Date.now();
   if (lastCall[file] && now - lastCall[file] < 2)
@@ -145,32 +155,34 @@ function onChange(file, inputFile, event) {
 
     inputFile.contents = contents;
 
-    addInputFile(inputFile);
+    addInputFile(inputFile, pluginId);
   });
 
 }
 
 /* debounce */
 
-var timeout, inputFiles = [];
+var timeout, inputFiles = {};
 
-function addInputFile(inputFile) {
+function addInputFile(inputFile, pluginId) {
   if (timeout) clearTimeout(timeout);
 
-  inputFiles.push(inputFile);
+  if (!inputFiles[pluginId])
+    inputFiles[pluginId] = [];
+
+  inputFiles[pluginId].push(inputFile);
 
   timeout = setTimeout(sendInputFiles, 2);
 }
 
 function sendInputFiles() {
-  bc.processFilesForTarget(
-    inputFiles.map(function(inputFile) { return new FakeFile(inputFile); })
-  );
-
-  inputFiles = [];
+  for (let pluginId in inputFiles) {
+    const plugin = BuildPlugin.byId(pluginId);
+    plugin.processFilesForTarget(inputFiles[pluginId]);
+    inputFiles[pluginId] = [];
+  }
   timeout = null;
 }
-
 
 /* hothacks.js */
 
@@ -220,7 +232,7 @@ function treeify(bundle) {
   return tree;
 }
 
-hot.process = function(bundle) {
+hot.process = _.debounce(function hotProcess(bundle) {
   if (!bundle.length)
     return;
 
@@ -238,4 +250,4 @@ hot.process = function(bundle) {
 
   hot.bundles[id] = { contents: bundleStr };
   wss.broadcast(id);
-}
+}, 5);

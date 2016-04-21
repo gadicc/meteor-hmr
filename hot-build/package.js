@@ -11,7 +11,12 @@ Npm.depends({
   //'meteor-hotload-accelerator': '0.0.8',
 
 
-  
+
+
+
+
+
+
 });
 
 Package.onUse(function(api) {

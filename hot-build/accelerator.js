@@ -1,3 +1,10 @@
+// Never run as a server package (only as a build plugin)
+if (process.env.APP_ID)
+  return;
+
+if (process.env.INSIDE_ACCELERATOR)
+  return;
+
 var fs = Npm.require('fs');
 var path = Npm.require('path');
 var Accelerator = Npm.require('meteor-hotload-accelerator').default;
@@ -36,17 +43,15 @@ var fork, waiting = false;
 if (!gdata.accelId)
   gdata.accelId = 0;
 
-function startFork() {
-  fork = gdata.fork = Hot.fork = new Accelerator(HOT_PORT, ++gdata.accelId);
+var send = Hot.send = function(data) {
+  if (waiting)
+    waiting.push(data);
+  else
+    fork.send(data);
+}
 
-  var origSend = fork.send;
-  fork.send = function waitAndSend(data) {
-    // console.log('SEND', 'waiting', !!waiting, data);
-    if (waiting)
-      waiting.push(data);
-    else
-      origSend.call(this, data);
-  }
+function startFork() {
+  fork = gdata.fork = new Accelerator(HOT_PORT, ++gdata.accelId);
 
   fork.on('message', function(msg) {
 
