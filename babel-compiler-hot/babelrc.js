@@ -9,7 +9,13 @@
  * Needed in core:
  *
  *   * Add .babelrc to watchlist, handle more gracefully.
- *   * meteor-babel needs ability for custom cache hash deps (will submit PR)
+ *
+ *   * meteor-babel needs ability for custom cache hash deps (meteor/babel#9)
+ *
+ *   * We should drop the auto-insertion of `babel-plugin-react` and instead
+ *     put it in the babelrc-skel.  This is both more obvious to the user but
+ *     also ensures a consistent babel (via babelrc) experience tools (e.g.
+ *     external tests).
  *
  * TODO here
  *
@@ -25,18 +31,17 @@ if (process.env.APP_ID) {
   if (Meteor.isTest)
     return;
 
-  // Our new way to ensure that the meteor preset is at required version
-  // Only necessary to warn in development; these packages are only used in
-  // the build process, and aren't packed for deployment.
+  // Our new way to ensure that the meteor preset is at required version.
+  // Ideally we should still read in babelrc's and only warn if they use the
+  // preset.
   if (process.env.NODE_ENV === 'development') {
+    // Only necessary to warn in development; these packages are only used in
+    // the build process, and aren't packed for deployment.
     var checkNpmVersions = Package['tmeasday:check-npm-versions'].checkNpmVersions;
     checkNpmVersions({
       'babel-preset-meteor': '^6.6.7'
     }, 'gadicc:ecmascript-hot');
   }
-
-  // Ideally we should still read in babelrc's and only warn if they use the
-  // preset.
 
   // Nothing else in this file needs to be run on the server (vs build plugin)
   return;
@@ -50,14 +55,14 @@ var fs = Npm.require('fs');
 var path = Npm.require('path');
 var crypto = Npm.require('crypto');
 var mkdirp = Npm.require('mkdirp');
-// var JSON5 = Npm.require('json5');  now from 'json5' package on atmosphere
+var JSON5 = Npm.require('json5');
 
 // XXX better way to do this?
 var tmp = null;
 projRoot = process.cwd();
 
 while (projRoot !== tmp && !fs.existsSync(path.join(projRoot, '.meteor'))) {
-  tmp = projRoot;  // used to detect drive root on windows too
+  tmp = projRoot;  // used to detect drive root on windows too ("./.." == ".")
   projRoot = path.normalize(path.join(projRoot, '..'));
 }
 
@@ -74,12 +79,10 @@ if (projRoot === tmp) {
     throw new Error("Are you running inside a Meteor project dir?");
 }
 
-// now used in hothacks to send to accel
-//var
-babelrc = { root: {}, client: {}, server: {} };
+var babelrc = { root: {}, client: {}, server: {} };
 for (var key in babelrc) {
   var obj = babelrc[key];
-  obj.path = path.join(projRoot, key=='root'?'':key, '.babelrc');
+  obj.path = path.join(projRoot, key == 'root' ? '' : key, '.babelrc');
   obj.exists = fs.existsSync(obj.path);
 
   if (key === 'root' && !obj.exists) {
@@ -91,18 +94,9 @@ for (var key in babelrc) {
     obj.exists = true;
   }
 
-  // meteor-react-hotloader specific
-  if (key === 'client' && !obj.exists) {
-    console.log('Creating ' + obj.path);
-    obj.raw = Assets.getText('babelrc-client-skel');
-    var dir = path.dirname(obj.path);
-    mkdirp.sync(dir);
-    fs.writeFileSync(obj.path, obj.raw);
-    obj.exists = true;
-  }
-
   if (obj.exists) {
 
+    // Will already exist if created from skeleton
     if (!obj.raw)
       obj.raw = fs.readFileSync(obj.path, 'utf8');
 
@@ -137,6 +131,7 @@ for (var key in babelrc) {
 
     /*
      * Quit on .babelrc change (need to rebuild all files through babel).
+     * Should be unnecessary if Meteor watches the file for restart.
      */
     fs.watch(obj.path, function(event) {
       console.log("Your " + key + "/.babelrc was changed, please restart Meteor.");
@@ -146,17 +141,8 @@ for (var key in babelrc) {
   }
 }
 
-// meteor-react-hotloader specific
-if (babelrc.root.raw.match(/react-transform/)) {
-  console.log("Since ecmascript-hot@1.3.0-2:");
-  console.log("We suggest removing all the hotloading transforms from your root "
-    + ".babelrc and placing them in client/.babelrc instead.  Since such a file "
-    + "was most likely already created for you, all that remains for you to do "
-    + "is to remove this old section from your root .babelrc");
-}
-
 /*
- * XXX TODO Don't force { "presets": [ "meteor" ] }
+ * XXX Don't force { "presets": [ "meteor" ] }
  * If they have a `presets` field set, they probably know what they're doing.
  * If they don't, we can warn with the appropriate suggestion.
  * Before enabling this, need to see what else the meteor preset includes;
@@ -167,9 +153,6 @@ if (!babelrc.root.contents.presets /* || babelrc.presets.indexOf('meteor') === -
   process.exit(); // could throw err if .babelrc was in meteor's file watcher
 }
 
-// package global; used in hothacks.js to cover relevent package.json aswell.
-babelOtherDeps = {};
-
 function archType(arch) {
   if (arch.substr(0, 4) === 'web.')
     return 'client';
@@ -179,8 +162,13 @@ function archType(arch) {
 }
 
 /*
- * Wow, in the end, this is all we need and babel does the rest in
- * the right way.
+ * Merge the user's .babelrc into the given "options" object.
+ * First look for a target-specific (client/server) .babelrc otherwise
+ * default back to the project root's .babelrc.
+ *
+ * Returns a list of "deps" that must be used to cache the file, i.e.
+ * the hash of the relevant .babelrc and environment variables, which
+ * if changed, would result in a different result from babel.
  */
 mergeBabelrcOptions = function(options, inputFile) {
   var arch = archType(inputFile.getArch());
@@ -196,9 +184,6 @@ mergeBabelrcOptions = function(options, inputFile) {
 
     // Because .babelrc may contain env-specific configs
     // Default is 'development' as per http://babeljs.io/docs/usage/options/
-    BABEL_ENV: process.env.BABEL_ENV || process.env.NODE_ENV || 'development',
-
-    // From other files, e.g. hothacks pkgSettings
-    otherDeps: babelOtherDeps
+    BABEL_ENV: process.env.BABEL_ENV || process.env.NODE_ENV || 'development'
   };
 }

@@ -1,5 +1,10 @@
 {
   "dependencies": {
+    "json5": {
+      "version": "0.5.0",
+      "resolved": "https://registry.npmjs.org/json5/-/json5-0.5.0.tgz",
+      "from": "json5@0.5.0"
+    },
     "meteor-babel": {
       "version": "0.9.2",
       "resolved": "https://github.com/gadicc/babel/tarball/94c32b8ac5949f92f9073ba78cc08655b36ae8fa",
