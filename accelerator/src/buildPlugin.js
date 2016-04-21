@@ -6,9 +6,11 @@ import FakeFile from './fakeFile';
 
 /*
  * Meteor runs all build plugins in the same context, so we should too, even
- * thought it would be cleaner for us to give each plugin it's own context.
+ * though it would be cleaner for us to give each plugin it's own context.
  */
 var currentPlugin;
+
+const buildPluginIds = {};
 
 const buildPluginContext = new vm.createContext({
 
@@ -31,7 +33,6 @@ const buildPluginContext = new vm.createContext({
     }
   },
 
-  // Gets overriden per plugin
   Plugin: {
 
     registerCompiler: function(options, func) {
@@ -43,22 +44,25 @@ const buildPluginContext = new vm.createContext({
 
 class BuildPlugin {
 
-  constructor(id) {
+  constructor(id, name, path) {
     this.id = id;
+    this.name = name;
+    this.path = path;
 
-    this.path = '/home/dragon/.meteor/packages/ecmascript/0.4.3/plugin.compile-ecmascript.os';
+    buildPluginIds[id] = this;
 
     this.FakeFile = class extends FakeFile {
       addJavaScript(js) {
         console.log('5JS', js);
       }
     }
+
+    this.load();
   }
 
   run(code) {
     var options;
 
-    // Used for Plugin.registerCompiler
     if (currentPlugin !== this)
       currentPlugin = this;
 
@@ -82,10 +86,14 @@ class BuildPlugin {
     if (program.format !== 'javascript-image-pre1')
       throw new Error("[gadicc:hot] Sorry, I only know how to handle 'javascript-image-pre1' format build plugins");
 
-    if (program.arch !== 'os')
-      throw new Error("[gadicc:hot] Sorry, I only know how to handle 'os' arch build plugins");
+    if (program.arch !== 'os' && program.arch.substr(0, 3) !== 'os.')
+      throw new Error("[gadicc:hot] Sorry, I only know how to handle 'os' arch build plugins, not: " + program.arch);
 
     program.load.forEach(file => this.run(file));
+  }
+
+  setDiskCacheDirectory(cacheDir) {
+    this.compiler.setDiskCacheDirectory(cacheDir);
   }
 
   processFilesForTarget(inputFiles) {
@@ -96,6 +104,11 @@ class BuildPlugin {
 
 }
 
+BuildPlugin.byId = function(id) {
+  return buildPluginIds[id];
+}
+
+/*
 var plugin = new BuildPlugin('x');
 plugin.load();
 plugin.processFilesForTarget([
@@ -107,5 +120,6 @@ plugin.processFilesForTarget([
     fileOptions: {}
   }
 ]);
+*/
 
 export default BuildPlugin;

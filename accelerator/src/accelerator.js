@@ -1,18 +1,18 @@
-var fs = require('fs');
-var path = require('path');
-var http = require('http');
-var crypto = require('crypto');
+import fs from 'fs';
+import http from 'http';
+import crypto from 'crypto';
 
-var meteorBabel = require('meteor-babel');
-var WebSocketServer = require('ws').Server;
-require('babel-polyfill');
+import { Server as WebSocketServer } from 'ws';
+import 'babel-polyfill';
+
+import BuildPlugin from './buildPlugin';
 
 /* */
 
 // process.argv[0] <-- full node binary path
 // process.argv[1] <-- full path for this file
-var ACCEL_ID = process.argv[2];
-var HOT_PORT = process.argv[3];
+const ACCEL_ID = process.argv[2];
+const HOT_PORT = process.argv[3];
 
 console.log('=> Starting gadicc:ecmascript-hot Accelerator(' + ACCEL_ID
   + ') on port ' + HOT_PORT + '.\n');
@@ -29,7 +29,7 @@ function log(/* arguments */) {
   console.log.apply(console, args);
 }
 
-var server = http.createServer(function (req, res) {
+const server = http.createServer(function (req, res) {
   var hash = req.url.match(/^\/hot.js\?hash=(.*)$/);
   if (!(hash && (hash=hash[1]) && hot.bundles[hash])) {
     res.writeHead(404);
@@ -41,7 +41,7 @@ var server = http.createServer(function (req, res) {
   res.end(hot.bundles[hash].contents, 'utf8');
 }).listen(HOT_PORT);
 
-var wss = new WebSocketServer({ server: server });
+const wss = new WebSocketServer({ server: server });
 
 // straight out of https://www.npmjs.com/package/ws
 wss.broadcast = function broadcast(data) {
@@ -50,8 +50,7 @@ wss.broadcast = function broadcast(data) {
   });
 };
 
-var handlers = {};
-var babelrc;
+const handlers = {};
 
 process.on('disconnect', function() {
   // unclear from docs if this works within the child!
@@ -61,7 +60,9 @@ process.on('disconnect', function() {
 
 process.on('message', function(msg) {
   if (handlers[msg.type])
-    return handlers[msg.type](msg.data);
+    return handlers[msg.type](msg,
+      BuildPlugin.byId(msg.pluginId));
+
   log('unknown message: ' + JSON.stringify(msg));
 });
 
@@ -88,21 +89,13 @@ handlers.close = function() {
   process.exit();
 };
 
-handlers.initPayload = function(data) {
-  babelrc = data.babelrc;
+handlers.PLUGIN_INIT = function({id, name, path}) {
+  new BuildPlugin(id, name, path);
+}
 
-  pkgSettings = data.pkgSettings;
-  tsSettings = pkgSettings && pkgSettings.transformStateless;
-  tsPathMatch = tsSettings && tsSettings.pathMatch
-    ? toRegExp(tsSettings.pathMatch) : /\.jsx$/;
-  tsSourceMatch = tsSettings && tsSettings.sourceMatch
-    ? toRegExp(tsSettings.sourceMatch) : /^import React/m;
-
-  babelOtherDeps.ecmaHotPkgJson = pkgSettings;
-};
-
-handlers.setCacheDir = function(dir) {
-  bc.setDiskCacheDirectory(dir);
+handlers.setDiskCacheDirectory = function({dir}, plugin) {
+  plugin.setDiskCacheDirectory(dir);
+  return; // XXXXXXXXXX
 
   // First compile takes ages (probably from loading all the plugins),
   // so let's just get it out the way.
@@ -122,7 +115,7 @@ handlers.setCacheDir = function(dir) {
 };
 
 // get file data from build plugin
-handlers.fileData = function(files) {
+handlers.fileData = function({files}) {
   // hothacks.js guarantees that these are all new
   for (var key in files)
     fs.watch(key, onChange.bind(null, key, files[key]));
@@ -178,64 +171,16 @@ function sendInputFiles() {
   timeout = null;
 }
 
-/* Dupe code from rest of package */
-
-//var packageDir = '/home/dragon/.meteor/packages/gadicc_babel-compiler-hot/.6.6.2-beta.1.4sue43++os+web.browser+web.cordova';
-//var meteorBabel = require(packageDir + '/npm/node_modules/meteor-babel');
-
-/* babelrc.js */
-
-// babelrc processing done in build plugin
-
-// package global; used in hothacks.js to cover relevent package.json aswell.
-var babelOtherDeps = {};
-
-function archType(arch) {
-  if (arch.substr(0, 4) === 'web.')
-    return 'client';
-  if (arch.substr(0, 3) === 'os.');
-    return 'server';
-  throw new Error("Unkown architecture: " + arch);
-}
-
-/*
- * Wow, in the end, this is all we need and babel does the rest in
- * the right way.
- */
-var mergeBabelrcOptions = function(options, inputFile) {
-  var arch = archType(inputFile.getArch());
-
-  var obj = babelrc[arch];
-  if (!obj.exists)
-    obj = babelrc.root;
-
-  options.extends = obj.path;
-
-  return {
-    babelrcHash: obj.combinedHash || obj.hash,
-
-    // Because .babelrc may contain env-specific configs
-    // Default is 'development' as per http://babeljs.io/docs/usage/options/
-    BABEL_ENV: process.env.BABEL_ENV || process.env.NODE_ENV || 'development',
-
-    // From other files, e.g. hothacks pkgSettings
-    otherDeps: babelOtherDeps
-
-  };
-}
 
 /* hothacks.js */
 
 var hot = {
-  lastHash: {},
-  bundles: {},
-  orig: {}
+  bundles: {}
 };
-
 
 function extractRequires(content) {
   var requires = [], match, re = /require\((['"]+)(.+)\1\)/g;
-  while (match = re.exec(content)) {
+  while ((match = re.exec(content))) {
     requires.push(match[2]);
   }
   return requires;
@@ -294,213 +239,3 @@ hot.process = function(bundle) {
   hot.bundles[id] = { contents: bundleStr };
   wss.broadcast(id);
 }
-
-function toRegExp(input) {
-  if (typeof input === 'string')
-    return new RegExp(input);
-  else if (Object.prototype.toString.call(input) === '[object Array]')
-    return new RegExp(input[0], input[1]);
-  else
-    throw new Error("Don't know how to interpret pattern", input);
-}
-
-// set in initPayload
-var pkgSettings, tsSettings, tsPathMatch, tsSourceMatch;
-
-hot.transformStateless = function(source, path) {
-  if (!(source.match(tsSourceMatch) && path.match(tsPathMatch))) {
-    return source;
-  }
-
-  // const MyComponent = ({prop1, prop2}) => ();
-  // const MyComponent = (props) => ();
-  // const MyComponent = (props, context) => ();  TODO context
-  source = source.replace(/\nconst ([A-Z][^ ]*) = \((.*?)\) => \(([\s\S]+?)(\n\S+)/g,
-    function(match, className, args, code, rest) {
-      if (rest !== '\n);')
-        return match;
-      return '\nclass ' + className + ' extends React.Component {\n' +
-        '  render() {\n' +
-        (args ? '    const ' + args + ' = this.props;\n' : '') +
-        '    return (' + code + ')\n' +
-        '  }\n' +
-        '}\n';
-    });
-
-  // const MyComponent = (prop1, prop2) => { return ( < ... > ) };
-  source = source.replace(/\nconst ([A-Z][^ ]*) = \((.*?)\) => \{([\s\S]+?)(\n\S+)/g,
-    function(match, className, args, code, rest) {
-      if (rest !== '\n};' || !code.match(/return\s+\(\s*\</))
-        return match;
-      return '\nclass ' + className + ' extends React.Component {\n' +
-        '  render() {\n' +
-        (args ? '    const ' + args + ' = this.props;\n' : '') +
-        '    ' + code + '\n' +
-        '  }\n' +
-        '}\n';
-    });
-
-  return source;
-}
-
-/* babel.js */
-
-/**
- * Returns a new object containing default options appropriate for
- */
-function getDefaultOptions(extraFeatures) {
-  // See https://github.com/meteor/babel/blob/master/options.js for more
-  // information about what the default options are.
-  var options = meteorBabel.getDefaultOptions(extraFeatures);
-
-  // The sourceMap option should probably be removed from the default
-  // options returned by meteorBabel.getDefaultOptions.
-  delete options.sourceMap;
-
-  return options;
-}
-
-var Babel = {
-  getDefaultOptions: getDefaultOptions,
-
-  // Deprecated, now a no-op.
-  validateExtraFeatures: Function.prototype,
-
-  compile: function (source, options, deps) {
-    options = options || getDefaultOptions();
-    return meteorBabel.compile(source, options, deps);
-  },
-
-  setCacheDir: function (cacheDir) {
-    meteorBabel.setCacheDir(cacheDir);
-  }
-};
-
-/* babel-compiler.js */
-
-/**
- * A compiler that can be instantiated with features and used inside
- * Plugin.registerCompiler
- * @param {Object} extraFeatures The same object that getDefaultOptions takes
- */
-var BabelCompiler = function BabelCompiler(extraFeatures) {
-  this.extraFeatures = extraFeatures;
-};
-
-var BCp = BabelCompiler.prototype;
-var excludedFileExtensionPattern = /\.es5\.js$/i;
-
-BCp.processFilesForTarget = function (inputFiles) {
-  var self = this;
-
-  // hot
-  var partialBundle = [];
-  // hot.forFork(inputFiles, this, isFake);
-
-  inputFiles.forEach(function (inputFile) {
-    var source = inputFile.getContentsAsString();
-    var packageName = inputFile.getPackageName();
-    var inputFilePath = inputFile.getPathInPackage();
-    var outputFilePath = inputFilePath;
-    var fileOptions = inputFile.getFileOptions();
-    var toBeAdded = {
-      sourcePath: inputFilePath,
-      path: outputFilePath,
-      data: source,
-      hash: inputFile.getSourceHash(),
-      sourceMap: null,
-      bare: !! fileOptions.bare
-    };
-    var deps;
-
-    // If you need to exclude a specific file within a package from Babel
-    // compilation, pass the { transpile: false } options to api.addFiles
-    // when you add that file.
-    if (fileOptions.transpile !== false &&
-        // If you need to exclude a specific file within an app from Babel
-        // compilation, give it the following file extension: .es5.js
-        ! excludedFileExtensionPattern.test(inputFilePath)) {
-
-      var targetCouldBeInternetExplorer8 =
-        inputFile.getArch() === "web.browser";
-
-      self.extraFeatures = self.extraFeatures || {};
-      if (! self.extraFeatures.hasOwnProperty("jscript")) {
-        // Perform some additional transformations to improve
-        // compatibility in older browsers (e.g. wrapping named function
-        // expressions, per http://kiro.me/blog/nfe_dilemma.html).
-        self.extraFeatures.jscript = targetCouldBeInternetExplorer8;
-      }
-
-      var babelOptions = Babel.getDefaultOptions(self.extraFeatures);
-
-      // hot
-      deps = mergeBabelrcOptions(babelOptions, inputFile);
-      source = hot.transformStateless(source, inputFilePath);
-      deps.sourceHash = toBeAdded.hash;
-
-      babelOptions.sourceMap = true;
-      babelOptions.filename =
-      babelOptions.sourceFileName = packageName
-        ? "/packages/" + packageName + "/" + inputFilePath
-        : "/" + inputFilePath;
-
-      babelOptions.sourceMapTarget = babelOptions.filename + ".map";
-
-      try {
-        var result = profile('Babel.compile', function () {
-          return Babel.compile(source, babelOptions, deps);
-        });
-      } catch (e) {
-        if (e.loc) {
-          inputFile.error({
-            message: e.message,
-            line: e.loc.line,
-            column: e.loc.column,
-          });
-
-          return;
-        }
-
-        throw e;
-      }
-
-      toBeAdded.data = result.code;
-      toBeAdded.hash = result.hash;
-      toBeAdded.sourceMap = result.map;
-
-      // hot
-      toBeAdded.packageName = packageName;
-    }
-
-    partialBundle.push(toBeAdded);
-  }); /* inputFiles.forEach */
-
-  // hot
-  hot.process(partialBundle);
-};
-
-BCp.setDiskCacheDirectory = function (cacheDir) {
-  Babel.setCacheDir(cacheDir);
-};
-
-function profile(name, func) {
-  if (typeof Profile !== 'undefined') {
-    return Profile.time(name, func);
-  } else {
-    return func();
-  }
-};
-
-/* */
-
-var bc = new BabelCompiler({ react: true });
-
-/*
-var time = Date.now();
-function sinceLast(text) {
-  var now = Date.now();
-  console.log(text + ' ' + (now - time));
-  time = now;
-}
-*/

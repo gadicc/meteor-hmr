@@ -1,7 +1,93 @@
 var path = Npm.require('path');
+var fs = Npm.require('fs');
 
-Hot = function() {
+// XXX better way to do this?
+var tmp = null;
+projRoot = process.cwd();
+
+while (projRoot !== tmp && !fs.existsSync(path.join(projRoot, '.meteor'))) {
+  tmp = projRoot;  // used to detect drive root on windows too ("./.." == ".")
+  projRoot = path.normalize(path.join(projRoot, '..'));
+}
+
+if (projRoot === tmp) {
+  // We stop processing this file here in a non-devel environment
+  // because a production build won't have a .meteor directory.
+  // We need it during the build process (which is also "production"),
+  // but for now we assume that this kind of error would be detected
+  // during development.  Would love to hear of alternative ways to do
+  // this.  Could maybe check for "local/star.json" to identify devel build.
+  if (process.env.NODE_ENV !== 'development')
+    return;
+  else
+    throw new Error("Are you running inside a Meteor project dir?");
+}
+
+function loadVersions() {
+  var versionsRaw = fs.readFileSync(
+    path.join(projRoot, '.meteor', 'versions'), 'utf8'
+  ).split('\n');
+
+  var versions = {};
+  for (var i=0; i < versionsRaw.length; i++) {
+    var line = versionsRaw[i].split('@');
+    if (line.length == 2)
+      versions[line[0]] = line[1];
+  }
+  return versions;  
+}
+
+var versions = null;
+
+function findPackagePath(name) {
+  var p = path.join(projRoot, '.meteor', 'local',
+    'isopacks', name.replace(':', '_'));
+
+  // First look for a locally installed version of the package (e.g. devel)
+  if (fs.existsSync(p)) {
+    return p;
+  }
+
+  console.log('[gadicc:hot] Not a local package: ' + name);
+  return null;
+}
+
+function getPluginPath(name) {
+  var packagePath = findPackagePath(name);
+  if (!packagePath)
+    return null;
+
+  var isopack = JSON.parse(
+    fs.readFileSync(path.join(packagePath, 'isopack.json'))
+  )['isopack-2'];
+
+  if (!isopack)
+    throw new Error("[gadicc:hot] I only know how to deal with isopack-2's; " + name);
+  if (isopack.plugins.length === 0)
+    throw new Error("[gadicc:hot] No plugins found in " + name);
+  if (isopack.plugins.length > 1)
+    throw new Error("[gadicc:hot] Too many plugins in " + name);
+
+  return path.join(packagePath,
+    isopack.plugins[0].path.replace(/\/program.json$/, ''));
+}
+
+Hot = function(plugin) {
   this.id = Random.id();
+  this.plugin = plugin;
+
+  var pluginPath = getPluginPath(plugin);
+  if (!pluginPath) {
+    console.log("[gadicc:hot] Couldn't find plugin path for: " + plugin);
+  }
+  this.pluginPath = pluginPath;
+
+  this.send({
+    type: 'PLUGIN_INIT',
+    id: this.id,
+    name: plugin,
+    path: pluginPath
+  });
 }
 
 Hot.prototype.wrap = function(compiler) {
@@ -15,7 +101,7 @@ Hot.prototype.wrap = function(compiler) {
 
   var origSetDiskCacheDirectory = compiler.setDiskCacheDirectory;
   compiler.setDiskCacheDirectory = function(cacheDir) {
-    self.setCacheDir(cacheDir);
+    self.setDiskCacheDirectory(cacheDir);
     origSetDiskCacheDirectory.call(compiler, cacheDir);
   }
 
@@ -23,13 +109,15 @@ Hot.prototype.wrap = function(compiler) {
 }
 
 Hot.prototype.send = function(payload) {
-  return;
-  payload.compilerId = this.id;
-  fork.send(payload);
+  if (!this.pluginPath)
+    return;
+
+  payload.pluginId = this.id;
+  Hot.fork.send(payload);
 }
 
-Hot.prototype.setCacheDir = function(cacheDir) {
-  this.send({ type: 'setCacheDir', data: cacheDir });
+Hot.prototype.setDiskCacheDirectory = function(cacheDir) {
+  this.send({ type: 'setDiskCacheDirectory', dir: cacheDir });
 }
 
 var sentFiles = {};

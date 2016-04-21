@@ -32,24 +32,21 @@ if (!HOT_PORT) {
 if (!process.env.HOT_PORT)
   process.env.HOT_PORT = HOT_PORT;
 
-return;
-
-var fork;
+var fork, waiting = false;
 if (!gdata.accelId)
   gdata.accelId = 0;
 
 function startFork() {
-  fork = gdata.fork = new Accelerator(HOT_PORT, ++gdata.accelId);
+  fork = gdata.fork = Hot.fork = new Accelerator(HOT_PORT, ++gdata.accelId);
 
-  /*
-  fork.send({
-    type: 'initPayload',
-    data: {
-      babelrc: babelrc,
-      pkgSettings: pkgSettings
-    }
-  });
-  */
+  var origSend = fork.send;
+  fork.send = function waitAndSend(data) {
+    // console.log('SEND', 'waiting', !!waiting, data);
+    if (waiting)
+      waiting.push(data);
+    else
+      origSend.call(this, data);
+  }
 
   fork.on('message', function(msg) {
 
@@ -59,16 +56,6 @@ function startFork() {
       return;
     }
 
-    /*
-    if (msg.type === 'inputFiles') {
-      bci.processFilesForTarget(
-        msg.inputFiles.map(function(inputFile) { return new FakeFile(inputFile); }),
-        true // fake
-      );
-      return;
-    }
-    */
-
     console.log('[gadicc:hot] Build plugin got unknown message: '
       + JSON.stringify(msg));
   });
@@ -76,18 +63,15 @@ function startFork() {
 }
 
 // this only ever happens when upgrading the build plugin (e.g. devel, upgrade)
-var waiting = false;
 if (gdata.fork) {
-  waiting = {};
+  waiting = [];
   gdata.fork.on('message', function(msg) {
     if (msg.type === 'closed') {
       console.log('[gadicc:hot] Switching to new accelerator instance.');
       startFork();
 
-      if (waiting.setCacheDir)
-        fork.send({ type: 'setCacheDir', data: waiting.setCacheDir });
-      if (waiting.fileData)
-        fork.send({ type: 'fileData', data: waiting.fileData });
+      while (waiting.length)
+        fork.send(waiting.shift());
 
       waiting = false;
     }
