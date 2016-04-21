@@ -105,23 +105,10 @@ handlers.PLUGIN_INIT = function({id, name, path}) {
 
 handlers.setDiskCacheDirectory = function({dir}, plugin) {
   plugin.setDiskCacheDirectory(dir);
-  return; // XXXXXXXXXX
 
-  // First compile takes ages (probably from loading all the plugins),
-  // so let's just get it out the way.
-  //
-  // Regrettably this polutes the disk, perhaps we should compute the
-  // hash ourselves and unlink; would require utils.deepHash and
-  // meteorBabelVersion.
-  var options = Babel.getDefaultOptions();
-  if (babelrc.client.exists)
-    options.extends = babelrc.client.path;
-  else
-    options.extends = babelrc.root.path;
-  options.filename = options.sourceFileName = 'gadicc-cachebuster.js';
-  Babel.compile("import React from 'react';\n", options, {
-    sourceHash: crypto.randomBytes(20).toString('hex')
-  });
+  if (plugin.compiler._hotInitFakeCompile) {
+    plugin.compiler._hotInitFakeCompile();
+  }
 };
 
 // get file data from build plugin
