@@ -9,12 +9,14 @@ Package.describe({
 Npm.depends({
   'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator',
   //'meteor-hotload-accelerator': '0.0.8',
+  
 });
 
 Package.onUse(function(api) {
   api.versionsFrom('1.3-rc.4');
 
   api.use('random', 'server');
+  api.use('underscore', 'server');
   api.addFiles('hot-server.js', 'server');
   api.addFiles('accelerator.js', 'server');
   api.export('Hot', 'server');
