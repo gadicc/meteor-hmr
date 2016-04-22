@@ -1,6 +1,6 @@
-# meteor-react-hotloader
+# meteor-hmr
 
-*React hot loading, .babelrc support, in Meteor, today*
+*Hot-module-replacement for Meteor*
 
 * Edit your react components and see changes instantly, while maintaining state.
 * Catch react `render()` errors and show on your screen rather than crashing your app.
@@ -38,17 +38,14 @@ file; remove it and `meteor update` for the latest stable version.
 
 ## How to Use
 
-1. In your project root, `npm install --save-dev babel-preset-meteor babel-plugin-react-transform react-transform-hmr react-transform-catch-errors redbox-react`
-1. If you don't already have a `.babelrc`, one will be created for you.  Otherwise,
-ensure it resembles the sample at the end of this README.
+If upgrading from an earlier version, please see [Upgrading](docs/Upgrading.md).
+
+Hotloading is provided on a *per-build-plugin* basis.  We provide a replacement
+`ecmascript-hot` loader to hotload your `*.js` and `*.jsx` files:
+
 1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot`
 
-If you want `.babelrc` support without react hotloading, just take out
-the `react-transform` lines in your `client/.babelrc`.
-
-NB: If you already had a `.babelrc` before this, realize that it might contain
-things that can break your Meteor build, but didn't before when Meteor ignored
-it.  Pay attention to existing plugins & presets.
+Note, your code needs to be hot-module-replacement (HMR) aware.  For instuctions on how to add hot loading for React, please see the [React Hotloading](docs/React_Hotloading.md) docs.  For general instructions, see the [Handling Updates](docs/Handling_Updates.md).
 
 Notes:
 
@@ -62,20 +59,11 @@ Meteor's port + 2 (i.e., right after mongo), but you can override it with the
 of your testing, tracking in
 [#82](https://github.com/mantrajs/mantra-sample-blog-app/issues/82)).
 
-## Where this works and doesn't
+## Where this works and doesn't work
 
-NB: **This only works "out the box" on React components**.  If you change a file that is imported by non-react by modules that aren't react components, a regular client refresh will occur.  For hotloading to work, files must know how to "accept" the updated modules.  The react hotloading code knows how to do this for react components and their imports.  Other hotloaders *may* (or may not) work with the *very basic* HMR support provided by this project.  No other files will "magically" update themselves.  See http://webpack.github.io/docs/hot-module-replacement.html for the basic idea; BUT: we only provide `hot.accept()`, and on the client only, for now.
-
-Related: if you change non-react code in a file that has a react component too, since we don't know any better, we'll patch the (unchanged) react component and still block the full refresh, meaning your old code will still run (unless, of course, it's used by the react component).  To avoid this, either ctrl-R in such situations or don't mix code and react components in the same file.
-
-* ~~App only, no packages - avoids need to link in package imports~~
-  (see Packages, below)
-* ~~Only works with file paths that include 'client' and exclude 'test'.~~
-* ~~Works on any client code where the path doesn't begin with `tests/` or
-  end in `tests?.js` or `specs?.jsx` (the `?` means the `s` is optional).~~
-* ~~Note the section below about stateless / functional / pure / "dumb" components.~~
-
-Note: the new react-hot-loader version supports functional stateless components in the best way possible.
+Hot Module Replacement (HMR) only works with "pure" modules that use `import`
+and `export`.  Any reliance on Meteor's old method of `api.use()`,
+`api.export()` and globals will absolutely not work properly, ever.
 
 ## Forced Refresh
 
@@ -103,45 +91,6 @@ expect them to "just be available" because of Meteor's linker code.
 
 ## Troubleshooting
 
-**[server] Uncaught Error: Unknown plugin "XXX" specified in .babelrc**
-
-```
-   While processing files with gadicc:ecmascript-hot (for target os.linux.x86_64):
-
-   /home/dragon/.meteor/packages/gadicc_ecmascript-hot/...super long path.../option-manager.js:179:17:
-   Unknown plugin "react-transform" specified in
-   "/home/dragon/www/projects/wmd2/supervisor/.babelrc.env.development" at 0, attempted to
-   resolve relative to "/home/dragon/www/projects/wmd2/supervisor"
-   at
-```
-
-where obvoiusly XXX is some arbitrary plugin name.
-
-Run `npm install --save-dev babel-plugin-XXX` in your project root (like we
-recommend when adding any new plugin at the bottom of this README).
-
-**[server] Uncaught Error: Unknown preset "XXX" specified in .babelrc**
-
-```
-   While processing files with gadicc:ecmascript-hot (for target os.linux.x86_64):
-
-   /home/dragon/.meteor/packages/gadicc_ecmascript-hot/...super long path.../option-manager.js:179:17:
-   Unknown preset "stage-0" specified in
-   "/home/dragon/www/projects/wmd2/supervisor/.babelrc" at 0, attempted to
-   resolve relative to "/home/dragon/www/projects/wmd2/supervisor"
-   at
-```
-
-where obvoiusly XXX is some arbitrary preset name.
-
-Run `npm install --save-dev babel-preset-XXX` in your project root (like we
-recommend when adding any new preset at the bottom of this README).
-
-**[client] Uncaught Error: Cannot find module 'react-transform-hmr'**
-
-Run `npm install --save-dev react-transform-hmr` in your project root
-(per the installation section in this README :)).
-
 **Disable HCP on fail for debugging**
 
 If you want to report an error with meteor-react-hotloader, but Meteor's HCP
@@ -156,29 +105,21 @@ Reload._onMigrate(function() { return false; });
 
 Brace yourself for reading this and recall the project goals.
 
-1. We use [@gaearon](https://github.com/gaearon/) (dan abramov)'s
-[babel-plugin-react-transform](https://github.com/gaearon/babel-plugin-react-transform)
-and
-[react-transform-hmr](https://github.com/gaearon/react-transform-hmr)
-plugins (which use his [react-proxy](https://github.com/gaearon/react-proxy) too).
-These are awesome and this is the right way to go; nothing hacky here.
+1. Build plugins that use `gadicc:hot-build` (like `gadicc:ecmascript-hot`)
+   will be loaded a 2nd time in a forked process.  They will watch all the
+   same files, and on update, will recompile only changed files and send
+   this update directly to the client.
 
-1. We provide a replacement `ecmascript-hot` compiler plugin, which honors
-  `.babelrc` files and performs transforms on stateless functions.  We keep
-  a running list of all files handled by this plugin, which is passed over
-  to our "accelerator".
-
-1. The accelerator is a separate (forked) process, which watches those files
-  and on changes constructs a module tree that (hopefully) resembles Meteor's
-  linker output (which we bypass; hence we only support `import`s and nothing
-  from from `api.use()` in packagess, for example).
+1. This above bundle resembles Meteor's linker output but also bypasses it,
+   so this will only work with "pure" modules that use import/export and
+   don't rely at all on Meteor's old method of `api.use()` and `api.export()`.
 
 1. The accelerator also runs an http server (to serve bundles) and a websocket
   server (to notify the client of new bundles ids).  The client requests said
   bundles by inserting a script tag into the HEAD (so it will be loaded in the
   correct context).
 
-1. Patch meteorInstall's root, delete previous exports, climb the tree, and
+1. We patch meteorInstall's root, delete previous exports, climb the tree, and
   reevaluate.  This happens before the HCP, so if everything succeeded, we
   skip the next HCP.
 
@@ -190,63 +131,3 @@ These are awesome and this is the right way to go; nothing hacky here.
 The bases for `babel-compiler` and `ecmascript` began from `1.3-modules-beta.5`
 and are upgraded as necessary, in their own commits (look out for commit messages
 `update package bases to 1.3-beta.11 (<SHA>)` etc).
-
-## Sample .babelrc
-
-There should be a `.babelrc` file in your project root.  If it doesn't exist,
-it will be created for you with the contents below.  If it does exist, it
-should include at least `{ "presets": "meteor" }`.  Consider also that until
-now it was ignored, so it might contain some configuration that could break
-your app.
-
-```js
-{
-  "presets": [ "meteor" ]
-}
-```
-
-If `/server/.babelrc` or `/client/.babelrc` exist, they'll be used
-preferentially for these architectures.  We suggest you extend your
-root `.babelrc` and only keep target-specific config in these files.
-Here's an example client setup for react hotloading:
-
-**/client/.babelrc:**
-
-```js
-{
-  "extends": "../.babelrc",
-
-  "env": {
-    "development": {
-      "plugins": [
-        ["react-transform", {
-          "transforms": [{
-            "transform": "react-transform-hmr",
-            "imports": ["react"],
-            "locals": ["module"]
-          }, {
-            "transform": "react-transform-catch-errors",
-            "imports": ["react", "redbox-react"]
-          }]
-        }]
-      ]
-    }
-  }
-}
-```
-
-If you add any new **plugins** or **presets** in your `.babelrc` files, you need to `npm install` them too.  e.g. if you add:
-
-```js
-{
-  plugins: [ 'transform-decorators-legacy' ]
-}
-```
-
-you need to:
-
-```sh
-$ npm install --save-dev babel-plugin-transform-decorators-legacy
-```
-
-The name of the npm package is almost always the name of the plugin preceded by `babel-plugin-`, unless the README or npmjs.com says otherwise.

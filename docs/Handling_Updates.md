@@ -26,6 +26,8 @@ if (module.hot)        // Is hotloading available?  Won't be in production.
 
 This is usually more useful with a `dispose()` handler, as per the CSS example in the webpack doc.  This is not supported yet but will be soon.
 
+You should only do this with a module *that has no exports*, otherwise you'll break the chain.  If your module has imports, you should try accept the change in the parent module (the module that imports it) - that module should either self-accept or know how to accept the changed dependency, as explained below.
+
 **Accept dependency changes**:
 
 style.js:

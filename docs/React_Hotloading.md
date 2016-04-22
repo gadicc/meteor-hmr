@@ -1,24 +1,29 @@
-## From 1.3.1_1 or .fast releases
+# React Hotloading in Meteor
 
-* We now use React-Hot-Loader v3.
-* We now rely on Meteor's official `.babelrc` support (from 1.3.3?) XXX
-* We can now upgrade `hot` and the new `hot-build` independently of `ecmascript-hot`.
+* Edit your react components and see changes instantly, while maintaining state.
+* Catch react `render()` errors and show on your screen rather than crashing your app
+(currently just for initial pound pending
+[facebook/react#6020](https://github.com/facebook/react/pull/6020)).
 
-This project is now a general hot loading project, and includes sample instructions
-for React in the [React Hotloading docs](./React_Hotloading.md).  However, the steps
-below will help you upgrade from an existing installation to the new setup described
-there.
+More info in https://github.com/gaearon/react-hot-boilerplate/pull/61.
 
-### Remove the old setup
+## Configuration
 
-1. `npm rm --save-dev babel-plugin-react-transform react-transform-hmr react-transform-catch-errors`
-1. Remove the entire `react-transform` section from your `client/.babelrc` env block (or delete the file completely if you never modified it)
-1. Remove your `package.json`'s `ecmascript-hot` section completely, it's no longer used.
+You should be using `ecmascript-hot` if you aren't already:
 
-### Add the new setup
+1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot`
 
-1. `npm install --save-dev react-hot-loader@^3.0.0-alpha.12` (check latest release)
-1. In your *project root* `.babelrc`, make sure you have `{ "plugins": ["react-hot-loader/babel"] }`.
+Then follow these React Hotloader specific steps:
+
+1. In your project root, `npm install --save-dev react-hot-loader@^3.0.0-alpha.12 redbox-react`
+1. See the [babelrc docs][./babelrc.md] if `.babelrc` support is new for you.  Make sure
+your *project root* `.babelrc` has at least the following (there's an example at the end of this file):
+
+  ```js
+{
+  "plugins": [ "react-hot-loader/babel" ]
+}
+```
 1. Modify your main client entry point / wherever you mount your root to resemble:
 
   ```js
@@ -50,4 +55,13 @@ if (module.hot) {
 
 1. You need to `import 'react-hot-loader/patch';` *before* importing `React`.  If you have a *single* client entry-point and get everything else from the `/imports` directory, just add this as your first line.  If you still use a "regular" client directory (with more than 1 file), try place just this line in a file called `client/_patchReact.js` (or possibly in `client/lib` if you use react from within that directory).
 
-There's an (incredibly convoluted) example at https://github.com/gadicc/meteor-react-hotloader/.tree/master/demo-rhl3.
+There's an (incredibly convoluted) example at https://github.com/gadicc/meteor-react-hotloader/tree/master/demo-rhl3.
+
+## Sample .babelrc
+
+```js
+{
+  "presets": [ "meteor" ],
+  "plugins": [ "react-hot-loader/babel" ]
+}
+```
