@@ -33,7 +33,7 @@ export class App extends Component {
   render() {
     return (
       <div>
-        <Counter increment={40} color={NICE} />
+        <Counter increment={88} color={NICE} />
         <Counter increment={5} color={SUPER_NICE} />
       </div>
     );

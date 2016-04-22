@@ -24,11 +24,11 @@ ecmascript-runtime@0.2.10
 ejson@1.0.11
 es5-shim@4.5.10
 fastclick@1.0.11
-gadicc:babel-compiler-hot@6.6.2-beta.13
-gadicc:ecmascript-hot@1.3.2-fast.13
-gadicc:hot@0.0.19
-gadicc:json5@0.5.0-0
-gadicc:modules-runtime-hot@0.6.3_1
+gadicc:babel-compiler-hot@6.6.2-beta.14
+gadicc:ecmascript-hot@1.3.2-fast.14
+gadicc:hot@0.0.20
+gadicc:hot-build@0.0.1
+gadicc:modules-runtime-hot@0.6.3_2
 geojson-utils@1.0.8
 hot-code-push@1.0.4
 html-tools@1.0.9
