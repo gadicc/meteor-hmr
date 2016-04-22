@@ -63,8 +63,13 @@ function findPackagePath(name) {
     return p;
   }
 
-  console.log('[gadicc:hot] Not a local package: ' + name);
-  return null;
+  if (!versions)
+    versions = loadVersions();
+  var version = versions[name];
+
+  // XXX windows??
+  var METEOR_HOME = path.join(process.env.HOME, '.meteor');
+  return path.join(METEOR_HOME, 'packages', name.replace(/:/,'_'), version);
 }
 
 function getPluginPath(name) {
