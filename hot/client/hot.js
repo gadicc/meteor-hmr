@@ -106,10 +106,17 @@ function requirersUntilHot(file, func, parentId) {
   }
 }
 
+function logAndFail(message, err) {
+  console.error('[gadicc:hot] ' + message);
+  if (err) console.error(err);
+  hot.failedOnce = true;
+  return true;
+}
+
 /*
  * Like meteorInstall, called with every bundled tree from hot.js.
  * Patch existing install.js root, delete eval'd exports up to a module
- * with module.hot, and require() that.
+ * that can accept us and self-accept or accept-dep.
  */
 const meteorInstallHot = function(tree) {
   hot.blockNextHCP = true;
@@ -133,6 +140,13 @@ const meteorInstallHot = function(tree) {
     requirersUntilHot(file, function (file, parentId) {
       const mhot = file.m.hot;
 
+      if (mhot._selfDeclined)
+        return logAndFile('Aborted because of self decline: ' + file.m.id);
+      else if (parentId && mhot._declinedDependencies
+          && mhot._declinedDependencies[parentId])
+        return logAndFail('Aborted because of declined dependency: '
+          + parentId + ' in ' + file.m.id);
+
       // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
       delete file.m.exports; // re-force install.js fileEvaluate()
 
@@ -149,15 +163,14 @@ const meteorInstallHot = function(tree) {
 
           require(file.m.id);
 
-        } catch (e) {
+        } catch (err) {
 
-          hot.failedOnce = true;
-
+          // hot.accept([errHandler])
           if (typeof mhot._selfAccepted === 'function')
-            mhot._selfAccepted(e);
+            mhot._selfAccepted(err);
 
-          console.error('[gadicc:hot] An error occured trying to accept hmr for ' + file.m.id);
-          console.error(e);
+          logAndFile('An error occured trying to accept hmr for '
+            + file.m.id, err);
 
         }
         return true;
@@ -171,11 +184,10 @@ const meteorInstallHot = function(tree) {
 
           mhot._acceptedDependencies[parentId]();
 
-        } catch (e) {
+        } catch (err) {
 
-          hot.failedOnce = true;
-          console.error('[gadicc:hot] An error occured trying to accept hmr for ' + file.m.id);
-          console.error(e);
+          logAndFail('An error occured trying to accept hmr for '
+            + file.m.id, err);
 
         }
         return true;

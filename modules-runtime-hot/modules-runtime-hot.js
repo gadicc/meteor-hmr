@@ -91,15 +91,19 @@ var moduleHotProto = {
   },
 
   decline: function(dep) {
+    var module = this._m;
+
     if (typeof dep === "undefined")
       this._selfDeclined = true;
-    else if (typeof dep === "number") {
-      if (!this._declinedDependencies) this._declinedDependencies = {};
-      this._declinedDependencies[dep] = true;
+    else if (typeof dep === "string") {
+      if (!this._declinedDependencies)
+        this._declinedDependencies = {};
+      this._declinedDependencies[resolvePath(module.id, dep)] = true;
     } else if (typeof dep === "object") {
-      if (!this._declinedDependencies) this._declinedDependencies = {};
+      if (!this._declinedDependencies)
+        this._declinedDependencies = {};
       for (var i=0; i < dep.length; i++)
-        this._declinedDependencies[dep] = true;
+        this._declinedDependencies[resolvePath(module.id, dep)] = true;
     } else {
       throw new Error("[gadicc:hot] Invalid argument for hot.decline(): ",
         typeof dep, dep);
