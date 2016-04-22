@@ -68,7 +68,11 @@ function findPackagePath(name) {
 }
 
 function getPluginPath(name) {
-  var packagePath = findPackagePath(name);
+  var parts = name.split('/');
+  var packageName = parts[0];
+  var pluginName = parts[1];
+
+  var packagePath = findPackagePath(packageName);
   if (!packagePath)
     return null;
 
@@ -77,14 +81,20 @@ function getPluginPath(name) {
   )['isopack-2'];
 
   if (!isopack)
-    throw new Error("[gadicc:hot] I only know how to deal with isopack-2's; " + name);
+    throw new Error("[gadicc:hot] No isopack-2 section: " + packageName);
   if (isopack.plugins.length === 0)
     throw new Error("[gadicc:hot] No plugins found in " + name);
-  if (isopack.plugins.length > 1)
-    throw new Error("[gadicc:hot] Too many plugins in " + name);
+
+  var plugin = _.find(isopack.plugins, function(plugin) {
+    return plugin.name === pluginName;
+  });
+
+  if (!plugin)
+    throw new Error("[gadicc:hot] No plugin \"" + pluginName
+      + "\" in package \"" + packageName + "\"");
 
   return path.join(packagePath,
-    isopack.plugins[0].path.replace(/\/program.json$/, ''));
+    plugin.path.replace(/\/program.json$/, ''));
 }
 
 Hot = function(plugin) {
