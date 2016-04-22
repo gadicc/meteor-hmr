@@ -63,22 +63,6 @@ function Module(id, parent) {
   }
 };
 
-// XXX
-mhot.hotDepModules = [];
-if (Meteor.isClient)
-  Meteor.startup(function() {
-    if (!window.hot.hotDepModules)
-      window.hot.hotDepModules = Package['modules-runtime'].mhot.hotDepModules;
-  });
-
-function hotDepModuleWarn(module) {
-  if (!mhot.hotDepModules.includes(module)) {
-    mhot.hotDepModules.push(module);
-    console.warn("[gadicc:hot] Support for hotloading dependencies is not "
-      + "well tested: " + module.id + " (copied into hot.hotDepModules)");
-  }
-}
-
 // https://github.com/webpack/webpack/blob/master/lib/HotModuleReplacement.runtime.js
 var moduleHotProto = {
   // http://webpack.github.io/docs/hot-module-replacement.html#accept
@@ -90,22 +74,53 @@ var moduleHotProto = {
     else if (typeof dep === "function")
       this._selfAccepted = dep;
     else if (typeof dep === "object") {
-      hotDepModuleWarn(module);
-      for(var i = 0; i < dep.length; i++)
+      if (!this._acceptedDependencies) this._acceptedDependencies = {};
+      for (var i = 0; i < dep.length; i++)
         this._acceptedDependencies[resolvePath(module.id, dep[i])] = callback;
     } else if (typeof dep === "string") {
-      hotDepModuleWarn(module);
+      if (!this._acceptedDependencies) this._acceptedDependencies = {};
       this._acceptedDependencies[resolvePath(module.id, dep)] = callback;
     } else {
       throw new Error("[gadicc:hot] Invalid argument for hot.accept(): ",
         typeof dep, dep);
     }
+  },
+
+  decline: function(dep) {
+    if (typeof dep === "undefined")
+      this._selfDeclined = true;
+    else if (typeof dep === "number") {
+      if (!this._declinedDependencies) this._declinedDependencies = {};
+      this._declinedDependencies[dep] = true;
+    } else if (typeof dep === "object") {
+      if (!this._declinedDependencies) this._declinedDependencies = {};
+      for (var i=0; i < dep.length; i++)
+        this._declinedDependencies[dep] = true;
+    } else {
+      throw new Error("[gadicc:hot] Invalid argument for hot.decline(): ",
+        typeof dep, dep);
+    }
+  },
+
+  dispose: function(callback) {
+    if (!this._disposeHandlers) this._disposeHandlers = [];
+    this._disposeHandlers.push(callback);
+  },
+  addDisposeHandler: function(callback) {
+    if (!this._disposeHandlers) this._disposeHandlers = [];
+    this._disposeHandlers.push(callback);
+  },
+  removeDisposeHandler: function(callback) {
+    if (!this._disposeHandlers) return;
+    var idx = this._disposeHandlers.indexOf(callback);
+    if (idx >= 0) hot._disposeHandlers.splice(idx, 1);
   }
+
 };
 
 var moduleHotProps = {
-  _acceptedDependencies: {},
-  _selfAccepted: false
+  // Rather save mem and make them on-demand; requires a few more checks
+  // here and there, but I think it's cleaner.
 };
 
 mhot.makeInstaller = function(options) {

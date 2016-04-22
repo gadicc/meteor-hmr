@@ -154,7 +154,9 @@ const meteorInstallHot = function(tree) {
         }
         return true;
 
-      } else if (parentId && file.m.hot._acceptedDependencies[parentId]) {
+      } else if (parentId && file.m.hot._acceptedDependencies
+          && file.m.hot._acceptedDependencies[parentId]) {
+
         // console.debug('[gadicc:hot] ' + file.m.id + ' can accept ' + parentId);
 
         try {
