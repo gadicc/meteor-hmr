@@ -29,6 +29,11 @@ PASTE HERE
 PASTE HERE
 ```
 </details><details>
+<summary>`.meteor/versions`</summary>
+```
+PASTE HERE
+```
+</details><details>
 <summary>`packages.json`</summary>
 ```js
 PASTE HERE
