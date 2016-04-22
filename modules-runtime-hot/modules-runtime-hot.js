@@ -1,7 +1,8 @@
-if (process.env.NODE_ENV === 'production' || Meteor.isTest)
-  return;
-
 mhot = { };
+
+// On both the client & server this means no hotloading is present
+if (!Meteor.settings.public.HOT_PORT)
+  return;
 
 /*
  * resolvePath("/client/foo/bar", "../baz") === "/client/foo/baz"
