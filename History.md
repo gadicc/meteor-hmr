@@ -1,11 +1,28 @@
 # vNEXT
 
+* Please see the [Upgrading](docs/Upgrading.md) docs.
+
+* Major refactor and support for arbitrary build plugins.  Plugin authors
+  are invited to read the [Build Plugins](docs/Build_Plugins.md) docs.
+  This also means that we no longer need to make a new release for any core
+  changs in `babel-compiler`, since we now use/wrap the currently installed
+  version.  We still use a replacement `ecmascript-hot`, but `babel-compiler`
+  can be upgraded independently, as can `gadicc:hot` and `gadicc:hot-builder`.
+
+* Removed all transformStateless code, new react hotloader doesn't need it.
+
+* Like in `fast.14`, we now have *basic* HMR support for non-react hotloaders.
+  We provide a partial `hot.accept()` implementation only, and only on the
+  client, for now.
+
+# 1.3.2-fast.14 (2016-04-20)
+
 * Much faster reloads (for shared files too) by running an external
   "Accelerator" forked process.  You can read a bit more about this in the
   update HOW THIS WORKS section of the README (#26).
 
-* *Basic* HMR support for non-react hotloaders.  We provide a `hot.accept()`
-  implementation only, and only on the client - for now.
+* *Basic* HMR support for non-react hotloaders.  We provide a partial
+  `hot.accept()` implementation only, and only on the client - for now.
 
 * Fixed `Failed to parse SourceMap: http://localhost:3000/packages/undefined`
   by being more careful to clear the cache from an older broken version (#21).

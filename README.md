@@ -62,25 +62,6 @@ Meteor's port + 2 (i.e., right after mongo), but you can override it with the
 of your testing, tracking in
 [#82](https://github.com/mantrajs/mantra-sample-blog-app/issues/82)).
 
-## Upgrading from `v0.0.7-rc.1` and below
-
-* Previously, we force-pushed `babel-plugin-react-transform` for you, but now
-we provide full `.babelrc` support.  So now you should
-`npm install --save-dev babel-plugin-react-transform'
-and make sure you have a `.babelrc` in
-your project root that resembles the sample at the end of this README. 
-
-* You should also `npm install --save-dev react-transform-catch-errors react-redbox`
-if you want to use the error catching support.
-
-* Previously we recommended to remove this package before deploy, but now with
-proper `.babelrc` support, as long as the react-transform is in the `development`
-section, you should be good.  (Note, this package has not yet been tested
-extensively in production).
-
-* If you want `.babelrc` support without react hotloading, just take out
-the `react-transform` lines in that file.
-
 ## Where this works and doesn't
 
 NB: **This only works "out the box" on React components**.  If you change a file that is imported by non-react by modules that aren't react components, a regular client refresh will occur.  For hotloading to work, files must know how to "accept" the updated modules.  The react hotloading code knows how to do this for react components and their imports.  Other hotloaders *may* (or may not) work with the *very basic* HMR support provided by this project.  No other files will "magically" update themselves.  See http://webpack.github.io/docs/hot-module-replacement.html for the basic idea; BUT: we only provide `hot.accept()`, and on the client only, for now.
@@ -90,82 +71,11 @@ Related: if you change non-react code in a file that has a react component too, 
 * ~~App only, no packages - avoids need to link in package imports~~
   (see Packages, below)
 * ~~Only works with file paths that include 'client' and exclude 'test'.~~
-* Works on any client code where the path doesn't begin with `tests/` or
-  end in `tests?.js` or `specs?.jsx` (the `?` means the `s` is optional).
-* Note the section below about stateless / functional / pure / "dumb" components.
+* ~~Works on any client code where the path doesn't begin with `tests/` or
+  end in `tests?.js` or `specs?.jsx` (the `?` means the `s` is optional).~~
+* ~~Note the section below about stateless / functional / pure / "dumb" components.~~
 
-## Stateless / Functional / Pure / "Dumb" Components
-
-Since React 0.14 this is a recommended pattern, but they are harder to hot load.
-Currently babel-plugin-react-transform does not support it, see
-[#57](https://github.com/gaearon/babel-plugin-react-transform/issues/57).
-
-There are two ways around this:
-
-1. As long as your stateless component is imported into a regular component,
-it's like any regular import, and this will work fine.  This won't work if
-e.g. you pass a stateless component as a prop or context in a router, it
-needs to be directly imported.
-
-1. To sidestep the above limitation (and have faster patching), we'll auto
-convert (during compilation) stateless components into regular components
-in certain cases.  This can go wrong so instead of trying to accomodate
-every format, we do this for MantraJS style components, that:
-
-  1. Is a `.jsx` and contains "import React" at the beginning of a line.
-    You can fine tune these settings in your package.json, see SETTINGS
-    below.
-  1. ~~Are in a directory (or subdir of a directory) called `components`~~
-  1. Have exactly this format (const, identifier begins with uppercase,
-  root level indentation, newlines) - args can be blank.)
-
-```js
-const MyComponent = ({prop1, prop2}) => (
-  ... jsx ...
-);
-
-const MyComponent = ({prop1, prop2}) => {
-  // must include /return\s+\(\s*\</
-  // i.e. "return", whitespace, "(", optional whitespace, "<"
-  return ( <JSX /> );
-};
-```
-
-If this proves too inflexible, open an issue and I'll look at doing something
-using [recast](https://github.com/benjamn/recast) (from Meteor's @benjamn!),
-but for now I think it's better to be strict and avoid touching stuff we're
-not meant to, which I think is the reason react-transform-hmr doesn't address
-this yet.
-[This](https://github.com/gaearon/babel-plugin-react-transform/issues/57#issuecomment-167677570) was interesting though.
-
-FYI, to "convert" a pure component to a regular one, as in the
-example above, just do:
-
-```js
-import React, { Component } from 'react';
-const MyComponent extends Component {
-  render() {
-    const {prop1, prop2} = this.props;
-    return (
-      ... jsx ...
-    )
-  }
-}
-```
-
-### Important Flaw with this method
-
-We'll eventually incorporate
-[this pull request](https://github.com/gaearon/babel-plugin-react-transform/pull/85)
-which does pretty much the same thing with a bit more thought.
-
-> React doesn’t let functional components get refs. However this would
-technically allow those components to have refs in development. You can
-rely on this, and it will break in production.  e.g. findDOMNode(), etc.
-
-Source: @gaearon in
-[this comment](https://github.com/gaearon/babel-plugin-react-transform/pull/85#issuecomment-185428885) and
-[this comment](https://github.com/gaearon/babel-plugin-react-transform/pull/85#issuecomment-193033160).
+Note: the new react-hot-loader version supports functional stateless components in the best way possible.
 
 ## Forced Refresh
 
@@ -178,49 +88,7 @@ a browser refresh regardless... we can't help with that.
 
 ## Settings (in package.json)
 
-You may optionally override various defaults (shown below) by adding
-an `ecmascript-hot` key to your `package.json` file:
-
-```js
-  "ecmascript-hot": {
-    "transformStateless": {
-      "pathMatch": "\\.jsx$",
-      "sourceMatch": [ "^import React", "m" ]
-    },
-  "babelEnvForTesting": "production",
-  }
-```
-
-### transformStateless
-
-To get `transformStateless` in `.js` files too (and not just `.jsx`),
-you can do:
-
-```js
-  "ecmascript-hot": {
-    "transformStateless": {
-      "pathMatch": "\\.jsx?$",
-    }
-  }
-```
-
-i.e., just add a question mark ("?") before the end, to make the 'x'
-optional.
-
-Both `*Match` keys take regular expressions, so you could use the
-`sourceMatch` to e.g. whitelist/blacklist by your own criteria.
-
-### babelEnvForTesting
-
-```js
-{
-  "ecmascript-hot": {
-    "babelEnvForTesting": "production",     // default
-    "babelEnvForTesting": "development",    // any other value you want
-    "babelEnvForTesting": "default"         // will use existing BABEL_ENV if set
-  }
-}
-```
+Not relevant for newer versions.  Please remove this section.
 
 ## Packages
 
@@ -322,22 +190,6 @@ These are awesome and this is the right way to go; nothing hacky here.
 The bases for `babel-compiler` and `ecmascript` began from `1.3-modules-beta.5`
 and are upgraded as necessary, in their own commits (look out for commit messages
 `update package bases to 1.3-beta.11 (<SHA>)` etc).
-
-## TODO
-
-* [X] Force real reload if client hmr can't be accepted
-* [X] Consider intercepting how modules-runtime is served to client
-      to avoid needing to provide a replacement package until
-      [install#86](https://github.com/benjamn/install/pull/6).
-* [ ] Clean up `babel-copmiler.js` and move `hothacks.js` stuff to `gadicc:hot`.
-* [X] Proper module.hot stuff (seems to be good enough)
-* [X] react-transform-error stuff
-* [X] Check for MONGO_URL or -p option to meteor to get right mongo address
-
-## Other ideas
-
-Not tested yet in a big project, but if speed is an issue it's not too much
-work to spawn another process to watch the files and communicate with mongo.
 
 ## Sample .babelrc
 
