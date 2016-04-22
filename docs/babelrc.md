@@ -47,6 +47,15 @@ $ meteor npm install --save-dev babel-plugin-transform-decorators-legacy
 The name of the npm package is almost always the name of the plugin preceded
 by `babel-plugin-`, unless the README or npmjs.com says otherwise.
 
+For more information, see https://babeljs.io/docs/plugins/.  Note in
+particular the section on
+[Stage-X (Experimental Presets)](https://babeljs.io/docs/plugins/#stage-x-experimental-presets).
+Many packages simply say "enable stage-0" without clearly explaining the
+risks involved.  The stage-X presets (and their respective plugins) involve
+proposals that are subject to change so should be used **with extreme caution**.
+Code that works *now* with these plugins may break on future releases or once
+the spec is finalized.
+
 ## Client and server-specific .babelrc
 
 If `/server/.babelrc` or `/client/.babelrc` exist, they'll be used
@@ -105,3 +114,29 @@ where obvoiusly XXX is some arbitrary preset name.
 Run `npm install --save-dev babel-preset-XXX` in your project root (like we
 recommend when adding any new preset at the bottom of this README).
 
+### Decorators Plugin and stage-0 preset
+
+This is a bit tricky, since it depends on load order, and also the spec is not
+final (this is why we use the `-legacy` plugin.)  The features in these plugins
+are based on *propoals subject to change* so you should **use with extreme
+caution**, especially since you may well need to change any code that relies
+on these features when the respective spec is updated or finalized.
+
+For more information see https://babeljs.io/docs/plugins/#stage-x-experimental-presets.
+
+```sh
+$ meteor npm install --save-dev babel-preset-es2015 babel-preset-stage0
+
+```js
+{
+  "presets": [
+    "meteor",
+    "es2015",
+    "stage-0",
+    "react",
+  ],
+  "plugins": [
+    "transform-decorators-legacy"
+  ]
+}
+```
