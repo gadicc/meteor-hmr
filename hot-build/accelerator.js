@@ -2,7 +2,11 @@
 if (process.env.APP_ID)
   return;
 
-if (process.env.INSIDE_ACCELERATOR)
+// Don't load the accelerator in these circumstances
+if (process.env.INSIDE_ACCELERATOR
+    || process.env.NODE_ENV==='production'
+    || process.argv[2] === 'test'
+    || process.argv[2] === 'test-packages')
   return;
 
 var fs = Npm.require('fs');

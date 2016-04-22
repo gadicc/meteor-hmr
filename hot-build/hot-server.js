@@ -2,7 +2,12 @@
 if (process.env.APP_ID)
   return;
 
-if (process.env.INSIDE_ACCELERATOR) {
+// Don't do anything real in these circumstances
+if (process.env.INSIDE_ACCELERATOR
+    || process.env.NODE_ENV==='production'
+    || process.argv[2] === 'test'
+    || process.argv[2] === 'test-packages') {
+
   Hot = function() {};
   Hot.prototype.wrap = function(compiler) { return compiler; }
   return;
