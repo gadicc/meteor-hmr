@@ -107,15 +107,24 @@ var moduleHotProto = {
   },
 
   dispose: function(callback) {
-    if (!this._disposeHandlers) this._disposeHandlers = [];
+    if (typeof callback !== 'function')
+      throw new Error("[gadicc:hot] hot.dispose(func) expects a function");
+    if (!this._disposeHandlers)
+      this._disposeHandlers = [];
     this._disposeHandlers.push(callback);
   },
   addDisposeHandler: function(callback) {
-    if (!this._disposeHandlers) this._disposeHandlers = [];
+    if (typeof callback !== 'function')
+      throw new Error("[gadicc:hot] hot.addDisposeHandler(func) expects a function");
+    if (!this._disposeHandlers)
+      this._disposeHandlers = [];
     this._disposeHandlers.push(callback);
   },
   removeDisposeHandler: function(callback) {
-    if (!this._disposeHandlers) return;
+    if (typeof callback !== 'function')
+      throw new Error("[gadicc:hot] hot.removeDisposeHandler(func) expects a function");
+    if (!this._disposeHandlers)
+      return;
     var idx = this._disposeHandlers.indexOf(callback);
     if (idx >= 0) hot._disposeHandlers.splice(idx, 1);
   }

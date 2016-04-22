@@ -131,10 +131,18 @@ const meteorInstallHot = function(tree) {
     var changedFile = file;
 
     requirersUntilHot(file, function (file, parentId) {
+      const mhot = file.m.hot;
+
       // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
       delete file.m.exports; // re-force install.js fileEvaluate()
 
-      if (file.m.hot._selfAccepted) {
+      if (mhot._disposeHandlers) {
+        mhot.data = {};
+        mhot._disposeHandlers.forEach(f => f(mhot.data));
+        mhot._disposeHandlers = [];
+      }
+
+      if (mhot._selfAccepted) {
         // console.debug('[gadicc:hot] ' + file.m.id + ' can self accept');
 
         try {
@@ -145,8 +153,8 @@ const meteorInstallHot = function(tree) {
 
           hot.failedOnce = true;
 
-          if (typeof file.m.hot._selfAccepted === 'function')
-            file.m.hot._selfAccepted(e);
+          if (typeof mhot._selfAccepted === 'function')
+            mhot._selfAccepted(e);
 
           console.error('[gadicc:hot] An error occured trying to accept hmr for ' + file.m.id);
           console.error(e);
@@ -154,14 +162,14 @@ const meteorInstallHot = function(tree) {
         }
         return true;
 
-      } else if (parentId && file.m.hot._acceptedDependencies
-          && file.m.hot._acceptedDependencies[parentId]) {
+      } else if (parentId && mhot._acceptedDependencies
+          && mhot._acceptedDependencies[parentId]) {
 
         // console.debug('[gadicc:hot] ' + file.m.id + ' can accept ' + parentId);
 
         try {
 
-          file.m.hot._acceptedDependencies[parentId]();
+          mhot._acceptedDependencies[parentId]();
 
         } catch (e) {
 
