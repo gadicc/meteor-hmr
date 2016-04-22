@@ -1,3 +1,6 @@
+if (process.env.NODE_ENV === 'production' || Meteor.isTest)
+  return;
+
 mhot = { };
 
 /*
