@@ -1,12 +1,6 @@
 var NEW_HMR = false;
 
-if (process.env.NODE_ENV === 'production' || Meteor.isTest)
-  return;
-
-// line below gets injected into first meteorInstall call
-//import ReactTransformHMR from 'react-transform-hmr';
-
-hot = {
+const hot = {
   failedOnce: false
 }
 
@@ -18,55 +12,6 @@ if (NEW_HMR) {
     window.meteorInstallHot = mhot.meteorInstallHot;
   });
 }
-
-var port = Meteor.settings.public.HOT_PORT;
-var wsUrl = 'ws://' + location.hostname + ':' + port + '/';
-var serverBase = 'http://' + location.hostname + ':' + port + '/hot.js?hash=';
-
-var ws = {};
-
-ws.onmessage = function(event) {
-  var script = document.createElement('script');
-  script.type = 'text/javascript';
-  script.src = serverBase + event.data;
-  document.head.appendChild(script);
-}
-
-ws.onopen = function() {
-  ws.reconnecting = false;
-  console.log('[gadicc:hot] Connected and ready.');
-}
-
-/*
-ws.onerror = function(error) {
-  console.log('[gadicc:hot] Socket error', error);
-}
-*/
-
-ws.onclose = function() {
-  if (ws.reconnecting > 20000) {
-    console.log('[gadicc:hot] Giving up.  Reload this page when the server '
-      + 'is running again.');
-    return;
-  } else if (ws.reconnecting) {
-    ws.reconnecting *= 2;
-  } else {
-    ws.reconnecting = 100;
-    console.log('[gadicc:hot] Disconnected, attempting to reconnect...');
-  }
-  
-  setTimeout(ws.open, ws.reconnecting);
-}
-
-ws.open = function() {
-  ws.connection = new WebSocket(wsUrl);
-  ws.connection.onopen = ws.onopen;
-  ws.connection.onclose = ws.onclose;
-  ws.connection.onerror = ws.onerror;
-  ws.connection.onmessage = ws.onmessage;
-}
-
-ws.open();
 
 /*
  * Takes install.js root and flattens it, so we can easily access modules by
@@ -167,7 +112,7 @@ function requirersUntilHot(file, origId, func) {
  * Patch existing install.js root, delete eval'd exports up to a module
  * with module.hot, and require() that.
  */
-meteorInstallHot = function(tree) {
+const meteorInstallHot = function(tree) {
   hot.blockNextHCP = true;
   hot.lastTree = tree;
   //console.log('got bundle', tree);
@@ -278,3 +223,6 @@ hot.root = root;
 hot.allModules = allModules;
 hot.modulesRequiringMe = modulesRequiringMe;
 hot.origMeteorInstall = origMeteorInstall;
+
+export { meteorInstallHot, hot };
+export default hot;

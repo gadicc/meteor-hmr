@@ -19,8 +19,6 @@ Package.onUse(function(api) {
   api.use('modules');
   api.use('ecmascript');
 
-  api.addFiles('hot-server.js', 'server');
-
   // this isn't used directly, but is used to pull in the package
   api.use('gadicc:modules-runtime-hot@0.6.3_2');
   api.use('modules-runtime', 'client');
@@ -28,10 +26,9 @@ Package.onUse(function(api) {
 
   api.use('underscore', 'client');
   api.use('autoupdate', 'client');
-  api.addFiles('hot-client.js', 'client');
-  api.addFiles('hcp-intercept.js', 'client');
-  api.export('hot', 'client');
-  api.export('meteorInstallHot', 'client');
+  api.mainModule('client/index.js', 'client');
+
+  api.mainModule('hot-server.js', 'server');
 });
 
 /*

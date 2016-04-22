@@ -1,6 +1,3 @@
-if (process.env.NODE_ENV === 'production' || Meteor.isTest)
-  return;
-
 /*
  * Intercept the 'changed' callback for observes on _ClientVersions updates.
  * If an HCP came right after a (successful) HMR, simply skip it (by not
@@ -12,6 +9,9 @@ if (process.env.NODE_ENV === 'production' || Meteor.isTest)
  * the find() method for this collection to intercept the callback and
  * augment it before it's stored.
  */
+
+import hot from './hot';
+import { Autoupdate } from 'meteor/autoupdate';
 
 // Wrapper for changed callbacks to decide whether or not to deliver them
 function augmentChanged(origChanged) {
