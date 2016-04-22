@@ -2,7 +2,7 @@
 
 NB: If you already had a `.babelrc` before this, realize that it might contain
 things that can break your Meteor build, but didn't before when Meteor ignored
-it.  Pay attention to existing plugins & presets, such as `babel-slash-root-import`.
+it.  Pay attention to existing plugins & presets, such as `babel-root-slash-import`.
 
 If you don't already have a `.babelrc`, one will be created for you.  Otherwise,
 ensure that it contains at least the following (unless you know what you're doing):
