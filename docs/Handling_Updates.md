@@ -7,7 +7,7 @@ This doc serves as a brief introduction to how hotloading works and hot to use i
 * http://webpack.github.io/docs/hot-module-replacement.html
 * http://webpack.github.io/docs/hot-module-replacement-with-webpack.html
 
-Note: we only offer a limited implementation of `hot.accept()`.
+Note: we only offer a partial HMR implementation but it covers the majority of cases.
 
 ## The Basics
 
