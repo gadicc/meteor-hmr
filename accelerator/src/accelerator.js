@@ -62,9 +62,20 @@ process.on('disconnect', function() {
 });
 
 process.on('message', function(msg) {
-  if (handlers[msg.type])
+  if (msg.type === 'PLUGIN_INIT')
+    return handlers[msg.type](msg);
+  else if (handlers[msg.type]) {
+    // set during devel to make sure plugin has finished building itself
+    // before we try load it.
+    if (initQueue[msg.pluginId]) {
+      let {id, name, path} = initQueue[msg.pluginId];
+      new BuildPlugin(id, name, path, addJavaScript);
+      delete initQueue[msg.pluginId];
+    }
+
     return handlers[msg.type](msg,
       BuildPlugin.byId(msg.pluginId));
+  }
 
   log('unknown message: ' + JSON.stringify(msg));
 });
@@ -99,8 +110,13 @@ function addJavaScript(source) {
   bundleQueue = [];
 }
 
+const initQueue = {};
 handlers.PLUGIN_INIT = function({id, name, path}) {
-  new BuildPlugin(id, name, path, addJavaScript);
+  // During devel the package might still be building itself at init time.
+  if (path.match(/local/))
+    initQueue[id] = {id, name, path};
+  else
+    new BuildPlugin(id, name, path, addJavaScript);
 }
 
 handlers.setDiskCacheDirectory = function({dir}, plugin) {
