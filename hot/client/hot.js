@@ -80,9 +80,10 @@ function walkFileTree(root, tree, func, oldRoot) {
 /*
  * Given a File, find every other module which requires it, up to
  * a module that can self-accept or accept the new dep.  On each
- * crawl, call func(file).
+ * crawl, call func(file), which should retrun true if the update
+ * can be accepted.
  */ 
-function requirersUntilHot(file, origId, func) {
+function requirersUntilHot(file, func, parentId) {
   // console.log(file.m.id);
 
   if (!file)
@@ -91,14 +92,12 @@ function requirersUntilHot(file, origId, func) {
   if (!file.m)
     return console.log('[gadicc:hot] requirersUntilHot(): no file.m?', file);
 
-  func(file);
-
-  if (!file.m.hot._selfAccepted && !file.m.hot._acceptedDependencies[origId]) {
+  if (!func(file, parentId)) {
     let id = file.m.id.replace(/\/index.js$/, '');
 
     if (modulesRequiringMe[id])
       modulesRequiringMe[id].forEach(function(moduleId) {
-        requirersUntilHot(allModules[moduleId], origId, func);
+        requirersUntilHot(allModules[moduleId], func, id);
       });
     else {
       console.error('[gadicc:hot] ' + file.m.id + ' is not hot and nothing requires it');
@@ -131,7 +130,7 @@ const meteorInstallHot = function(tree) {
   walkFileTree(root, tree, function(file, moduleCodeArray) {
     var changedFile = file;
 
-    requirersUntilHot(file, file.m.id, function (file) {
+    requirersUntilHot(file, function (file, parentId) {
       // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
       delete file.m.exports; // re-force install.js fileEvaluate()
 
@@ -153,12 +152,14 @@ const meteorInstallHot = function(tree) {
           console.error(e);
 
         }
+        return true;
 
-      } else if (file.m.hot._acceptedDependencies[changedFile.m.id]) {
+      } else if (parentId && file.m.hot._acceptedDependencies[parentId]) {
+        // console.debug('[gadicc:hot] ' + file.m.id + ' can accept ' + parentId);
 
         try {
 
-          file.m.hot._acceptedDependencies[changedFile.m.id]();
+          file.m.hot._acceptedDependencies[parentId]();
 
         } catch (e) {
 
@@ -167,7 +168,12 @@ const meteorInstallHot = function(tree) {
           console.error(e);
 
         }
+        return true;
 
+      } else {
+
+        // console.debug(file.m.id + ' cannot self-accept or accept ' + parentId);
+        
       }
 
     });
