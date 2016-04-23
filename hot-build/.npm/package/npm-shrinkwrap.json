@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "meteor-hotload-accelerator": {
-      "version": "1.0.2",
-      "resolved": "file:../../../accelerator",
-      "from": "../../../accelerator",
+      "version": "1.0.3",
+      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-1.0.3.tgz",
+      "from": "meteor-hotload-accelerator@1.0.3",
       "dependencies": {
         "babel-polyfill": {
           "version": "6.7.4",

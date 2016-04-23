@@ -88,7 +88,6 @@ wss.on('connection', function connection(ws) {
 const handlers = {};
 
 process.on('disconnect', function() {
-  // unclear from docs if this works within the child!
   log('disconnect event received, exiting.');
   handlers.close();
 });
