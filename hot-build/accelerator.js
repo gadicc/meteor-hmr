@@ -38,59 +38,55 @@ if (!HOT_PORT) {
   }
 }
 
-// This gets used at the very top of this file when running a server package
-// (and not a build plugin)
+// This gets used by gadicc:hot/hot-server.js.
 if (!process.env.HOT_PORT)
   process.env.HOT_PORT = HOT_PORT;
 
-var fork, waiting = false;
-if (!gdata.accelId)
-  gdata.accelId = 0;
+var WebSocket = Npm.require('ws');
+var ws, accelerator, waiting = [], firstAttempt = true;
 
-var send = Hot.send = function(data) {
-  if (waiting)
-    waiting.push(data);
-  else
-    fork.send(data);
-}
+function connect() {
+  ws = new WebSocket('ws://127.0.0.1:' + HOT_PORT + '/hot-build');
 
-function startFork() {
-  fork = gdata.fork = new Accelerator(HOT_PORT, ++gdata.accelId);
+  ws.on('open', function() {
+    if (firstAttempt)
+      debug("Connected to existing accelerator");
+    else
+      debug("Connected to new accelerator");
 
-  fork.on('message', function(msg) {
+    while (waiting.length)
+      ws.send(waiting.shift());
+    waiting = false;
 
-    if (msg.type === 'closed') {
-      // This global is detected by the new instance
-      gdata.fork = null;
+  });
+
+  ws.on('error', function(err) {
+    if (err.code === 'ECONNREFUSED' && firstAttempt) {
+      firstAttempt = false;
+      debug("Starting new accelerator process");
+      accelerator = new Accelerator(HOT_PORT, log.id);
+      setTimeout(connect, 500);
       return;
     }
 
-    console.log('[gadicc:hot] Build plugin got unknown message: '
-      + JSON.stringify(msg));
+    log("Unhandled websocket err!", err);
   });
 
+  ws.on('message', function(msg) {
+    log("Unknown message from accelerator: " + JSON.stringify(msg));
+  });
 }
 
-// this only ever happens when upgrading the build plugin (e.g. devel, upgrade)
-if (gdata.fork) {
-  waiting = [];
-  gdata.fork.on('message', function(msg) {
-    if (msg.type === 'closed') {
-      console.log('[gadicc:hot] Switching to new accelerator instance.');
-      startFork();
+connect();
 
-      while (waiting.length)
-        fork.send(waiting.shift());
-
-      waiting = false;
-    }
-  });
-  gdata.fork.send({ type: 'close' });
-} else {
-  startFork();
+var send = Hot.send = function(data) {
+  if (waiting)
+    waiting.push(JSON.stringify(data));
+  else
+    ws.send(JSON.stringify(data));
 }
 
 // If we're exiting, tell the fork to shutdown too
 process.on('exit', function() {
-  fork.send({ type: 'close' });
+  ws.send({ type: 'close' });
 });

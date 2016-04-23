@@ -103,12 +103,12 @@ function getPluginPath(name) {
 }
 
 Hot = function(plugin) {
-  this.id = Random.id();
+  this.id = Random.id(3);
   this.plugin = plugin;
 
   var pluginPath = getPluginPath(plugin);
   if (!pluginPath) {
-    console.log("[gadicc:hot] Couldn't find plugin path for: " + plugin);
+    return log("Couldn't find plugin path for: " + plugin);
   }
   this.pluginPath = pluginPath;
 

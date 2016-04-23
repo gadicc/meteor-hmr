@@ -7,6 +7,7 @@ import _ from 'lodash';
 //import { Server as WebSocketServer } from 'ws';
 import 'babel-polyfill';
 
+import { log, debug } from './log';
 import BuildPlugin from './buildPlugin';
 
 /* Arguments */
@@ -29,22 +30,12 @@ const WebSocketServer
 
 /* Load */
 
+log.setId(ACCEL_ID);
+
 process.env.INSIDE_ACCELERATOR = true;
 
-console.log('=> Starting gadicc:ecmascript-hot Accelerator(' + ACCEL_ID
+console.log('=> Starting gadicc:ecmascript-hot Accelerator (' + ACCEL_ID
   + ') on port ' + HOT_PORT + '.\n');
-
-function log(/* arguments */) {
-  var args = Array.prototype.slice.call(arguments);
-  var pre = '\n[gadicc:hot] Accelerator(' + ACCEL_ID + '): ';
-
-  if (typeof args[0] === 'string')
-    args[0] =  pre + args[0];
-  else
-    args.splice(0, 0, pre);
-
-  console.log.apply(console, args);
-}
 
 const server = http.createServer(function (req, res) {
   var hash = req.url.match(/^\/hot.js\?hash=(.*)$/);
@@ -60,12 +51,39 @@ const server = http.createServer(function (req, res) {
 
 const wss = new WebSocketServer({ server: server });
 
-// straight out of https://www.npmjs.com/package/ws
 wss.broadcast = function broadcast(data) {
   wss.clients.forEach(function each(client) {
-    client.send(data);
+    // Only send to web clients, not hot-build connections
+    if (client.upgradeReq.url === '/')
+      client.send(data);
   });
 };
+
+wss.on('connection', function connection(ws) {
+  if (ws.upgradeReq.url === '/hot-build') {
+    debug("Connection from hot-build");
+    ws.on('message', function(_msg) {
+      const msg = JSON.parse(_msg);
+
+      if (msg.type === 'PLUGIN_INIT')
+        return handlers[msg.type](msg);
+      else if (handlers[msg.type]) {
+        // set during devel to make sure plugin has finished building itself
+        // before we try load it.
+        if (initQueue[msg.pluginId]) {
+          let {id, name, path} = initQueue[msg.pluginId];
+          new BuildPlugin(id, name, path, addJavaScript);
+          delete initQueue[msg.pluginId];
+        }
+
+        return handlers[msg.type](msg,
+          BuildPlugin.byId(msg.pluginId));
+      }
+
+      log('unknown message: ' + _msg);
+    });
+  }
+});
 
 const handlers = {};
 
@@ -76,22 +94,8 @@ process.on('disconnect', function() {
 });
 
 process.on('message', function(msg) {
-  if (msg.type === 'PLUGIN_INIT')
-    return handlers[msg.type](msg);
-  else if (handlers[msg.type]) {
-    // set during devel to make sure plugin has finished building itself
-    // before we try load it.
-    if (initQueue[msg.pluginId]) {
-      let {id, name, path} = initQueue[msg.pluginId];
-      new BuildPlugin(id, name, path, addJavaScript);
-      delete initQueue[msg.pluginId];
-    }
-
-    return handlers[msg.type](msg,
-      BuildPlugin.byId(msg.pluginId));
-  }
-
-  log('unknown message: ' + JSON.stringify(msg));
+  log("Ignored message from process, use a websocket instead: "
+    + JSON.stringify(msg));
 });
 
 handlers.close = function() {

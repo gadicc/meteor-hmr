@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import vm from 'vm';
-import FakeFile from './fakeFile';
 // import _ from 'lodash';
+
+import { log, debug } from './log';
+import FakeFile from './fakeFile';
 
 /*
  * Meteor runs all build plugins in the same context, so we should too, even
@@ -62,6 +64,7 @@ class BuildPlugin {
       addJavaScript = addJavaScript;
     }
 
+    debug(`Loading plugin "${name}" (${id}) from ${path}`);
     this.load();
   }
 
