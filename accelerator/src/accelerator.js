@@ -1,19 +1,33 @@
 import fs from 'fs';
+import path from 'path';
 import http from 'http';
 import crypto from 'crypto';
 import _ from 'lodash';
 
-import { Server as WebSocketServer } from 'ws';
+//import { Server as WebSocketServer } from 'ws';
 import 'babel-polyfill';
 
 import BuildPlugin from './buildPlugin';
 
-/* */
+/* Arguments */
 
 // process.argv[0] <-- full node binary path
 // process.argv[1] <-- full path for this file
 const ACCEL_ID = process.argv[2];
 const HOT_PORT = process.argv[3];
+const meteorToolPath = process.argv[4];
+
+/* Requires from meteor-tool's node_modules */
+
+const meteorToolNodeModules = path.join(meteorToolPath,
+  'dev_bundle', 'lib', 'node_modules');
+
+BuildPlugin.setMeteorToolNodeModules(meteorToolNodeModules);
+
+const WebSocketServer
+  = require(path.join(meteorToolNodeModules, 'ws')).Server;
+
+/* Load */
 
 process.env.INSIDE_ACCELERATOR = true;
 

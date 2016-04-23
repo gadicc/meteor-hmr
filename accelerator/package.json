@@ -1,6 +1,6 @@
 {
   "name": "meteor-hotload-accelerator",
-  "version": "0.0.8",
+  "version": "1.0.0",
   "description": "Used by gadicc:ecmascript-hot meteor package",
   "main": "lib/index.js",
   "scripts": {
@@ -17,10 +17,7 @@
   "license": "MIT",
   "dependencies": {
     "babel-polyfill": "^6.7.4",
-    "fibers": "^1.0.10",
-    "lodash": "^4.11.1",
-    "meteor-deque": "^2.1.0",
-    "ws": "^1.0.1"
+    "lodash": "^4.11.1"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",

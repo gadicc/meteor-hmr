@@ -22,14 +22,21 @@ const buildPluginContext = new vm.createContext({
 
   // and calls this function
   NpmRequire(dep, node_modules) {
+    // yeah, we could do this a lot better, but does the job for now.  XXX
     try {
-      // Would be cleaner to fs.existsSync and cache, but this does the job for now.
-      return require(path.join(currentPlugin.path, node_modules, dep));
+      return require(path.join(meteorToolNodeModules, dep));
     } catch (err) {
       if (err.code !== 'MODULE_NOT_FOUND')
         throw err;
 
-      return require(dep);
+      try {
+        return require(path.join(currentPlugin.path, node_modules, dep));
+      } catch (err) {
+        if (err.code !== 'MODULE_NOT_FOUND')
+          throw err;
+
+        return require(dep);
+      }
     }
   },
 
@@ -104,7 +111,12 @@ class BuildPlugin {
 
 BuildPlugin.byId = function(id) {
   return buildPluginIds[id];
-}
+};
+
+var meteorToolNodeModules;
+BuildPlugin.setMeteorToolNodeModules = function(_meteorToolNodeModules) {
+  meteorToolNodeModules = _meteorToolNodeModules;
+};
 
 /*
 var plugin = new BuildPlugin('x');
