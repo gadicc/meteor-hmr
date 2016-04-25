@@ -42,9 +42,14 @@ class FakeFile {
     return this.data.sourceHash;
   }
 
-  addJavaScript(js) {
+  addJavaScript() {
     // no-op
     log('addJavaScript not overriden');
+  }
+
+  addStylesheet(style) {
+    // no-op
+    log(1, 'addStyleSheet called but ignored for hotloading', style);
   }
 
   error(error) {
