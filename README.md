@@ -2,6 +2,8 @@
 
 *Hot-module-replacement for Meteor*
 
+**NB: This README refers to the upcoming release.  Although it's experimental, you're encouraged to try it out, since that's the direction we're going in.  More details in [#51](https://github.com/gadicc/meteor-react-hotloader/issues/51).  Otherwise, you can find the old README [here](https://github.com/gadicc/meteor-react-hotloader/blob/1352a7a0335ebeab3684ca8fdd096c2b5749da05/README.md).**
+
 * Edit your react components and see changes instantly, while maintaining state.
 * Catch react `render()` errors and show on your screen rather than crashing your app.
 * Add your own `.babelrc` plugins and presets, like
