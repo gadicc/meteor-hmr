@@ -1,7 +1,7 @@
 import fs from 'fs';
 import path from 'path';
 import vm from 'vm';
-// import _ from 'lodash';
+import _ from 'lodash';
 
 import { log, debug } from './log';
 import FakeFile from './fakeFile';
@@ -14,42 +14,77 @@ var currentPlugin;
 
 const buildPluginIds = {};
 
-const buildPluginContext = new vm.createContext({
+var localNodeModules;
+function npmRequire(dep, isNpmRequire) {
+  const resolved = npmRequire.resolve(dep, true);
 
-  process: process,
-  console: console,
+  if (isNpmRequire)
+    debug(5, 'Npm.require', dep, resolved);
+  else
+    debug(4, 'root npmRequire', dep, resolved);
 
-  // Npm.require gets set on each run with correct path
-  Npm: {},
+  return require(resolved);
+}
 
-  // and calls this function
-  NpmRequire(dep, node_modules) {
-    // yeah, we could do this a lot better, but does the job for now.  XXX
-    try {
-      return require(path.join(meteorToolNodeModules, dep));
-    } catch (err) {
-      if (err.code !== 'MODULE_NOT_FOUND')
-        throw err;
+const resolveCache = {};
+function resolve(dep, nonDirect) {
+  var result, fromCache = false;
 
+  const cache = currentPlugin.path + localNodeModules;
+  if (!resolveCache[cache]) resolveCache[cache] = {};
+
+  if (resolveCache[cache][dep]) {
+    result = resolveCache[cache][dep];
+    fromCache = true;
+  } else {
+    /* we could do something cleaner like this...
+    if (dep.match(/^\/node_modules/)) {
+      // dep: /node_modules/meteor/mss/node_modules/node-sass/package.json
+      // localNodeModules: npm/node_modules/meteor/mss/node_modules
+    }
+    */
+    dep = dep.replace(/(^\/node_modules\/meteor\/)([^\/]+)(\/.*)$/,
+      (match, p1, packageName, p3) => p1+packageName.replace(/:/,'_')+p3);
+    const options = [
+      path.join(currentPlugin.path, 'npm', dep),
+      path.join(currentPlugin.path, localNodeModules, dep),
+      path.join(meteorToolNodeModules, dep)
+    ];
+
+    // no idea, e.g. caching-compiler needs this but doedsn't have it in it's
+    // own node_modules.
+    if (dep.match(/^\/node_modules\/babel-runtime/))
+      options.push(path.join(currentPlugin.path, 'npm', 'node_modules',
+        'meteor', 'babel-compiler', 'node_modules', 'meteor-babel', dep));
+
+    for (let option of options) {
       try {
-        return require(path.join(currentPlugin.path, node_modules, dep));
-      } catch (err) {
-        if (err.code !== 'MODULE_NOT_FOUND')
-          throw err;
-
-        return require(dep);
+        result = require.resolve(option);
+        break;
+      } catch (e) {
+        debug(5, 'nomatch', option)
       }
     }
-  },
 
-  Plugin: {
-
-    registerCompiler: function(options, func) {
-      currentPlugin.compiler = func();
-    }
-
+    if (!result)
+      result = require.resolve(dep);
   }
-});
+
+  if (!nonDirect)
+    debug(4, 'root npmRequire.resolve', fromCache?'fromCache':'new', dep, result);
+
+  if (!fromCache)
+    resolveCache[cache][dep] = result;
+
+  return result;
+}
+
+npmRequire.resolve = resolve;
+npmRequire.setNodeModules = function(path) {
+  localNodeModules = path;
+};
+
+/* --- */
 
 class BuildPlugin {
 
@@ -61,14 +96,16 @@ class BuildPlugin {
     buildPluginIds[id] = this;
 
     this.FakeFile = class extends FakeFile {
-      addJavaScript = addJavaScript;
+      addJavaScript = function(data) {
+        addJavaScript.call(null, data, this /* FakeFile */);
+      }
     }
 
     debug(`Loading plugin "${name}" (${id}) from ${path}`);
     this.load();
   }
 
-  run(code) {
+  run(code, fullPath) {
     var options;
 
     if (currentPlugin !== this)
@@ -76,16 +113,15 @@ class BuildPlugin {
 
     if (typeof code === 'object') {
       options = code;
-      code = fs.readFileSync(path.join(this.path, options.path), 'utf8');
-      if (options.node_modules)
-        new vm.Script(`
-          Npm.require = function(dep) {
-            return NpmRequire(dep, "${options.node_modules}");
-          }
-        `).runInContext(buildPluginContext);
+      fullPath = path.join(this.path, options.path);
+      code = fs.readFileSync(fullPath, 'utf8');
+      if (options.node_modules) {
+        new vm.Script(`npmRequire.setNodeModules("${options.node_modules}");`,
+          'buildPlugin-npmRequire-setNodeModules').runInThisContext();
+      }
     }
 
-    new vm.Script(code).runInContext(buildPluginContext);
+    new vm.Script(code, fullPath).runInThisContext();
   }
 
   load() {
@@ -105,20 +141,60 @@ class BuildPlugin {
   }
 
   processFilesForTarget(inputFiles) {
-    this.compiler.processFilesForTarget(
-      inputFiles.map(inputFile => new this.FakeFile(inputFile))
-    );
+    debug(`${this.name}.processFilesForTarget(`
+      + inputFiles.map(file => file.pathInPackage) + ')');
+
+    // The fiber is for use by plugins that expect to be run in one, e.g.
+    // covers the current await/async/promise implementation for node 0.10
+    new Fiber(() => {
+      this.compiler.processFilesForTarget(
+        inputFiles.map(inputFile => new this.FakeFile(inputFile))
+      );
+
+      debug(3, `Finished ${this.name}.processFilesForTarget(`
+        + inputFiles.map(file => file.pathInPackage) + ')');
+    }).run();
   }
 
 }
+
+/* --- */
 
 BuildPlugin.byId = function(id) {
   return buildPluginIds[id];
 };
 
-var meteorToolNodeModules;
-BuildPlugin.setMeteorToolNodeModules = function(_meteorToolNodeModules) {
-  meteorToolNodeModules = _meteorToolNodeModules;
+var meteorToolNodeModules, buildPluginContext, Fiber;
+BuildPlugin.init = function(data) {
+  Fiber = data.Fiber;
+  meteorToolNodeModules = data.meteorToolNodeModules;
+
+  buildPluginContext = new vm.createContext({
+    process: process,
+    console: console,
+
+    Promise: data.Promise,
+
+    Npm: {
+      require: function(dep) { return npmRequire(dep, true); }
+    },
+
+    // Note, modules-runtime will useNode() if this global exists
+    npmRequire: npmRequire,
+
+    Plugin: {
+      registerCompiler: function(options, func) {
+        currentPlugin.compiler = func();
+      }
+    }
+  });
+
+  /*
+   * Unfortunately, vm.Script's don't allow us to augment methods like String.
+   * So we had to switch to RunInThisContext to allow packages like
+   * ecmascript-runtime to run correctly.
+   */
+  _.extend(global, buildPluginContext);
 };
 
 /*

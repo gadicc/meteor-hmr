@@ -1,3 +1,5 @@
+import { log, debug } from './log';
+
 class FakeFile {
 
   constructor(data) {
@@ -20,6 +22,18 @@ class FakeFile {
     return this.data.fileOptions;
   }
 
+  getDisplayPath() {
+    return this.data.displayPath;
+  }
+
+  getExtension() {
+    return this.data.extension;
+  }
+
+  getBasename() {
+    return this.data.basename;
+  }
+
   getArch() {
     return 'web.browser';
   }
@@ -30,7 +44,7 @@ class FakeFile {
 
   addJavaScript(js) {
     // no-op
-    console.log('addJavaScript', js);
+    log('addJavaScript not overriden');
   }
 
   error(error) {

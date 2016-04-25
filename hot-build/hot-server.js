@@ -166,6 +166,9 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
         data[file] = {
           packageName: inputFile.getPackageName(),
           pathInPackage: inputFile.getPathInPackage(),
+          displayPath: inputFile.getDisplayPath(),
+          extension: inputFile.getExtension(),
+          basename: inputFile.getBasename(),
           fileOptions: inputFile.getFileOptions()
           // sourceRoot: inputFile._resourceSlot.packageSourceBatch.sourceRoot
         }

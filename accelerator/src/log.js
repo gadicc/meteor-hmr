@@ -1,7 +1,7 @@
 var id;
+const HOT_DEBUG = process.env.HOT_DEBUG && parseInt(process.env.HOT_DEBUG) || 0;
 
-function log(/* arguments */) {
-  var args = Array.prototype.slice.call(arguments);
+function log(...args) {
   var pre = '\n[gadicc:hot] Accelerator (' + id + '): ';
 
   if (typeof args[0] === 'string')
@@ -9,16 +9,23 @@ function log(/* arguments */) {
   else
     args.splice(0, 0, pre);
 
-  console.log.apply(console, args);
+  console.log(...args);
 }
 
 log.setId = function(_id) {
   id = _id;
 }
 
-function debug(/* arguments */) {
-  if (process.env.HOT_DEBUG)
-    log.apply(null, arguments);
+function debug(...args) {
+  var verbosity;
+  if (typeof args[0] === 'number') {
+    verbosity = args[0];
+    args = args.slice(1);
+  } else
+    verbosity = 1;
+
+  if (verbosity <= HOT_DEBUG)
+    log(...args);
 }
 
 export { log, debug };

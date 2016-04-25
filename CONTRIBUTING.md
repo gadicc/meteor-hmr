@@ -41,6 +41,8 @@ In theory we should also check that all the different NODE_ENV setups etc work.
 $ HOT_DEBUG=1 meteor
 ```
 
+You can also set up to HOT_DEBUG=5 for higher verbosity.
+
 ## Working on the Accelerator
 
 If you need to edit code from the accelerator, you should adjust `hot-builds`'s `package.js` to `Npm.depend()` on your local files.  You'll see an example commented out above the currently published version which I use for my home dir and you can adjust accordingly.
@@ -54,6 +56,8 @@ This is a pain but here's what to do:
 1. Since the accelerator is now a single long-lived process, you need to restart Meteor too.
 
 TODO: for (3), we could make dev easier by hashing the files and reloading the accel on change; will only ever happen in dev.
+
+We could also reconnect if the connection is broken (on dev only, i.e. local package), resend `sentFiles` on reconnect, and allow us to run the accelerator from outside of Meteor.
 
 ## Styling / linting
 

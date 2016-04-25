@@ -2,10 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import http from 'http';
 import crypto from 'crypto';
-import _ from 'lodash';
-
-//import { Server as WebSocketServer } from 'ws';
-import 'babel-polyfill';
 
 import { log, debug } from './log';
 import BuildPlugin from './buildPlugin';
@@ -18,15 +14,27 @@ const ACCEL_ID = process.argv[2];
 const HOT_PORT = process.argv[3];
 const meteorToolPath = process.argv[4];
 
-/* Requires from meteor-tool's node_modules */
+/* Node_modules we can get from Meteor, notably, binary deps */
 
-const meteorToolNodeModules = path.join(meteorToolPath,
-  'dev_bundle', 'lib', 'node_modules');
+const meteorToolNodeModules = path.join(
+  meteorToolPath, 'dev_bundle', 'lib', 'node_modules'
+);
 
-BuildPlugin.setMeteorToolNodeModules(meteorToolNodeModules);
+function meteorRequire(module) {
+  return require(path.join(meteorToolNodeModules, module));
+}
 
-const WebSocketServer
-  = require(path.join(meteorToolNodeModules, 'ws')).Server;
+const Fiber = meteorRequire('fibers');
+const WebSocketServer = meteorRequire('ws').Server;
+
+const Promise = meteorRequire('meteor-promise');
+Promise.Fiber = Fiber;
+
+BuildPlugin.init({
+  Fiber,
+  Promise,
+  meteorToolNodeModules
+});
 
 /* Load */
 
@@ -120,13 +128,6 @@ handlers.close = function() {
   process.exit();
 };
 
-var bundleQueue = [];
-function addJavaScript(source) {
-  bundleQueue.push(source);
-  hot.process(bundleQueue);
-  bundleQueue = [];
-}
-
 const initQueue = {};
 handlers.PLUGIN_INIT = function({id, name, path}) {
   // During devel the package might still be building itself at init time.
@@ -196,12 +197,17 @@ function addInputFile(inputFile, pluginId) {
 }
 
 function sendInputFiles() {
+  timeout = null;
+
   for (let pluginId in inputFiles) {
     const plugin = BuildPlugin.byId(pluginId);
-    plugin.processFilesForTarget(inputFiles[pluginId]);
-    inputFiles[pluginId] = [];
+    const files = inputFiles[pluginId];
+
+    if (files.length) {
+      plugin.processFilesForTarget(files);
+      inputFiles[pluginId] = [];
+    }
   }
-  timeout = null;
 }
 
 /* hothacks.js */
@@ -252,22 +258,40 @@ function treeify(bundle) {
   return tree;
 }
 
-hot.process = _.debounce(function hotProcess(bundle) {
+var bundle = [], bundleTimeout;
+function addJavaScript(data, file) {
+  if (bundleTimeout)
+    clearTimeout(bundleTimeout);
+
+  debug(3, 'addJavaScript');
+  debug(3, file);
+  debug(3, data);
+  data.packageName = file.data.packageName;
+
+  bundle.push(data);
+  bundleTimeout = setTimeout(hot.process, 5);
+}
+
+hot.process = function hotProcess() {
+  bundleTimeout = null;
+
+  debug(`hot.process(${bundle.join(',')})`);
   if (!bundle.length)
     return;
 
-  //var id = Random.hexString(40);
   var id = crypto.randomBytes(20).toString('hex');
-  // console.log('[gadicc:hot] Creating a bundle for ' + bundle.length + ' change file(s)...');
+  debug('Creating a bundle for ' + bundle.length + ' changed file(s)...');
 
   var tree = treeify(bundle);
   var bundleStr = 'meteorInstallHot(' +
     JSON.stringify(tree).replace(/\"__OF__(.*?)__CF__\"/g, function(m, f) {
-      return 'function(require,exports,module){'
-        + f.replace(/\\n/g, '\n').replace(/\\"/g, '"').replace(/\\'/g, "'")
+      return 'function(require,exports,module,__filename,__dirname){'
+        + f.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/\\'/g, "'")
         + '\n}';
     }) + ');\n';
 
+  debug(3, bundleStr);
   hot.bundles[id] = { contents: bundleStr };
   wss.broadcast(id);
-}, 5);
+  bundle = [];
+};

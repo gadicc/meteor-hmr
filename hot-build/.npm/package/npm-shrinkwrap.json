@@ -1,35 +1,18 @@
 {
   "dependencies": {
     "meteor-hotload-accelerator": {
-      "version": "1.0.3",
-      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-1.0.3.tgz",
-      "from": "meteor-hotload-accelerator@1.0.3",
+      "version": "1.0.5",
+      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-1.0.5.tgz",
+      "from": "meteor-hotload-accelerator@1.0.5",
       "dependencies": {
-        "babel-polyfill": {
-          "version": "6.7.4",
-          "resolved": "https://registry.npmjs.org/babel-polyfill/-/babel-polyfill-6.7.4.tgz",
-          "from": "babel-polyfill@>=6.7.4 <7.0.0",
+        "babel-runtime": {
+          "version": "6.6.1",
+          "resolved": "https://registry.npmjs.org/babel-runtime/-/babel-runtime-6.6.1.tgz",
+          "from": "babel-runtime@>=6.6.1 <7.0.0",
           "dependencies": {
-            "babel-regenerator-runtime": {
-              "version": "6.5.0",
-              "resolved": "https://registry.npmjs.org/babel-regenerator-runtime/-/babel-regenerator-runtime-6.5.0.tgz",
-              "from": "babel-regenerator-runtime@>=6.3.13 <7.0.0"
-            },
-            "babel-runtime": {
-              "version": "5.8.38",
-              "resolved": "https://registry.npmjs.org/babel-runtime/-/babel-runtime-5.8.38.tgz",
-              "from": "babel-runtime@>=5.0.0 <6.0.0",
-              "dependencies": {
-                "core-js": {
-                  "version": "1.2.6",
-                  "resolved": "https://registry.npmjs.org/core-js/-/core-js-1.2.6.tgz",
-                  "from": "core-js@>=1.0.0 <2.0.0"
-                }
-              }
-            },
             "core-js": {
-              "version": "2.2.2",
-              "resolved": "https://registry.npmjs.org/core-js/-/core-js-2.2.2.tgz",
+              "version": "2.3.0",
+              "resolved": "https://registry.npmjs.org/core-js/-/core-js-2.3.0.tgz",
               "from": "core-js@>=2.1.0 <3.0.0"
             }
           }
