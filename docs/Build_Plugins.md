@@ -41,6 +41,8 @@ From this stage, when your plugin loads, `hot-build` will load it again, a 2nd t
 
 Note, if you rely on being passed the contents of all your files and act on all of them together, currently this isn't supported, but can be.  Open an issue on github.
 
+If you're wondering what `hot.wrap()` does, it just wraps the compiler's `processFilesForTarget()` and `setDiskCacheDirectory()` methods, to send the data on to the accelerator process.  In production/testing, it returns the original compiler, untouched.
+
 ## Step 2: Handle Hot Updates
 
 See [Handling Updates](./Handling_Updates.md) to try figure out where best to target your hotloading support.
