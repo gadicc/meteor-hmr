@@ -1,3 +1,9 @@
+# babel-compiler-babelrc
+
+For more info, please see https://github.com/gadicc/meteor-hmr/blob/master/docs/babelrc.md.
+
+## Original package info
+
 [Babel](http://babeljs.io/) is a parser and transpiler for ECMAScript 2015
 syntax and beyond, which enables some upcoming JavaScript syntax features
 to be used in today's browsers and runtimes.

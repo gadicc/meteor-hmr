@@ -1,9 +1,12 @@
 Package.describe({
-  name: "gadicc:babel-compiler-hot",
+  // Had to change the name to prevent people on older versions doing a deep
+  // `meteor update` and this not working with older versions of
+  // ecmacsript-hot.  Unfortunately no SEMVER with _wrapped packages.
+  name: "gadicc:babel-compiler-babelrc",
   // version: '6.6.4'    // core version, KEEP UPDATED
   // version: '6.6.1_1',
-  version: '6.6.2-babelrc.1',
-  summary: 'React hotloading, used by gadicc:ecmascript-hot.',
+  version: '6.6.4_1',
+  summary: 'babel-compiler with babelrc support',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: 'README.md'
 });
