@@ -43,21 +43,27 @@ if (!process.env.HOT_PORT)
   process.env.HOT_PORT = HOT_PORT;
 
 var WebSocket = Npm.require('ws');
-var ws, accelerator, waiting = [], firstAttempt = true;
+var ws, accelerator, waiting = [], firstAttempt = true, reconnecting = false;
 
 function connect() {
-  ws = new WebSocket('ws://127.0.0.1:' + HOT_PORT + '/hot-build');
+  ws = new WebSocket('ws://127.0.0.1:' + HOT_PORT + '/hot-build?id=' + log.id);
 
   ws.on('open', function() {
     if (firstAttempt)
       debug("Connected to existing accelerator");
+    else if (reconnecting)
+      log("Reconnected");
     else
       debug("Connected to new accelerator");
+
+    firstAttempt = false;
+    reconnecting = false;
 
     while (waiting.length)
       ws.send(waiting.shift());
     waiting = false;
 
+    Hot.onReconnect();
   });
 
   ws.on('error', function(err) {
@@ -69,7 +75,16 @@ function connect() {
       return;
     }
 
+    if (reconnecting)
+      setTimeout(connect, 1000);
+    else
     log("Unhandled websocket err!", err);
+  });
+
+  ws.on('close', function() {
+    log("Lost connection to accelerator, trying to reconnect...");
+    reconnecting = true;
+    setTimeout(connect, 1000);
   });
 
   ws.on('message', function(msg) {

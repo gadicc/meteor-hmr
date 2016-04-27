@@ -42,7 +42,7 @@ log.setId(ACCEL_ID);
 
 process.env.INSIDE_ACCELERATOR = true;
 
-console.log('=> Starting gadicc:ecmascript-hot Accelerator (' + ACCEL_ID
+console.log('=> Starting gadicc:hot-build Accelerator (' + ACCEL_ID
   + ') on port ' + HOT_PORT + '.\n');
 
 const server = http.createServer(function (req, res) {
@@ -68,8 +68,10 @@ wss.broadcast = function broadcast(data) {
 };
 
 wss.on('connection', function connection(ws) {
-  if (ws.upgradeReq.url === '/hot-build') {
-    debug("Connection from hot-build");
+  const match = ws.upgradeReq.url.match(/^\/hot-build\?id=(.*)$/);
+  if (match) {
+    let id = match[1];
+    debug(`Connection from hot-build (${id})`);
     ws.on('message', function(_msg) {
       const msg = JSON.parse(_msg);
 
@@ -266,6 +268,7 @@ function addJavaScript(data, file) {
   debug(3, 'addJavaScript');
   debug(3, file);
   debug(3, data);
+
   data.packageName = file.data.packageName;
 
   bundle.push(data);
@@ -275,7 +278,7 @@ function addJavaScript(data, file) {
 hot.process = function hotProcess() {
   bundleTimeout = null;
 
-  debug(`hot.process(${bundle.join(',')})`);
+  debug(3, `hot.process(${bundle.join(',')})`);
   if (!bundle.length)
     return;
 

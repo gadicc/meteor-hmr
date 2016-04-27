@@ -7,8 +7,17 @@ Package.describe({
 });
 
 Npm.depends({
-  // 'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator',
-  'meteor-hotload-accelerator': '1.0.6'
+
+
+
+
+
+
+
+
+
+  'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator',
+  //'meteor-hotload-accelerator': '1.0.6'
 });
 
 Package.onUse(function(api) {

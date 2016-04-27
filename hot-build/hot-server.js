@@ -102,9 +102,13 @@ function getPluginPath(name) {
     plugin.path.replace(/\/program.json$/, ''));
 }
 
+const instances = [];
 Hot = function(plugin) {
   this.id = Random.id(3);
   this.plugin = plugin;
+
+  this.sentFiles = {};
+  this.pluginInits = [];
 
   var pluginPath = getPluginPath(plugin);
   if (!pluginPath) {
@@ -112,13 +116,32 @@ Hot = function(plugin) {
   }
   this.pluginPath = pluginPath;
 
-  this.send({
+  const data = {
     type: 'PLUGIN_INIT',
     id: this.id,
     name: plugin,
     path: pluginPath
+  };
+
+  this.send(data);
+  this.pluginInits.push(data);
+
+  instances.push(this);
+};
+
+Hot.onReconnect = function() {
+  instances.forEach(function(hot) {
+    hot.pluginInits.forEach(function(init) {
+      hot.send(init);
+    });
+
+    if (Object.keys(hot.sentFiles).length)
+      hot.send({
+        type: 'fileData',
+        files: hot.sentFiles
+      });
   });
-}
+};
 
 Hot.prototype.wrap = function(compiler) {
   var self = this;
@@ -144,16 +167,17 @@ Hot.prototype.send = function(payload) {
 
   payload.pluginId = this.id;
   Hot.send(payload);
-}
+};
 
 Hot.prototype.setDiskCacheDirectory = function(cacheDir) {
   this.send({ type: 'setDiskCacheDirectory', dir: cacheDir });
-}
+};
 
-var sentFiles = {};
 Hot.prototype.processFilesForTarget = function(inputFiles) {
   var data = {};
+  var self = this;
 
+  this.sentFiles = {};
   inputFiles.forEach(function(inputFile) {
     var file;
     if (inputFile.getArch() === "web.browser") {
@@ -161,8 +185,7 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
         inputFile._resourceSlot.packageSourceBatch.sourceRoot,
         inputFile.getPathInPackage()
       ));
-      if (!sentFiles[file]) {
-        sentFiles[file] = true;
+      if (!self.sentFiles[file]) {
         data[file] = {
           packageName: inputFile.getPackageName(),
           pathInPackage: inputFile.getPathInPackage(),
@@ -172,6 +195,7 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
           fileOptions: inputFile.getFileOptions()
           // sourceRoot: inputFile._resourceSlot.packageSourceBatch.sourceRoot
         }
+        self.sentFiles[file] = data[file];
       }
     }
   });
