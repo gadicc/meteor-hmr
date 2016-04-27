@@ -33,6 +33,13 @@ module.hot.accept('./colors', function() {
   console.log('new NICE', require('./colors').NICE);
 });
 
+import { something } from 'meteor/hot-package-example';
+console.log('something: ' + something);
+if (module.hot)
+module.hot.accept('meteor/hot-package-example', function() {
+  console.log('new something: ', require('meteor/hot-package-example').something);
+});
+
 if (module.hot) {
   module.hot.accept('./App', () => {
     const App = require('./App').App;

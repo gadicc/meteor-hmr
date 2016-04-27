@@ -21,3 +21,4 @@ gadicc:ecmascript-hot
 standard-minifier-css
 standard-minifier-js
 practicalmeteor:mocha
+hot-package-example

@@ -83,22 +83,21 @@ function walkFileTree(root, tree, func, oldRoot) {
  * crawl, call func(file), which should retrun true if the update
  * can be accepted.
  */ 
-function requirersUntilHot(file, func, parentId) {
+function requirersUntil(file, func, parentId) {
   // console.log(file.m.id);
 
   if (!file)
-    return console.error('[gadicc:hot] requirersUntilHot(): no file?');
+    return console.error('[gadicc:hot] requirersUntil(): no file?');
 
   if (!file.m)
-    return console.log('[gadicc:hot] requirersUntilHot(): no file.m?', file);
+    return console.log('[gadicc:hot] requirersUntil(): no file.m?', file);
 
   if (!func(file, parentId)) {
     let id = file.m.id.replace(/\/index.js$/, '');
 
     if (modulesRequiringMe[id])
-      modulesRequiringMe[id].forEach(function(moduleId) {
-        requirersUntilHot(allModules[moduleId], func, id);
-      });
+      for (let moduleId of modulesRequiringMe[id])
+        requirersUntil(allModules[moduleId], func, id);
     else {
       console.error('[gadicc:hot] ' + file.m.id + ' is not hot and nothing requires it');
       hot.failedOnce = true;
@@ -134,10 +133,10 @@ const meteorInstallHot = function(tree) {
   console.info('[gadicc:hot] Updating', moduleNames);
 
   // Then, delete up to hot and reevaluate
-  walkFileTree(root, tree, function(file, moduleCodeArray) {
+  walkFileTree(root, tree, function hotWalker(file, moduleCodeArray) {
     var changedFile = file;
 
-    requirersUntilHot(file, function (file, parentId) {
+    requirersUntil(file, function canAccept(file, parentId) {
       const mhot = file.m.hot;
 
       if (mhot._selfDeclined)
@@ -146,9 +145,6 @@ const meteorInstallHot = function(tree) {
           && mhot._declinedDependencies[parentId])
         return logAndFail('Aborted because of declined dependency: '
           + parentId + ' in ' + file.m.id);
-
-      // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
-      delete file.m.exports; // re-force install.js fileEvaluate()
 
       if (mhot._disposeHandlers) {
         mhot.data = {};
@@ -196,6 +192,9 @@ const meteorInstallHot = function(tree) {
 
         // console.debug(file.m.id + ' cannot self-accept or accept ' + parentId);
         
+        // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
+        delete file.m.exports; // re-force install.js fileEvaluate()
+
       }
 
     });
@@ -223,8 +222,10 @@ modulesRuntime.meteorInstall = Package['modules'].meteorInstall = function(tree)
 
       // npm and meteor packages will never be reloaded in this implementation
       // so we skip any req not beginning with a "." or a "/"
-      if (!req.match(/^[\.\/]{1,1}/))
-        return;
+      // 2016-04-26; we now allow Meteor packages and maybe people will want
+      // to hotload their own node_modules they're working on.  Let's see.
+      //if (!req.match(/^[\.\/]{1,1}/))
+      //  return;
 
       req = resolvePath(file.m.id, req);
 
