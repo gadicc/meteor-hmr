@@ -148,10 +148,16 @@ handlers.setDiskCacheDirectory = function({dir}, plugin) {
 };
 
 // get file data from build plugin
+const watchers = {};
 handlers.fileData = function({files, pluginId}) {
-  // hothacks.js guarantees that these are all new
-  for (var key in files)
-    fs.watch(key, onChange.bind(null, key, pluginId, files[key]));
+  for (var key in files) {
+    // Maybe we got the same file again from a new instance of the plugin
+    if (watchers[key])
+      watchers[key].close();
+
+    watchers[key] =
+      fs.watch(key, onChange.bind(null, key, pluginId, files[key]));
+  }
 };
 
 /* handle file changes */
@@ -164,10 +170,19 @@ function onChange(file, pluginId, inputFile, event) {
     return;
   lastCall[file] = now;
 
-  if (event === 'rename') {
-    log('TODO, rename support.', file);
+  // Meteor will send us the new name.
+  if (event === 'rename')
     return;
-  }
+
+  /*
+   * Some editors do an "atomic write" by writing to a temporary file and then
+   * renaming that over the original.  In node, this comes as a "change" event,
+   * but then the file watching stops and won't pick up the next time this
+   * happens.  There's no way to distinguish this type of event, so to be safe,
+   * we close the old watcher and start a new one.
+   */
+  watchers[file].close();
+  fs.watch(file, onChange.bind(null, file, pluginId, inputFile));
 
   //console.log('got ' + event + ' for ', JSON.stringify(file, null, 2));
   fs.readFile(file, 'utf8', function(err, contents) {
