@@ -52,6 +52,12 @@ function loadVersions() {
   return versions;  
 }
 
+var METEOR_HOME;
+if (process.platform === "win32")
+  METEOR_HOME = path.join(process.env.METEOR_INSTALLATION, '.meteor');
+else
+  METEOR_HOME = path.join(process.env.HOME, '.meteor');
+
 var versions = null;
 
 function findPackagePath(name) {
@@ -67,8 +73,6 @@ function findPackagePath(name) {
     versions = loadVersions();
   var version = versions[name];
 
-  // XXX windows??
-  var METEOR_HOME = path.join(process.env.HOME, '.meteor');
   return path.join(METEOR_HOME, 'packages', name.replace(/:/,'_'), version);
 }
 
