@@ -25,9 +25,12 @@ Package.onUse(function(api) {
   });
 
   // hot
-  api.addFiles("modules-runtime-hot.js");
-  api.export('mhot'); // XXX
   api.use('underscore');
+  api.addFiles([
+    "hot/utils.js",
+    "hot/main.js"
+  ]);
+  api.export('mhot'); // XXX
 
   api.addFiles("modules-runtime.js");
   api.export("meteorInstall");
@@ -36,7 +39,7 @@ Package.onUse(function(api) {
   api.versionsFrom('1.3-rc.4');
   api.use('webapp', 'server');
   api.use('meteorhacks:inject-initial@1.0.4', 'server');
-  api.addFiles('modules-runtime-proxy.js', 'server');
+  api.addFiles('hot/proxy.js', 'server');
 });
 
 Package.onTest(function(api) {

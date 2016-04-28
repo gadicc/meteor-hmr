@@ -1,81 +1,15 @@
-var NEW_HMR = false;
-
 const hot = {
   failedOnce: false
-}
+};
 
-// XXX
-if (NEW_HMR) {
-  var mhot = Package['modules-runtime'].mhot;
-  window.mhot = mhot;
-  Meteor.startup(function() {
-    window.meteorInstallHot = mhot.meteorInstallHot;
-  });
-}
+_.extend(hot, Package['modules-runtime'].mhot);
 
-/*
- * Takes install.js root and flattens it, so we can easily access modules by
- * their id, e.g. flattened['/client/app.jsx']
- */
-function flattenRoot(root) {
-  var out = {};
-  function walk(root) {
-    out[root.m.id] = root;
-    _.each(root.c, function(child) {
-      if (child)
-        walk(child);
-    });
-  }
-  walk(root);
-  return out;
-}
-
-if (NEW_HMR)
-  return;
-
-/*
- * resolvePath("/client/foo/bar", "../baz") === "/client/foo/baz"
- * XXX TODO optimize
- */
-function resolvePath(moduleId, requirePath) {
-  if (requirePath.substr(0,1) === '/')
-    requirePath; // noop
-  else if (requirePath.substr(0,2) === './')
-    requirePath = requirePath.replace(/^\.\//,
-      moduleId.replace(/\/[^\/]+$/, '') + '/');
-  else if (requirePath.substr(0,3) === '../') {
-    moduleId = moduleId.replace(/\/[^\/]+$/, '');
-    while (requirePath.substr(0,3) === '../') {
-      requirePath = requirePath.replace(/^\.\.\//, '');
-      moduleId = moduleId.replace(/\/[^\/]+$/, '');
-    }
-    requirePath = moduleId + '/' + requirePath;
-  }
-
-  return requirePath;
-}
-
-/*
- * Given install.js root and a meteorInstall tree, walk through the later
- * and call func with corresponding File and moduleCodeArray of each.
- */
-function walkFileTree(root, tree, func, oldRoot) {
-  for (var key in tree) {
-    if (_.isArray(tree[key])) {
-      if (!root) {
-        console.log('[gadicc:hot] no root for', key);
-        console.log('oldRoot.c', oldRoot.c);
-        console.log('tree[key]', tree[key]);
-        console.log("If this happens once, it's safe to Ctrl-R.  If it " +
-          'keeps happening, it would be great if you could open a github ' +
-          'issue with a link to a github repo and steps to reproduce.');
-      }
-      func(root.c[key], tree[key]);
-    }
-    else 
-      walkFileTree(root.c[key], tree[key], func, root);
-  }
-}
+const flattenRoot = hot.flattenRoot;
+const resolvePath = hot.resolvePath;
+const walkFileTree = hot.walkFileTree;
+const reverseDeps = hot.reverseDeps;
+const modulesRequiringMe = hot.modulesRequiringMe;
+const allModules = hot.allModules;
 
 /*
  * Given a File, find every other module which requires it, up to
@@ -93,7 +27,9 @@ function requirersUntil(file, func, parentId) {
     return console.log('[gadicc:hot] requirersUntil(): no file.m?', file);
 
   if (!func(file, parentId)) {
-    let id = file.m.id.replace(/\/index.js$/, '');
+    let id = file.m.id;
+    if (!modulesRequiringMe[id])
+      id = id.replace(/\/index\.jsx?|\.jsx?$/, '');
 
     if (modulesRequiringMe[id])
       for (let moduleId of modulesRequiringMe[id])
@@ -124,7 +60,7 @@ const meteorInstallHot = function(tree) {
 
   // First, patch changed modules
   var moduleNames = [];
-  walkFileTree(root, tree, function(file, moduleCodeArray) {
+  walkFileTree(hot.root, tree, function(file, moduleCodeArray) {
     moduleNames.push(file.m.id);
     // console.debug('[gadicc:hot] Replacing contents of ' + file.m.id);
     file.c = moduleCodeArray[moduleCodeArray.length-1];
@@ -133,7 +69,7 @@ const meteorInstallHot = function(tree) {
   console.info('[gadicc:hot] Updating', moduleNames);
 
   // Then, delete up to hot and reevaluate
-  walkFileTree(root, tree, function hotWalker(file, moduleCodeArray) {
+  walkFileTree(hot.root, tree, function hotWalker(file, moduleCodeArray) {
     var changedFile = file;
 
     requirersUntil(file, function canAccept(file, parentId) {
@@ -200,58 +136,6 @@ const meteorInstallHot = function(tree) {
     });
   });
 }
-
-// this will run before global-imports.js and app.js
-var modulesRuntime = Package['modules-runtime'];
-var origMeteorInstall = modulesRuntime.meteorInstall;
-var root = modulesRuntime.meteorInstall._expose().root;
-var modulesRequiringMe = {};
-var allModules;
-
-modulesRuntime.meteorInstall = Package['modules'].meteorInstall = function(tree) {
-  hot.firstTree = tree;
-
-  var require = origMeteorInstall.apply(this, arguments);
-
-  allModules = hot.allModules = flattenRoot(root);
-
-  walkFileTree(root, tree, function(file, module) {
-
-    // forEach on all reqs [ 'react', './blah', function(...) ]
-    module.slice(0, module.length-1).forEach(function(req) {
-
-      // npm and meteor packages will never be reloaded in this implementation
-      // so we skip any req not beginning with a "." or a "/"
-      // 2016-04-26; we now allow Meteor packages and maybe people will want
-      // to hotload their own node_modules they're working on.  Let's see.
-      //if (!req.match(/^[\.\/]{1,1}/))
-      //  return;
-
-      req = resolvePath(file.m.id, req);
-
-      if (!allModules[req]) {
-        if (allModules[req+'.js'])
-          req += '.js';
-        else if (allModules[req+'.jsx'])
-          req += '.jsx';
-      }
-
-      if (!modulesRequiringMe[req])
-        modulesRequiringMe[req] = [];
-
-      if (file.m.id !== req)  // why?
-        modulesRequiringMe[req].push(file.m.id);
-    });
-
-  });
-
-  return require;
-}
-
-hot.root = root;
-hot.allModules = allModules;
-hot.modulesRequiringMe = modulesRequiringMe;
-hot.origMeteorInstall = origMeteorInstall;
 
 export { meteorInstallHot, hot };
 export default hot;
