@@ -155,8 +155,15 @@ handlers.fileData = function({files, pluginId}) {
     if (watchers[key])
       watchers[key].close();
 
-    watchers[key] =
-      fs.watch(key, onChange.bind(null, key, pluginId, files[key]));
+    try {
+      watchers[key] =
+        fs.watch(key, onChange.bind(null, key, pluginId, files[key]));
+    } catch (err) {
+      // On Linux the thrown error actually gives the problematic file name,
+      // but not on Windows
+      log("Error watching " + key);
+      throw err;
+    }
   }
 };
 
