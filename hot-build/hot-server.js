@@ -49,7 +49,7 @@ function loadVersions() {
     if (line.length == 2)
       versions[line[0]] = line[1];
   }
-  return versions;  
+  return versions;
 }
 
 var versions = null;
@@ -69,6 +69,9 @@ function findPackagePath(name) {
 
   // XXX windows??
   var METEOR_HOME = path.join(process.env.HOME, '.meteor');
+  if (process.platform === 'win32') {
+    METEOR_HOME = process.env.METEOR_INSTALLATION;
+  } 
   return path.join(METEOR_HOME, 'packages', name.replace(/:/,'_'), version);
 }
 
