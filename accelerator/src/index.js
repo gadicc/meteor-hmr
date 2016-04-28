@@ -3,8 +3,13 @@ import child_process from 'child_process';
 
 const forkFile = path.join(__dirname, 'accelerator.js');
 
-// could also check argv[0/1] if this is a problem
-const meteorToolPath = process.env.OLDPWD;
+// We can figure this out from the path of the node bin being called
+// /home/dragon/.meteor/packages/meteor-tool/.1.3.2_1.1b63asg++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/bin/node
+const meteorToolPath = path.join(
+  path.dirname(process.argv[0]),  // bin (from bin/node)
+  '..',                           // dev_bundle
+  '..'                            // meteorToolPath
+);
 
 class Accelerator {
 
