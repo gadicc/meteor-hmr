@@ -185,10 +185,11 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
   inputFiles.forEach(function(inputFile) {
     var file;
     if (inputFile.getArch() === "web.browser") {
-      file = convertToOSPath(path.join(
-        inputFile._resourceSlot.packageSourceBatch.sourceRoot,
+      file = convertToOSPath(
+        inputFile._resourceSlot.packageSourceBatch.sourceRoot +
+        '/' + // convertToOSPath is expecting a / of course...
         inputFile.getPathInPackage()
-      ));
+      );
       if (!self.sentFiles[file]) {
         data[file] = {
           packageName: inputFile.getPackageName(),
