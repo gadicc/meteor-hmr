@@ -57,11 +57,7 @@ Notes:
 Meteor's port + 2 (i.e., right after mongo), but you can override it with the
 `HOT_PORT` environment variable.
 
-1. Works great with
-[mantra-sample-blog-app](https://github.com/mantrajs/mantra-sample-blog-app)
-(but you need to remove `babel-root-slash-import`, which might break some
-of your testing, tracking in
-[#82](https://github.com/mantrajs/mantra-sample-blog-app/issues/82)).
+1. For Mantra style apps, see [#60](https://github.com/gadicc/meteor-hmr/issues/60).
 
 ## Where this works and doesn't work
 
