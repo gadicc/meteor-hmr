@@ -4,8 +4,6 @@
 
 **NB: This README refers to the upcoming release.  Although it's experimental, you're encouraged to try it out, since that's the direction we're going in.  More details in [#51](https://github.com/gadicc/meteor-react-hotloader/issues/51).  Otherwise, you can find the old README [here](https://github.com/gadicc/meteor-react-hotloader/blob/1352a7a0335ebeab3684ca8fdd096c2b5749da05/README.md).**
 
-**Windows is not yet supported on the `refactor` branch**.  Once the refactor has stabilized, we'll work at fixing the Window specific issues.  For now, Windows users should still use the old release above, `gadicc:ecmascript-hot@1.3.1_1`, with installation according to the "old" README linked to above.
-
 * Edit your react components and see changes instantly, while maintaining state.
 * Catch react `render()` errors and show on your screen rather than crashing your app.
 * Add your own `.babelrc` plugins and presets, like
