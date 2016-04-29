@@ -54,7 +54,7 @@ function loadVersions() {
 
 var METEOR_HOME;
 if (process.platform === "win32")
-  METEOR_HOME = path.join(process.env.METEOR_INSTALLATION, '.meteor');
+  METEOR_HOME = process.env.METEOR_INSTALLATION;
 else
   METEOR_HOME = path.join(process.env.HOME, '.meteor');
 
