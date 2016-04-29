@@ -2,7 +2,7 @@ babel-compiler@6.6.4
 babel-runtime@0.1.8
 ecmascript@0.4.3
 ecmascript-runtime@0.2.10
-gadicc:hot-build@0.0.8
+gadicc:hot-build@0.0.9
 meteor@1.1.14
 modules@0.6.1
 modules-runtime@0.6.3

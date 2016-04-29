@@ -15,6 +15,11 @@
   We provide a partial `hot.accept()` implementation only, and only on the
   client, for now.
 
+* Windows fixes for bugs since `fast` branches.  Massive thanks to
+  @Vincent-P who worked with me closely in solving these issues and helped
+  get this release working for other Windows users weeks earlier.
+  (#41, #56, #58)
+
 # 1.3.2-fast.14 (2016-04-20)
 
 * Much faster reloads (for shared files too) by running an external
