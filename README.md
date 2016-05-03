@@ -55,7 +55,7 @@ Notes:
 Meteor's port + 2 (i.e., right after mongo), but you can override it with the
 `HOT_PORT` environment variable.
 
-1. For Mantra style apps, see [#60](https://github.com/gadicc/meteor-hmr/issues/60).
+1. For Mantra style apps, skim over the React Hotloading docs above and then read [this diff](https://github.com/gadicc/mantra-sample-blog-app-hot/compare/master...gadicc:hot) for an example on how to add hotloading to the `mantra-sample-blog-app` (or just clone the repo).  You may also find more info in [#60](https://github.com/gadicc/meteor-hmr/issues/60).
 
 ## Where this works and doesn't work
 
