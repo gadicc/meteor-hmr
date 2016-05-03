@@ -105,9 +105,13 @@ var moduleHotProps = {
 };
 
 hot.makeInstaller = function(options) {
-  options.Module = Module;
+  options.Module = Module; // benjamn/install < 0.7.0
 
   var origInstall = makeInstaller(options);
+
+  // https://github.com/benjamn/install/commit/b7596e43ea4870e254ebc3b5c11f0810df2bd4b3
+  origInstall.Module = Module;  // benjamn/install >= 0.7.0
+
   hot.root = origInstall._expose().root;
 
   return function meteorInstall(tree) {

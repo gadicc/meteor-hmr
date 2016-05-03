@@ -131,6 +131,12 @@ const meteorInstallHot = function(tree) {
         // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
         delete file.m.exports; // re-force install.js fileEvaluate()
 
+        // since benjamn/install 0.6.2
+        // https://github.com/benjamn/install/commit/de70c43d873e03490e0110140e3b1ea57ba8549f
+        if (file.m.loaded)
+          file.m.loaded = false;
+        // any repercussions for
+        // https://github.com/benjamn/install/commit/aebd65a5f7dc5fda4cccb884d6e5070bf4a81a11#diff-f16acefe4b6553580c43edab685f50f3R182
       }
 
     });
