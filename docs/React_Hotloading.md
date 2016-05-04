@@ -54,9 +54,11 @@ if (module.hot) {
 
 1. You need to `import 'react-hot-loader/patch';` *before* importing `React`.  If you have a *single* client entry-point and get everything else from the `/imports` directory, just add this as your first line.  If you still use a "regular" client directory (with more than 1 file), try place just this line in a file called `client/_patchReact.js` (or possibly in `client/lib` if you use react from within that directory).
 
-There's an (incredibly convoluted) example at https://github.com/gadicc/meteor-react-hotloader/tree/master/demo-rhl3.
+## Examples
 
-There's also a [mantra-sample-blog-app-hot](https://github.com/gadicc/mantra-sample-blog-app-hot) example.  Unfortunately default Mantra routing leads to a slightly weird pattern but it's not too bad.
+There's an (extremely convoluted) working example of all the above in https://github.com/gadicc/meteor-hmr/tree/master/demo (besides the changed packages in `package.json`, note `client/_patch.js` and `client/index.jsx`).
+
+There's also a [mantra-sample-blog-app-hot](https://github.com/gadicc/mantra-sample-blog-app-hot) example.  Unfortunately default Mantra routing leads to a slightly weird pattern but it's not too bad.  You can also just see the [changes needed](https://github.com/gadicc/mantra-sample-blog-app-hot/compare/master...gadicc:hot) to take the stock `mantra-sample-blog-app` and make it hot.
 
 ## Sample .babelrc
 
@@ -65,4 +67,75 @@ There's also a [mantra-sample-blog-app-hot](https://github.com/gadicc/mantra-sam
   "presets": [ "meteor" ],
   "plugins": [ "react-hot-loader/babel" ]
 }
+```
+
+## React Router Example
+
+**main.jsx**:
+
+```js
+import 'react-hot-loader/patch';
+import React from 'react';
+import { browserHistory } from 'react-router';
+import { Meteor } from 'meteor/meteor';
+import { AppContainer as HotLoaderAppContainer } from 'react-hot-loader';
+import ReactDOM from 'react-dom';
+import AppRoutes from '/imports/startup/client/routes.jsx';
+
+Meteor.startup(() => {
+  const appElement = document.getElementById('app');
+
+  const renderApp = (CurrentAppRoutes) => {
+    ReactDOM.render(
+      <HotLoaderAppContainer>
+        <CurrentAppRoutes browserHistory={ browserHistory } />
+      </HotLoaderAppContainer>,
+      appElement
+    );
+  };
+
+  renderApp(AppRoutes);
+
+  if (module.hot) {
+    module.hot.accept('/imports/startup/client/routes.jsx', () => {
+      const NextAppRoutes = require('/imports/startup/client/routes.jsx').default;
+      renderApp(NextAppRoutes);
+    });
+  }
+});
+```
+
+**/imports/startup/client/routes.jsx**:
+
+```js
+import React from 'react';
+import { Router, Route, IndexRoute } from 'react-router';
+
+import AppContainer from '/imports/ui/containers/AppContainer.jsx';
+import StandardPage from '/imports/ui/layouts/StandardPage.jsx';
+
+import Home from '/imports/ui/pages/Home.jsx';
+
+import About from '/imports/ui/pages/standard/About.jsx';
+import Partners from '/imports/ui/pages/standard/Partners.jsx';
+import NotFound from '/imports/ui/pages/standard/NotFound.jsx';
+
+const AppRoutes = ({ browserHistory }) => (
+  <Router history={ browserHistory }>
+    <Route path="/" component={ AppContainer }>
+      <IndexRoute component={ Home } />
+      <Route component={ StandardPage } >
+        <Route path="about" component={ About } />
+        <Route path="partners" component={ Partners } />
+        <Route path="*" component={ NotFound } />
+      </Route>
+    </Route>
+  </Router>
+);
+
+AppRoutes.propTypes = {
+  browserHistory: React.PropTypes.object,
+};
+
+export default AppRoutes;
 ```

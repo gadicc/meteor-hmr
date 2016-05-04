@@ -50,4 +50,10 @@ if (module.hot) {
 
 1. You need to `import 'react-hot-loader/patch';` *before* importing `React`.  If you have a *single* client entry-point and get everything else from the `/imports` directory, just add this as your first line.  If you still use a "regular" client directory (with more than 1 file), try place just this line in a file called `client/_patchReact.js` (or possibly in `client/lib` if you use react from within that directory).
 
-There's an (incredibly convoluted) example at https://github.com/gadicc/meteor-react-hotloader/.tree/master/demo-rhl3.
+That's it!
+
+## More Help
+
+Definitely skim over the [React Hotloading docs](./React_Hotloading.md) too.  At the end there's some additional info for **mantra**-style apps and **react-router**.
+
+There's also an (extremely convoluted) working example of all the above in https://github.com/gadicc/meteor-hmr/tree/master/demo (besides the changed packages in `package.json`, note `client/_patch.js` and `client/index.jsx`).
