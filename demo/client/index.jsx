@@ -6,6 +6,8 @@ import { App } from './App';
 import { AppWithStateless } from './AppWithStateless';
 import Both from '../both/hello';
 
+import nonHotUpdate from './non-hot-update.js';
+
 Meteor.startup(function() {
   var rootDiv = document.createElement('div');
   rootDiv.id = 'root';

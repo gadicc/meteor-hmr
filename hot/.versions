@@ -18,7 +18,7 @@ diff-sequence@1.0.5
 ecmascript@0.4.3
 ecmascript-runtime@0.2.10
 ejson@1.0.11
-gadicc:hot@0.0.22
+gadicc:hot@0.0.23
 gadicc:modules-runtime-hot@0.6.3_5
 geojson-utils@1.0.8
 html-tools@1.0.9

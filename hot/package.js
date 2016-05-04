@@ -1,6 +1,6 @@
 Package.describe({
   name: 'gadicc:hot',
-  version: '0.0.22',
+  version: '0.0.23',
   summary: 'React hotloading, used by gadicc:ecmascript-hot.',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: '../README.md'

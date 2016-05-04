@@ -26,7 +26,7 @@ Package.onUse(function (api) {
   api.imply('babel-runtime');
   api.imply('promise');
 
-  api.use('gadicc:hot@0.0.22');
+  api.use('gadicc:hot@0.0.23');
   api.imply('gadicc:hot');
 
   api.addFiles("ecmascript.js", "server");

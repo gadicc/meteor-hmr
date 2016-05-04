@@ -17,8 +17,12 @@ const allModules = hot.allModules;
  * crawl, call func(file), which should retrun true if the update
  * can be accepted.
  */ 
-function requirersUntil(file, func, parentId) {
+function requirersUntil(file, func, parentId, chain) {
   // console.log(file.m.id);
+  if (chain)
+    chain += ' > ' + file.m.id;
+  else
+    chain = file.m.id;
 
   if (!file)
     return console.error('[gadicc:hot] requirersUntil(): no file?');
@@ -33,9 +37,9 @@ function requirersUntil(file, func, parentId) {
 
     if (modulesRequiringMe[id])
       for (let moduleId of modulesRequiringMe[id])
-        requirersUntil(allModules[moduleId], func, id);
+        requirersUntil(allModules[moduleId], func, id, chain);
     else {
-      console.error('[gadicc:hot] ' + file.m.id + ' is not hot and nothing requires it');
+      console.info('[gadicc:hot] No hot.accept() in ' + chain);
       hot.failedOnce = true;
     }
   }
