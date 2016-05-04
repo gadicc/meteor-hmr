@@ -2,6 +2,7 @@ mhot = {
   allModules: {},
   modulesRequiringMe: {},
   trees: [],
+  extensions: [],
 
   // from utils.js, to export
   flattenRoot: utils.flattenRoot,
@@ -114,12 +115,18 @@ hot.makeInstaller = function(options) {
 
   hot.root = origInstall._expose().root;
 
-  return function meteorInstall(tree) {
+  return function meteorInstall(tree, options) {
     var require = origInstall.apply(this, arguments);
 
     hot.trees.push(tree);
     _.extend(hot.allModules, hot.flattenRoot(hot.root))
     hot.reverseDeps(tree);
+
+    if (options && options.extensions)
+    _.each(options.extensions, function(ext) {
+      if (hot.extensions.indexOf(ext) === -1)
+        hot.extensions.push(ext);
+    });
 
     return require;
   }

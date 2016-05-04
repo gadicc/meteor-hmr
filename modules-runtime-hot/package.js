@@ -1,7 +1,7 @@
 Package.describe({
   name: "gadicc:modules-runtime-hot",
   // version: "0.6.3",    // core version, KEEP UPDATED
-  version: "0.6.3_5",
+  version: "0.6.3_6",
   summary: 'Used by gadicc:ecmascript-hot',
   git: "https://github.com/benjamn/install",
   documentation: "README.md"

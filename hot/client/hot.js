@@ -10,6 +10,32 @@ const walkFileTree = hot.walkFileTree;
 const reverseDeps = hot.reverseDeps;
 const modulesRequiringMe = hot.modulesRequiringMe;
 const allModules = hot.allModules;
+const extensions = hot.extensions;
+
+/*
+ * Since we allow "absolute" module ids to be stored in modulesRequiringMe
+ * without their extension, during runtime we need to match again.  So:
+ * 
+ *   "/client/main.jsx" -> "/client/main" if allModules["/client/main"]
+ *
+ */
+function fetchWithoutExt(id, where) {
+  if (!where)
+    return null;
+
+  if (where[id])
+    return where[id];
+
+  for (let ext of extensions) {
+    let re = new RegExp(`${ext}$|/index${ext}$`);
+    let newId = id.replace(re, '');
+    if (where[newId])
+      return where[newId];
+  }
+
+  return null;
+}
+
 
 /*
  * Given a File, find every other module which requires it, up to
@@ -31,15 +57,14 @@ function requirersUntil(file, func, parentId, chain) {
     return console.log('[gadicc:hot] requirersUntil(): no file.m?', file);
 
   if (!func(file, parentId)) {
-    let id = file.m.id;
-    if (!modulesRequiringMe[id])
-      id = id.replace(/\/index\.jsx?|\.jsx?$/, '');
+    let requiresId = fetchWithoutExt(file.m.id, modulesRequiringMe);
 
-    if (modulesRequiringMe[id])
-      for (let moduleId of modulesRequiringMe[id])
-        requirersUntil(allModules[moduleId], func, id, chain);
+    if (requiresId)
+      for (let moduleId of requiresId)
+        requirersUntil(allModules[moduleId], func, file.m.id, chain);
     else {
-      console.info('[gadicc:hot] No hot.accept() in ' + chain);
+      console.info('[gadicc:hot] No (relevant) hot.accept() in ' + chain +
+        '.  Need to reload.');
       hot.failedOnce = true;
     }
   }
@@ -78,6 +103,7 @@ const meteorInstallHot = function(tree) {
 
     requirersUntil(file, function canAccept(file, parentId) {
       const mhot = file.m.hot;
+      let acceptFunc;
 
       if (mhot._selfDeclined)
         return logAndFile('Aborted because of self decline: ' + file.m.id);
@@ -111,14 +137,14 @@ const meteorInstallHot = function(tree) {
         }
         return true;
 
-      } else if (parentId && mhot._acceptedDependencies
-          && mhot._acceptedDependencies[parentId]) {
+      } else if (parentId &&
+          (acceptFunc = fetchWithoutExt(parentId, mhot._acceptedDependencies))) {
 
         // console.debug('[gadicc:hot] ' + file.m.id + ' can accept ' + parentId);
 
         try {
 
-          mhot._acceptedDependencies[parentId]();
+          acceptFunc();
 
         } catch (err) {
 
@@ -130,7 +156,7 @@ const meteorInstallHot = function(tree) {
 
       } else {
 
-        // console.debug(file.m.id + ' cannot self-accept or accept ' + parentId);
+        console.debug(file.m.id + ' cannot self-accept or accept ' + parentId);
         
         // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
         delete file.m.exports; // re-force install.js fileEvaluate()

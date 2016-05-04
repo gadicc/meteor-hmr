@@ -20,7 +20,7 @@ Package.onUse(function(api) {
   api.use('ecmascript');
 
   // this isn't used directly, but is used to pull in the package
-  api.use('gadicc:modules-runtime-hot@0.6.3_5');
+  api.use('gadicc:modules-runtime-hot@0.6.3_6');
   api.use('modules-runtime', 'client');
   api.imply('modules-runtime', 'client');
 

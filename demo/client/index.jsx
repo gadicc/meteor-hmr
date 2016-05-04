@@ -31,7 +31,7 @@ Meteor.startup(function() {
 import { NICE } from './colors';
 console.log('orig NICE', NICE);
 if (module.hot)
-module.hot.accept('./colors', function() {
+module.hot.accept('./colors.js', function() {
   console.log('new NICE', require('./colors').NICE);
 });
 
