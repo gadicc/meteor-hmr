@@ -156,7 +156,7 @@ const meteorInstallHot = function(tree) {
 
       } else {
 
-        console.debug(file.m.id + ' cannot self-accept or accept ' + parentId);
+        // console.debug(file.m.id + ' cannot self-accept or accept ' + parentId);
         
         // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
         delete file.m.exports; // re-force install.js fileEvaluate()

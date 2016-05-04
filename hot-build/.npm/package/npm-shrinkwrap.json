@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "meteor-hotload-accelerator": {
-      "version": "1.0.8",
-      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-1.0.8.tgz",
-      "from": "meteor-hotload-accelerator@1.0.8",
+      "version": "1.0.9",
+      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-1.0.9.tgz",
+      "from": "meteor-hotload-accelerator@1.0.9",
       "dependencies": {
         "babel-runtime": {
           "version": "6.6.1",

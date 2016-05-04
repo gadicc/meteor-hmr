@@ -26,6 +26,7 @@ function meteorRequire(module) {
 
 const Fiber = meteorRequire('fibers');
 const WebSocketServer = meteorRequire('ws').Server;
+const PathWatcher = meteorRequire('pathwatcher');
 
 const Promise = meteorRequire('meteor-promise');
 Promise.Fiber = Fiber;
@@ -157,7 +158,7 @@ handlers.fileData = function({files, pluginId}) {
 
     try {
       watchers[key] =
-        fs.watch(key, onChange.bind(null, key, pluginId, files[key]));
+        PathWatcher.watch(key, onChange.bind(null, key, pluginId, files[key]));
     } catch (err) {
       // On Linux the thrown error actually gives the problematic file name,
       // but not on Windows
@@ -172,27 +173,23 @@ handlers.fileData = function({files, pluginId}) {
 var lastCall = {};
 function onChange(file, pluginId, inputFile, event) {
   // de-dupe 2 calls for same event
+  // fixed https://github.com/atom/node-pathwatcher/issues/50 in aug2015 but
+  // Meteor still uses an old version
   var now = Date.now();
-  if (lastCall[file] && now - lastCall[file] < 2)
+  var then = lastCall[file] && lastCall[file][event];
+
+  if (!lastCall[file]) lastCall[file] = {};
+  lastCall[file][event] = now;
+
+  if (then && now - then < 2)
     return;
-  lastCall[file] = now;
 
-  /*
-   * Some editors do an "atomic write" by writing to a temporary file and then
-   * renaming that over the original.  Node sometimes reports this as a "rename"
-   * event, and sometimes as a "change" event, and either way, stops watching
-   * the file.  There's no way to know for sure so the only thing we can do is
-   * check if the file still exists after a "rename" (which could be rename TO
-   * our filename) and rewatch every time.
-   */
+  debug(`Got ${event} event for ${file}`);
 
-  if (event === 'rename' && !fs.existsSync(file))
-    return;  // Meteor will send us the new name
+  // Meteor will send us the new name
+  if (event === 'rename')
+    return;
 
-  watchers[file].close();
-  fs.watch(file, onChange.bind(null, file, pluginId, inputFile));
-
-  //console.log('got ' + event + ' for ', JSON.stringify(file, null, 2));
   fs.readFile(file, 'utf8', function(err, contents) {
     if (err) throw new Error(err);
 
@@ -203,7 +200,6 @@ function onChange(file, pluginId, inputFile, event) {
 
     addInputFile(inputFile, pluginId);
   });
-
 }
 
 /* debounce */
@@ -301,7 +297,7 @@ function addJavaScript(data, file) {
 hot.process = function hotProcess() {
   bundleTimeout = null;
 
-  debug(3, `hot.process(${bundle.join(',')})`);
+  debug(2, `hot.process(${bundle.map(x => x.path).join(',')})`);
   if (!bundle.length)
     return;
 
