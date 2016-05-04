@@ -27,7 +27,7 @@ function fetchWithoutExt(id, where) {
     return where[id];
 
   for (let ext of extensions) {
-    let re = new RegExp(`${ext}$|/index${ext}$`);
+    let re = new RegExp(`\\${ext}$|\\/index\\${ext}$`);
     let newId = id.replace(re, '');
     if (where[newId])
       return where[newId];
@@ -43,12 +43,23 @@ function fetchWithoutExt(id, where) {
  * crawl, call func(file), which should retrun true if the update
  * can be accepted.
  */ 
-function requirersUntil(file, func, parentId, chain) {
+function requirersUntil(file, func, parentId, chain, tried) {
   // console.log(file.m.id);
   if (chain)
     chain += ' > ' + file.m.id;
   else
     chain = file.m.id;
+
+  // Crude check to avoid circular deps
+  if (!tried)
+    tried = [];
+  if (tried.indexOf(file.m.id) !== -1) {
+    console.info('[gadicc:hot] Aborting circular dependency, no relevant '
+      + 'hot.accept() in ' + chain + '.  Need to reload.');
+    hot.failedOnce = true;
+    return;
+  }
+  tried.push(file.m.id);
 
   if (!file)
     return console.error('[gadicc:hot] requirersUntil(): no file?');
@@ -61,7 +72,7 @@ function requirersUntil(file, func, parentId, chain) {
 
     if (requiresId)
       for (let moduleId of requiresId)
-        requirersUntil(allModules[moduleId], func, file.m.id, chain);
+        requirersUntil(allModules[moduleId], func, file.m.id, chain, tried);
     else {
       console.info('[gadicc:hot] No (relevant) hot.accept() in ' + chain +
         '.  Need to reload.');
