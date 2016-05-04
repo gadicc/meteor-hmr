@@ -177,17 +177,18 @@ function onChange(file, pluginId, inputFile, event) {
     return;
   lastCall[file] = now;
 
-  // Meteor will send us the new name.
-  if (event === 'rename')
-    return;
-
   /*
    * Some editors do an "atomic write" by writing to a temporary file and then
-   * renaming that over the original.  In node, this comes as a "change" event,
-   * but then the file watching stops and won't pick up the next time this
-   * happens.  There's no way to distinguish this type of event, so to be safe,
-   * we close the old watcher and start a new one.
+   * renaming that over the original.  Node sometimes reports this as a "rename"
+   * event, and sometimes as a "change" event, and either way, stops watching
+   * the file.  There's no way to know for sure so the only thing we can do is
+   * check if the file still exists after a "rename" (which could be rename TO
+   * our filename) and rewatch every time.
    */
+
+  if (event === 'rename' && !fs.existsSync(file))
+    return;  // Meteor will send us the new name
+
   watchers[file].close();
   fs.watch(file, onChange.bind(null, file, pluginId, inputFile));
 

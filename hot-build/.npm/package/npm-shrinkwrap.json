@@ -1,9 +1,9 @@
 {
   "dependencies": {
     "meteor-hotload-accelerator": {
-      "version": "1.0.7",
-      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-1.0.7.tgz",
-      "from": "meteor-hotload-accelerator@1.0.7",
+      "version": "1.0.8",
+      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-1.0.8.tgz",
+      "from": "meteor-hotload-accelerator@1.0.8",
       "dependencies": {
         "babel-runtime": {
           "version": "6.6.1",
@@ -18,8 +18,8 @@
           }
         },
         "lodash": {
-          "version": "4.11.1",
-          "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.11.1.tgz",
+          "version": "4.11.2",
+          "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.11.2.tgz",
           "from": "lodash@>=4.11.1 <5.0.0"
         }
       }

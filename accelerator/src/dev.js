@@ -9,7 +9,7 @@ import _ from 'lodash';
 
 const bin='/home/dragon/.meteor/packages/meteor-tool/.1.3.2_1.1b63asg++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/bin/node';
 const args=['lib/accelerator.js', 'dev', '5002', '/home/dragon/.meteor/packages/meteor-tool/1.3.2_1/mt-os.linux.x86_64'];
-const projRoot='/home/dragon/www/meteor-react-hotloader/demo';
+const projRoot='/home/dragon/www/meteor-hmr/demo';
 
 const debug=process.env.HOT_DEBUG || 1;
 const files = ['accelerator.js','buildPlugin.js','fakeFile.js','index.js','log.js','dev.js'];
