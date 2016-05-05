@@ -71,14 +71,17 @@ function connect() {
       firstAttempt = false;
       debug("Starting new accelerator process");
       accelerator = new Accelerator(HOT_PORT, log.id);
-      setTimeout(connect, 500);
+      setTimeout(connect, 1000);
       return;
     }
 
     if (reconnecting)
       setTimeout(connect, 1000);
-    else
-    log("Unhandled websocket err!", err);
+    else if (err.code === 'ECONNREFUSED') {
+      log("Still can't reach accelerator after 1s, will keep retrying...");
+      reconnecting = true;
+    } else
+      log("Unhandled websocket err!", err);
   });
 
   ws.on('close', function() {

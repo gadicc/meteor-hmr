@@ -133,10 +133,14 @@ for (var key in babelrc) {
      * Quit on .babelrc change (need to rebuild all files through babel).
      * Should be unnecessary if Meteor watches the file for restart.
      */
+    
+    /*
+    TEMPORARILY REMOVED TO SEE IF IT FIXES #34
     fs.watch(obj.path, function(event) {
       console.log("Your " + key + "/.babelrc was changed, please restart Meteor.");
       process.exit();
     });
+    */
 
   }
 }
