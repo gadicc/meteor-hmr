@@ -151,6 +151,10 @@ handlers.setDiskCacheDirectory = function({dir}, plugin) {
 // get file data from build plugin
 const watchers = {};
 handlers.fileData = function({files, pluginId}) {
+  const plugin = BuildPlugin.byId(pluginId);
+  debug(3, `Got fileData from ${plugin.name} (${pluginId}), watching: `
+    + Object.keys(files).join(', '));
+
   for (var key in files) {
     // Maybe we got the same file again from a new instance of the plugin
     if (watchers[key])
@@ -187,9 +191,10 @@ function onChange(file, pluginId, inputFile, event) {
   debug(`Got ${event} event for ${file}`);
 
   // Meteor will send us the new name
-  if (event === 'rename')
+  if (event === 'rename' || event === 'delete')
     return;
 
+  // event === 'change'
   fs.readFile(file, 'utf8', function(err, contents) {
     if (err) throw new Error(err);
 

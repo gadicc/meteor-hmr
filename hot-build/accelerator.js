@@ -61,7 +61,7 @@ function connect() {
 
     while (waiting.length)
       ws.send(waiting.shift());
-    waiting = false;
+    waiting = [];
 
     Hot.onReconnect();
   });
@@ -79,6 +79,7 @@ function connect() {
       setTimeout(connect, 1000);
     else if (err.code === 'ECONNREFUSED') {
       log("Still can't reach accelerator after 1s, will keep retrying...");
+      setTimeout(connect, 1000);
       reconnecting = true;
     } else
       log("Unhandled websocket err!", err);

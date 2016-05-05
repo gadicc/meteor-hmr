@@ -28,4 +28,9 @@ function debug(...args) {
     log(...args);
 }
 
+if (HOT_DEBUG > 0) {
+  // Because log.setId() has not been called yet
+  console.log("[gadicc:hot] Accelerator running with HOT_DEBUG=" + HOT_DEBUG);
+}
+
 export { log, debug };
