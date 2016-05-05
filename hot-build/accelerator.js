@@ -61,7 +61,7 @@ function connect() {
 
     while (waiting.length)
       ws.send(waiting.shift());
-    waiting = [];
+    waiting = false;
 
     Hot.onReconnect();
   });
