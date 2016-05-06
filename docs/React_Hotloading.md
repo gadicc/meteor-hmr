@@ -60,6 +60,8 @@ There's an (extremely convoluted) working example of all the above in https://gi
 
 There's also a [mantra-sample-blog-app-hot](https://github.com/gadicc/mantra-sample-blog-app-hot) example.  Unfortunately default Mantra routing leads to a slightly weird pattern but it's not too bad.  You can also just see the [changes needed](https://github.com/gadicc/mantra-sample-blog-app-hot/compare/master...gadicc:hot) to take the stock `mantra-sample-blog-app` and make it hot.
 
+See also the [Boilerplates](Boilerplates.md) section of the docs for other options.
+
 ## Sample .babelrc
 
 ```js

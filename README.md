@@ -33,14 +33,11 @@ something better/official comes along.
 
 Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-meteor-i-e-no-webpack/17523/
 
-**Current status (2016-04-01)**: Fix for broken deploys.  (04-02): SSR working.
-
-**Current release**: There's no more need to specify the version in your `packages`
-file; remove it and `meteor update` for the latest stable version.
-
 ## How to Use
 
 If upgrading from an earlier version, please see [Upgrading](docs/Upgrading.md).
+
+What follows are step-by-step instructions to add meteor-hmr to an existing project.  You can also see the [Boilerplates & Examples](docs/Boilerplates.md) section of the docs.
 
 Hotloading is provided on a *per-build-plugin* basis.  We provide a replacement
 `ecmascript-hot` loader to hotload your `*.js` and `*.jsx` files:
