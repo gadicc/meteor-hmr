@@ -3,6 +3,8 @@
 Please see the [Troubleshooting docs](docs/Troubleshooting.md).  The first
 entry there is called **Is this even working?**.
 
+## General Issues
+
 ### Is this even working?
 
 On a save, you should see the following on the client console:
@@ -43,6 +45,50 @@ the page to work correctly.
 You may find some other helpful info in
 [#65](https://github.com/gadicc/meteor-hmr/issues/65).
 
+## OS-related Issues
+
+### Open file limit reached
+
+You get these kind of errors:
+
+```
+Error: UNKNOWN, readdir '/Users/username/....'
+
+warning: unable to access 'imports/.gitignore': Too many open files in system
+
+git_prompt_info:2: too many open files in system: /dev/null
+```
+
+You might hit this if you have a lot of `.js` files in your project, and
+whether or not your platform requires an open file descriptor to watch a
+file.  It's because we're not watching twice as many files in the same
+session; each file is watched twice, once in Meteor and once inside the
+accelerator.
+
+So far we've hit this just on OSX.  See the following two superuser.com
+answers, and make a note of any current values before changing them:
+
+* http://superuser.com/a/838840
+* http://superuser.com/a/443168
+
+## Babel issues
+
+### `Uncaught Error: Cannot find module 'babel-runtime/helpers/get'`
+
+See the [`.babelrc`](babelrc.md) docs for this one.
+
+## React issues
+
+### `Warning: [react-router] You cannot change <Router routes>; it will be ignored`
+
+It's annoying but this can be safely ignored.  It's because of
+[react-router#2182](https://github.com/reactjs/react-router/issues/2182) which
+`react-hot-loader` works around, but can't remove the warning.  You might
+find more info in [#64](https://github.com/gadicc/meteor-hmr/issues/64) or
+[react-hot-loader#61](https://github.com/gaearon/react-hot-boilerplate/pull/61).
+
+## Debugging
+
 ### Disable HCP on fail for debugging
 
 If you want to report an error with meteor-hmr, but Meteor's HCP
@@ -70,31 +116,3 @@ A typical save with `HOT_DEBUG=1` should look like this:
 You may find other info which helps you work out the nature of your problem,
 so you can solve it or
 [report it on github](https://github.com/gadicc/meteor-hmr/issues/new).
-
-### Open file limit reached
-
-You get these kind of errors:
-
-```
-Error: UNKNOWN, readdir '/Users/username/....'
-
-warning: unable to access 'imports/.gitignore': Too many open files in system
-
-git_prompt_info:2: too many open files in system: /dev/null
-```
-
-You might hit this if you have a lot of `.js` files in your project, and
-whether or not your platform requires an open file descriptor to watch a
-file.  It's because we're not watching twice as many files in the same
-session; each file is watched twice, once in Meteor and once inside the
-accelerator.
-
-So far we've hit this just on OSX.  See the following two superuser.com
-answers, and make a note of any current values before changing them:
-
-* http://superuser.com/a/838840
-* http://superuser.com/a/443168
-
-### `Uncaught Error: Cannot find module 'babel-runtime/helpers/get'`
-
-See the [`.babelrc`](babelrc.md) docs for this one.

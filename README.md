@@ -92,7 +92,10 @@ to do this per package.  BUT, we have a PR open for this in
 ## Troubleshooting
 
 Please see the [Troubleshooting docs](docs/Troubleshooting.md).  The first
-entry there is called **Is this even working?**.
+entry there is called **Is this even working?**.  Otherwise, see if anyone
+else has experienced your problem by searching in
+[issues](https://github.com/gadicc/meteor-hmr/issues)
+and if not, please open a new one.
 
 ## How this works
 
