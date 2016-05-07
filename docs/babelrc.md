@@ -143,6 +143,8 @@ $ meteor npm install --save-dev babel-preset-es2015 babel-preset-stage0
 
 ### `Uncaught Error: Cannot find module 'babel-runtime/helpers/get'`
 
+**Also: Missing class properties transform**
+
 And similar errors.
 
 This can occur due to your load order in your `.babelrc`.  For a straight
