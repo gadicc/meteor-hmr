@@ -140,3 +140,22 @@ $ meteor npm install --save-dev babel-preset-es2015 babel-preset-stage0
   ]
 }
 ```
+
+### `Uncaught Error: Cannot find module 'babel-runtime/helpers/get'`
+
+And similar errors.
+
+This can occur due to your load order in your `.babelrc`.  For a straight
+Meteor experience, you should just have:
+
+```js
+{
+  "presets": [ "meteor" ]
+}
+```
+
+to confirm if this solves your issue.  If it does, you'll have to experiment
+with the order of other presets and plugins, and whether they're compatible
+with the meteor preset.
+
+You might find some other help in [#68](https://github.com/gadicc/meteor-hmr/issues/68).

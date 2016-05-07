@@ -94,3 +94,7 @@ answers, and make a note of any current values before changing them:
 
 * http://superuser.com/a/838840
 * http://superuser.com/a/443168
+
+### `Uncaught Error: Cannot find module 'babel-runtime/helpers/get'`
+
+See the [`.babelrc`](babelrc.md) docs for this one.
