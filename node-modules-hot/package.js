@@ -10,7 +10,7 @@ Package.registerBuildPlugin({
   name: 'node-modules-hot',
   use: [
     'sanjo:meteor-files-helpers@1.2.0_1',
-    'gadicc:hot-build@0.0.14',
+    'gadicc:hot-build@2.0.0-rc.0',
     'underscore@1.0.0'
   ],
   npmDependencies: {
