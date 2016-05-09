@@ -42,6 +42,9 @@ module.hot.accept('meteor/hot-package-example', function() {
   console.log('new something: ', require('meteor/hot-package-example').something);
 });
 
+import { something as otherSomething } from 'hot-test/lib/index.js';
+console.log('hot-test: ' + otherSomething);
+
 if (module.hot) {
   module.hot.accept('./App', () => {
     const App = require('./App').App;
@@ -54,6 +57,10 @@ if (module.hot) {
   module.hot.accept('../both/hello', () => {
     const Both = require('../both/hello').default;
     render(<AppContainer component={Both} />, document.getElementById('root3'));
+  });
+  module.hot.accept('hot-test/lib/index.js', () => {
+    const nextHotTest = require('hot-test/lib/index.js');
+    console.log('hot-test:' + nextHotTest.something);
   });
 }
 
