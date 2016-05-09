@@ -174,42 +174,48 @@ handlers.fileData = function({files, pluginId}) {
 
 /* handle file changes */
 
-var lastCall = {};
+var changeQueue = {}, changeTimeout = null;
 function onChange(file, pluginId, inputFile, event) {
+  debug(3, `Got ${event} event for ${file}`);
+
   // de-dupe 2 calls for same event
   // fixed https://github.com/atom/node-pathwatcher/issues/50 in aug2015 but
   // Meteor still uses an old version
-  var now = Date.now();
-  var then = lastCall[file] && lastCall[file][event];
+  // also, we need to debounce, to not start reading too early
+  if (!changeQueue[file])
+    changeQueue[file] = {
+      pluginId: pluginId,
+      inputFile: inputFile,
+      events: [event]
+    };
+  else
+    changeQueue[file].events.push(event);
 
-  if (!lastCall[file]) lastCall[file] = {};
-  lastCall[file][event] = now;
+  if (changeTimeout)
+    clearTimeout(changeTimeout);
 
-  if (then && now - then < 2)
-    return;
+  changeTimeout = setTimeout(processChanges, 5);
+}
 
-  debug(`Got ${event} event for ${file}`);
+function processChanges() {
+  debug('processChanges', Object.keys(changeQueue));
 
-  // Meteor will send us the new name
-  if (event === 'rename' || event === 'delete')
-    return;
+  for (let file in changeQueue) {
+    const { pluginId, inputFile, events } = changeQueue[file];
+    if (events.indexOf('change') === -1)
+      return;
 
-  // below here, event === 'change'
-  
-  // let's rather stream, since we may get the event before the file is fully
-  // written
-  const stream = fs.createReadStream(file);
-  var contents = '';
-  stream.on('data', (chunk) => contents += chunk);
-  stream.on('error', (err) => { throw err });
-  stream.on('end', () => {
-    inputFile.sourceHash =
-      crypto.createHash('sha1').update(contents).digest('hex');
+    fs.readFile(file, 'utf8', function(err, contents) {
+      if (err) throw err;
 
-    inputFile.contents = contents;
+      inputFile.sourceHash =
+        crypto.createHash('sha1').update(contents).digest('hex');
 
-    addInputFile(inputFile, pluginId);
-  });
+      inputFile.contents = contents;
+
+      addInputFile(inputFile, pluginId);
+    });
+  }
 }
 
 /* debounce */
