@@ -194,10 +194,15 @@ function onChange(file, pluginId, inputFile, event) {
   if (event === 'rename' || event === 'delete')
     return;
 
-  // event === 'change'
-  fs.readFile(file, 'utf8', function(err, contents) {
-    if (err) throw new Error(err);
-
+  // below here, event === 'change'
+  
+  // let's rather stream, since we may get the event before the file is fully
+  // written
+  const stream = fs.createReadStream(file);
+  var contents = '';
+  stream.on('data', (chunk) => contents += chunk);
+  stream.on('error', (err) => { throw err });
+  stream.on('end', () => {
     inputFile.sourceHash =
       crypto.createHash('sha1').update(contents).digest('hex');
 
