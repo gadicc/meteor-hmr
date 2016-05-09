@@ -73,7 +73,17 @@ answers, and make a note of any current values before changing them:
 
 ## Babel issues
 
+If you already had a `.babelrc` before this, realize that it might contain
+things that can break your Meteor build, but didn't before when Meteor ignored
+it.  Pay attention to existing plugins & presets, such as `babel-root-slash-import`
+and `es2015` -- you don't want either!  All this features are handled already -
+correctly - by the `meteor` preset.
+
 ### `Uncaught Error: Cannot find module 'babel-runtime/helpers/get'`
+
+**Also: Missing class properties transform**
+
+And similar errors.
 
 See the [`.babelrc`](babelrc.md) docs for this one.
 

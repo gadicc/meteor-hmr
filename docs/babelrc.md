@@ -2,7 +2,9 @@
 
 NB: If you already had a `.babelrc` before this, realize that it might contain
 things that can break your Meteor build, but didn't before when Meteor ignored
-it.  Pay attention to existing plugins & presets, such as `babel-root-slash-import`.
+it.  Pay attention to existing plugins & presets, such as `babel-root-slash-import`
+and `es2015` -- you don't want either!  All this features are handled already -
+correctly - by the `meteor` preset.
 
 If you don't already have a `.babelrc`, one will be created for you.  Otherwise,
 ensure that it contains at least the following (unless you know what you're doing):
@@ -131,7 +133,6 @@ $ meteor npm install --save-dev babel-preset-es2015 babel-preset-stage0
 {
   "presets": [
     "meteor",
-    "es2015",
     "stage-0",
     "react",
   ],
@@ -159,5 +160,9 @@ Meteor experience, you should just have:
 to confirm if this solves your issue.  If it does, you'll have to experiment
 with the order of other presets and plugins, and whether they're compatible
 with the meteor preset.
+
+In particular, the `es2015` preset can conflict with the `meteor` preset,
+which already contains everything you need for ES6 but in a way setup to
+work well with Meteor.
 
 You might find some other help in [#68](https://github.com/gadicc/meteor-hmr/issues/68).

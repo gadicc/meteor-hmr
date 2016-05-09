@@ -1,6 +1,6 @@
 # meteor-hmr
 
-*Hot-module-replacement for Meteor*
+*Hot Module Replacement (HMR) for Meteor*
 
 **NB: This README refers to the upcoming release.  Although it's experimental, you're encouraged to try it out, since that's the direction we're going in.  More details in [#51](https://github.com/gadicc/meteor-react-hotloader/issues/51).  Otherwise, you can find the old README [here](https://github.com/gadicc/meteor-react-hotloader/blob/1352a7a0335ebeab3684ca8fdd096c2b5749da05/README.md).**
 
@@ -11,25 +11,9 @@
 
 ![screencast](https://discourse-cdn.global.ssl.fastly.net/meteor/uploads/default/optimized/2X/4/43fb14d7cc38a1537e51ae0aa1bef88d80f8e510_1_690x341.gif)
 
-Copyright (c) 2016 by Gadi Cohen &lt;meteor@gadi.cc&gt;, released under the MIT License.
+Copyright (c) 2016 by Gadi Cohen &lt;dragon@wastelands.net&gt;, released under the MIT License.
 Note: this code includes / republishes additions to core Meteor packages that are
 Copyright MDG and released under the same license.
-
-## More info
-
-Given that:
-
-1. Webpack has react hotload support and it's awesome.
-1. Meteor build process has become painfully slow
-([but is improving](https://forums.meteor.com/t/help-us-test-build-times-in-meteor-1-3/15031?u=gadicc))
-1. Meteor has no plans to integrate webpack (for
-[good reasons](https://forums.meteor.com/t/why-is-the-meteor-install-1-3-api-better-than-webpack-in-meteor/14480/3?u=gadicc))
-1. MDG want more time to plan best way to do hot module replacement (as above).
-
-Let's:
-
-1. Implement a less-than-ideal solution to get react hot loading NOW, until
-something better/official comes along.
 
 Discussion: https://forums.meteor.com/t/help-test-react-hotloading-in-native-meteor-i-e-no-webpack/17523/
 
@@ -42,11 +26,14 @@ What follows are step-by-step instructions to add meteor-hmr to an existing proj
 Hotloading is provided on a *per-build-plugin* basis.  We provide a replacement
 `ecmascript-hot` loader to hotload your `*.js` and `*.jsx` files:
 
-1. Edit your `.meteor/packages` and replace `ecmascript` with `gadicc:ecmascript-hot`
+1. `meteor remove ecmascript`
+1. `meteor add gadicc:ecmascript-hot`
 
-Note, your code needs to be hot-module-replacement (HMR) aware.  For instuctions on how to add hot loading for React, please see the [React Hotloading](docs/React_Hotloading.md) docs.  For general instructions, see the [Handling Updates](docs/Handling_Updates.md).
+If you're trying a non-stable release, you need to explicitly provide the `@version` (or `@=version` if it's not picked up correctly) in the second step.
 
-Notes:
+Note, your code needs to be hot-module-replacement (HMR) aware.  For instuctions on how to add hot loading for React, please see the [React Hotloading](docs/React_Hotloading.md) docs.  For general instructions, see the [Handling Updates](docs/Handling_Updates.md).  If you're a build-plugin author, see the [Build Plugin docs](docs/Build_Plugins.md).
+
+Other Notes:
 
 1. We use an extra port for communication with the client.  By default this is
 Meteor's port + 2 (i.e., right after mongo), but you can override it with the
