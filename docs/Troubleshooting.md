@@ -42,7 +42,9 @@ Hot Code Push (HCP) will come through and reload the page.  Hotloading only
 works for hotloading-aware code.  Changes to any other code *has to* restart
 the page to work correctly.
 
-You may find some other helpful info in
+For example, are you importing your components **from multiple files**?  This is possible, but makes things more complicated, so be sure you really need to do this.  You need to figure out how to accept the update in the 2nd file you're importing into, or one of it's ancestors.  You may find more help in [#77](https://github.com/gadicc/meteor-hmr/issues/77).
+
+You may also find some other helpful info in
 [#65](https://github.com/gadicc/meteor-hmr/issues/65).
 
 ## OS-related Issues
