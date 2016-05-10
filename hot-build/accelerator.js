@@ -1,3 +1,6 @@
+// keep in sync with accelerator/package.json
+var requiredAcceleratorVersion = '1.0.10';
+
 // Never run as a server package (only as a build plugin)
 if (process.env.APP_ID)
   return;
@@ -43,10 +46,13 @@ if (!process.env.HOT_PORT)
   process.env.HOT_PORT = HOT_PORT;
 
 var WebSocket = Npm.require('ws');
-var ws, accelerator, waiting = [], firstAttempt = true, reconnecting = false;
+var ws, accelerator;
+var firstAttempt = true, reconnecting = false, stopTrying = false;
 
 function connect() {
-  ws = new WebSocket('ws://127.0.0.1:' + HOT_PORT + '/hot-build?id=' + log.id);
+  ws = new WebSocket('ws://127.0.0.1:' + HOT_PORT + '/hot-build'
+    + '?id=' + log.id
+    + '&v=' + requiredAcceleratorVersion);
 
   ws.on('open', function() {
     if (firstAttempt)
@@ -59,11 +65,8 @@ function connect() {
     firstAttempt = false;
     reconnecting = false;
 
-    while (waiting.length)
-      ws.send(waiting.shift());
-    waiting = false;
-
-    Hot.onReconnect();
+    // wait for "connected" message before sending, in case accelerator
+    // rejects us.
   });
 
   ws.on('error', function(err) {
@@ -86,22 +89,53 @@ function connect() {
   });
 
   ws.on('close', function() {
+    if (stopTrying)
+      return;
+
     log("Lost connection to accelerator, trying to reconnect...");
     reconnecting = true;
     setTimeout(connect, 1000);
   });
 
-  ws.on('message', function(msg) {
-    log("Unknown message from accelerator: " + JSON.stringify(msg));
+  ws.on('message', function(message) {
+    var data;
+    try {
+      data = JSON.parse(message);
+    } catch (err) {
+      log("Ignoring invalid JSON: " + message, err);
+      return;
+    }
+
+    switch(data.type) {
+
+      case 'connected':
+        Hot.onReconnect();
+        return;
+
+      case 'reject':
+        log("Accelerator rejected us, " + data.code + ": " + data.message);
+        if (data.code === 'vesionReload') {
+          // connect() will log the new connection
+          firstAttempt = true;
+          setTimeout(connect, 1000);
+        } else if (data.code === 'majorVersionMismatch') {
+          stopTrying = true;
+        }
+        return;
+
+    }
+
+    log("Unknown message from accelerator: " + message);
   });
 }
 
 connect();
 
 var send = Hot.send = function(data) {
-  if (waiting)
-    waiting.push(JSON.stringify(data));
-  else
+  // only send if we can, otherwise lose the data.  that's ok because this
+  // only happens if the connection dies, in which case, we reconnect, and
+  // all relevant data is resent with Hot.onReconnect().
+  if (ws.readyState === ws.OPEN)
     ws.send(JSON.stringify(data));
 }
 

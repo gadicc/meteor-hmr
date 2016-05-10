@@ -39,6 +39,10 @@ BuildPlugin.init({
 
 /* Load */
 
+const packageJson = require('../package.json');
+const packageVersion = packageJson.version;
+const packageVersionParts = packageVersion.split('.').map(Number);
+
 log.setId(ACCEL_ID);
 
 process.env.INSIDE_ACCELERATOR = true;
@@ -69,12 +73,48 @@ wss.broadcast = function broadcast(data) {
 };
 
 wss.on('connection', function connection(ws) {
-  const match = ws.upgradeReq.url.match(/^\/hot-build\?id=(.*)$/);
+  const match = ws.upgradeReq.url.match(/^\/hot-build\?id=(.*)&v=(.*)$/);
   if (match) {
     let id = match[1];
+    let requestedVersion = match[2];
+    let requestedVersionParts = requestedVersion.split('.').map(Number);
+
+    if (requestedVersionParts[0] !== packageVersionParts[0]) {
+      log(`Rejecting hot-build (${id}) because it requires a different `
+        + `major version; requested v${requestedVersion}, current `
+        + packageVersion);
+      ws.send(JSON.stringify({
+        type: "reject",
+        code: "majorVersionMismatch",
+        message: "You need to depend on a more recent version of hot-build. "
+          + "Requested: v" + requestedVersion + ", current v" + packageVersion
+      }));
+      return;
+    } else if (requestedVersionParts[1] < packageVersionParts[1]
+        || requestedVersionParts[2] < packageVersionParts[2]) {
+      log(`Rejecting hot-build (${id}) because it requires a newer `
+        + `version; requested v${requestedVersion}, current `
+        + packageVersion);
+      ws.send(JSON.stringify({
+        type: "reject",
+        code: "versionReload",
+        message: "You requested a newer version of the accelerator, "
+          + "reloading..."
+      }), handlers.close)  // quit only after message has been sent.
+      return;
+    }
+
     debug(`Connection from hot-build (${id})`);
+    ws.send(JSON.stringify({type:'connected'}));
+
     ws.on('message', function(_msg) {
-      const msg = JSON.parse(_msg);
+      var msg;
+      try {
+        msg = JSON.parse(_msg);
+      } catch (err) {
+        log("Ignoring invalid JSON: " + _msg, err);
+        return;        
+      }
 
       if (msg.type === 'PLUGIN_INIT')
         return handlers[msg.type](msg);
@@ -109,6 +149,7 @@ process.on('message', function(msg) {
 });
 
 handlers.close = function() {
+  debug("Terminating");
   try {
     wss.close();
   } catch (err) {
