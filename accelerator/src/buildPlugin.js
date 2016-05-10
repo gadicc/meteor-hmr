@@ -108,8 +108,7 @@ class BuildPlugin {
   run(code, fullPath) {
     var options;
 
-    if (currentPlugin !== this)
-      currentPlugin = this;
+    currentPlugin = this;
 
     if (typeof code === 'object') {
       options = code;
@@ -122,6 +121,7 @@ class BuildPlugin {
     }
 
     new vm.Script(code, fullPath).runInThisContext();
+    currentPlugin = false;
   }
 
   load() {
@@ -164,6 +164,21 @@ BuildPlugin.byId = function(id) {
   return buildPluginIds[id];
 };
 
+function augmentConsole(console, method) {
+  return function(...args) {
+    var pre = '\n[gadicc:hot] Accelerator (' + log.id + ')' + (currentPlugin
+      ? ' in ' + currentPlugin.name + ' (' + currentPlugin.id + '): '
+      : ': ');
+
+    if (typeof args[0] === 'string')
+      args[0] =  pre + args[0];
+    else
+      args.splice(0, 0, pre);
+
+    method.apply(console, args);
+  }
+}
+
 var meteorToolNodeModules, buildPluginContext, Fiber;
 BuildPlugin.init = function(data) {
   Fiber = data.Fiber;
@@ -171,7 +186,20 @@ BuildPlugin.init = function(data) {
 
   buildPluginContext = new vm.createContext({
     process: process,
-    console: console,
+    console: {
+      log: augmentConsole(console, console.log),
+      _log: console.log.bind(console),
+      error: augmentConsole(console, console.error),
+      warn: augmentConsole(console, console.warn),
+      info: augmentConsole(console, console.info),
+      trace: augmentConsole(console, console.trace),
+      dir: console.dir,
+      time: console.time,
+      timeEnd: console.timeEnd,
+      assert: console.assert,
+      Console: console.Console,
+      _augmented: true
+    },
 
     Promise: data.Promise,
 
@@ -195,6 +223,10 @@ BuildPlugin.init = function(data) {
    * ecmascript-runtime to run correctly.
    */
   _.extend(global, buildPluginContext);
+
+  // someone smarter than me can explain why it's necessary to do like this
+  for (let key in buildPluginContext.console)
+    global.console[key] = buildPluginContext.console[key];
 };
 
 /*

@@ -9,11 +9,12 @@ function log(...args) {
   else
     args.splice(0, 0, pre);
 
-  console.log(...args);
+  console._log(...args);
 }
 
 log.setId = function(_id) {
   id = _id;
+  log.id = _id;
 }
 
 function debug(...args) {

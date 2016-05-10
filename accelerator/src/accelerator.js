@@ -14,6 +14,8 @@ const ACCEL_ID = process.argv[2];
 const HOT_PORT = process.argv[3];
 const meteorToolPath = process.argv[4];
 
+log.setId(ACCEL_ID);
+
 /* Node_modules we can get from Meteor, notably, binary deps */
 
 const meteorToolNodeModules = path.join(
@@ -43,11 +45,9 @@ const packageJson = require('../package.json');
 const packageVersion = packageJson.version;
 const packageVersionParts = packageVersion.split('.').map(Number);
 
-log.setId(ACCEL_ID);
-
 process.env.INSIDE_ACCELERATOR = true;
 
-console.log('=> Starting gadicc:hot-build Accelerator (' + ACCEL_ID
+console._log('=> Starting gadicc:hot-build Accelerator (' + ACCEL_ID
   + ') on port ' + HOT_PORT + '.\n');
 
 const server = http.createServer(function (req, res) {
@@ -175,10 +175,12 @@ handlers.close = function() {
 const initQueue = {};
 handlers.PLUGIN_INIT = function({id, name, path}) {
   // During devel the package might still be building itself at init time.
-  if (path.match(/local/))
+  if (path.match(/local/)) {
+    debug(`Queuing local ${name} (${id}) until use to ensure it's fully loaded`);
     initQueue[id] = {id, name, path};
-  else
+  } else {
     new BuildPlugin(id, name, path, addJavaScript);
+  }
 }
 
 handlers.setDiskCacheDirectory = function({dir}, plugin) {

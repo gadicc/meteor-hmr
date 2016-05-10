@@ -53,7 +53,10 @@ class FakeFile {
   }
 
   error(error) {
-    log(error);
+    log("Error while compiling "
+      + (this.data.packageName ? '['+this.data.packageName+']/' : '')
+      + this.data.pathInPackage,
+      error);
   }
 }
 
