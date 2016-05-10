@@ -181,7 +181,6 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
   var data = {};
   var self = this;
 
-  this.sentFiles = {};
   inputFiles.forEach(function(inputFile) {
     var file;
     if (inputFile.getArch() === "web.browser") {
