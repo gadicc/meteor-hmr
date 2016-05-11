@@ -8,8 +8,6 @@ if (process.env.INSIDE_ACCELERATOR
     || process.argv.indexOf('test-packages') !== -1)
   return;
 
-console.log(process.argv);
-
 var current;
 var Fiber = Npm.require('fibers');
 new Fiber(function() {
