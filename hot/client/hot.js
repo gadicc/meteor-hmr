@@ -53,7 +53,15 @@ function requirersUntil(file, func, parentId, chain, tried) {
   // Crude check to avoid circular deps
   if (!tried)
     tried = [];
-  if (tried.indexOf(file.m.id) !== -1) {
+  /*
+   * Consider colors.js changed, with
+   *   colors.js > App.jsx (accepts colors.js)
+   *   colors.js > App.jsx > index.jsx (accepts App.jsx)
+   * It's legitimate for a module to have been evaluated twice, e.g. App.jsx.
+   * So we actually need to check if we've tried moduleId+parentId before.
+   */
+  let check = file.m.id + ":" + parentId;
+  if (tried.indexOf(check) !== -1) {
     console.info('[gadicc:hot] Aborting circular dependency, no relevant '
       + 'hot.accept() in ' + chain + '.  Need to reload.');
     hot.failedOnce = true;
