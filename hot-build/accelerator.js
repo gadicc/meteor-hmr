@@ -8,8 +8,8 @@ if (process.env.APP_ID)
 // Don't load the accelerator in these circumstances
 if (process.env.INSIDE_ACCELERATOR
     || process.env.NODE_ENV==='production'
-    || process.argv[2] === 'test'
-    || process.argv[2] === 'test-packages')
+    || process.argv.indexOf('test') !== -1
+    || process.argv.indexOf('test-packages') !== -1)
   return;
 
 var fs = Npm.require('fs');
