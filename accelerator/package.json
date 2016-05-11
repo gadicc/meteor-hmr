@@ -1,7 +1,7 @@
 {
   "name": "meteor-hotload-accelerator",
   "//version": "updating version?  set hot-build/accelerator requiredVersion!",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "Used by gadicc:ecmascript-hot meteor package",
   "main": "lib/index.js",
   "scripts": {

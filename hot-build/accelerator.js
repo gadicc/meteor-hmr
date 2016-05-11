@@ -1,5 +1,5 @@
 // keep in sync with accelerator/package.json
-var requiredAcceleratorVersion = '1.0.10';
+var requiredAcceleratorVersion = '1.0.11';
 
 // Never run as a server package (only as a build plugin)
 if (process.env.APP_ID)
