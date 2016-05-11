@@ -203,5 +203,6 @@ mergeBabelrcOptions = function(options, inputFile) {
  * section, with options to 1) not change anything, 2) explicitly set to the
  * desired setting, e.g. "testing" instead of "production".
  */
-if (process.argv[2] === 'test' || process.argv[2] === 'test-packages')
+if (process.argv.indexOf('test') !== -1
+    || process.argv.indexOf('test-packages') !== -1)
   process.env.BABEL_ENV = 'production';

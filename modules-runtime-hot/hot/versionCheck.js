@@ -1,6 +1,13 @@
 var packageName = 'modules-runtime';
 var supported = new PackageVersion('0.6.3');
 
+// Avoid version check in these circumstances
+if (process.env.INSIDE_ACCELERATOR
+    || process.env.NODE_ENV==='production'
+    || process.argv.indexOf('test') !== -1
+    || process.argv.indexOf('test-packages') !== -1)
+  return;
+
 var current = new PackageVersion(
   MeteorFilesHelpers.getPackageVersion(packageName)
 );
