@@ -259,6 +259,8 @@ function processChanges() {
       addInputFile(inputFile, pluginId);
     });
   }
+
+  changeQueue = {};
 }
 
 /* debounce */
