@@ -31,11 +31,11 @@ Package.onUse(function(api) {
   api.mainModule('hot-server.js', 'server');
 });
 
-/*
 Package.onTest(function(api) {
   api.use('ecmascript');
-  api.use('tinytest');
-  api.use('hot');
-  api.addFiles('hot-tests.js');
+  api.use('http', 'server');
+  api.use('gadicc:hot', 'client');
+//  api.use('pete:jsdom@0.0.2', 'server');
+  api.use('practicalmeteor:mocha@2.4.5_1');
+  api.addFiles('hot-tests.js', 'server');
 });
-*/

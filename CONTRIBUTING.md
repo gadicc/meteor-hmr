@@ -47,6 +47,15 @@ You can also set up to HOT_DEBUG=5 for higher verbosity.
 
 See the [accelerator/README.md](accelerator/README.md).
 
+## Testing
+
+Currently there are only some limited tests in `gadicc:hot`:
+
+```sh
+$ cd demo
+$ meteor -p 5003 test-packages --driver-package practicalmeteor:mocha gadicc:hot
+```
+
 ## Styling / linting
 
 Coming soon :)
