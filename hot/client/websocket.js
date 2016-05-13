@@ -1,4 +1,10 @@
 var port = Meteor.settings.public.HOT_PORT;
+if (!port) {
+  // handy for tests, etc.
+  console.warn('[gadicc:hot] Invalid port "'+port+'", not connecting...');
+  return;
+}
+
 var wsUrl = 'ws://' + location.hostname + ':' + port + '/';
 var serverBase = 'http://' + location.hostname + ':' + port + '/hot.js?hash=';
 
