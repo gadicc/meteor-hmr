@@ -33,6 +33,31 @@ function fetchWithoutExt(id, where) {
       return where[newId];
   }
 
+  let match;
+  if ((match = id.match(/^(\/node_modules\/[^\/]+)/))) {
+    let packageId = match[1];
+    let packageJson = require(packageId + '/package.json');
+    let main = packageJson.browser || packageJson.main;
+    if (main.charAt(0) === '.')
+      main = resolvePath(packageId+'/package.json', main);
+    else
+      main = packageId+'/'+main;
+
+    // if the "main" file matches the current id (after trying with extensions
+    // and /index(ext), then check for /node_modules/packageName in "where").
+    for (let ext of extensions) {
+      if (id === main+ext && where[packageId])
+        return where[packageId];
+      if (id === main+'/index'+ext && where[packageId])
+        return where[packageId];
+    }
+    // in modulesRequiringMe
+    //   hot.modulesRequiringMe['/node_modules/hot-test'] == ["/client/index.jsx"]
+    // in _acceptedDepednencies
+    //   hot.allModules['/client/index.jsx'].m.hot._acceptedDependencies
+    //     = { "/node_modules/hot-test": function () }
+  }
+
   return null;
 }
 
@@ -96,6 +121,18 @@ function logAndFail(message, err) {
   return true;
 }
 
+function forceEvalOnNextRequire(file) {
+  // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
+  delete file.m.exports; // re-force install.js fileEvaluate()
+
+  // since benjamn/install 0.6.2
+  // https://github.com/benjamn/install/commit/de70c43d873e03490e0110140e3b1ea57ba8549f
+  if (file.m.loaded)
+    file.m.loaded = false;
+  // any repercussions for
+  // https://github.com/benjamn/install/commit/aebd65a5f7dc5fda4cccb884d6e5070bf4a81a11#diff-f16acefe4b6553580c43edab685f50f3R182
+}
+
 /*
  * Like meteorInstall, called with every bundled tree from hot.js.
  * Patch existing install.js root, delete eval'd exports up to a module
@@ -108,7 +145,7 @@ const meteorInstallHot = function(tree) {
 
   // First, patch changed modules
   var moduleNames = [];
-  walkFileTree(hot.root, tree, function(file, moduleCodeArray) {
+  walkFileTree(hot.root, tree, function moduleReplacer(file, moduleCodeArray) {
     moduleNames.push(file.m.id);
     // console.debug('[gadicc:hot] Replacing contents of ' + file.m.id);
     file.c = moduleCodeArray[moduleCodeArray.length-1];
@@ -139,6 +176,8 @@ const meteorInstallHot = function(tree) {
 
       if (mhot._selfAccepted) {
         // console.debug('[gadicc:hot] ' + file.m.id + ' can self accept');
+
+        forceEvalOnNextRequire(file);
 
         try {
 
@@ -176,16 +215,9 @@ const meteorInstallHot = function(tree) {
       } else {
 
         // console.debug(file.m.id + ' cannot self-accept or accept ' + parentId);
-        
-        // console.debug('[gadicc:hot] deleting exports for ' + file.m.id);
-        delete file.m.exports; // re-force install.js fileEvaluate()
 
-        // since benjamn/install 0.6.2
-        // https://github.com/benjamn/install/commit/de70c43d873e03490e0110140e3b1ea57ba8549f
-        if (file.m.loaded)
-          file.m.loaded = false;
-        // any repercussions for
-        // https://github.com/benjamn/install/commit/aebd65a5f7dc5fda4cccb884d6e5070bf4a81a11#diff-f16acefe4b6553580c43edab685f50f3R182
+        forceEvalOnNextRequire(file);
+        
       }
 
     });

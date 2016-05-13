@@ -55,6 +55,14 @@ function resolvePath(moduleId, origRequirePath) {
  */
 function walkFileTree(root, tree, func, oldRoot) {
   for (var key in tree) {
+    /*
+     * tree[key] could be
+     *
+     *   1) ['dep1', 'dep2', function]
+     *   2) function
+     *   3) { 'child1.js1': ..., 'child2.js': ... }
+     *
+     */
     if (_.isArray(tree[key])) {
       if (!root) {
         console.log('[gadicc:hot] no root for', key);
@@ -65,7 +73,8 @@ function walkFileTree(root, tree, func, oldRoot) {
           'issue with a link to a github repo and steps to reproduce.');
       }
       func(root.c[key], tree[key]);
-    }
+    } else if (typeof tree[key] === 'function')
+      func(root.c[key], [tree[key]]);
     else 
       walkFileTree(root.c[key], tree[key], func, root);
   }
