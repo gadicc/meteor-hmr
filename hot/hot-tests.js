@@ -34,6 +34,9 @@ const packages = [
   'ecmascript-runtime',
   fakeAutoUpdate,
   'gadicc_hot',
+  new vm.Script(`
+    var meteorInstall = Package['modules-runtime'].meteorInstall;
+  `, 'setupMeteorInstall.js')
 ];
 
 const meteorRuntimeConfig = new vm.Script(`
@@ -76,14 +79,14 @@ const contextBase = {
     }
   },
   setTimeout: global.setTimeout,
-  Package: global.Package,
+  Package: global.Package
 };
 
 class Sandbox {
   constructor() {
     this.context = new vm.createContext(contextBase);
+    this.exec('window = this; global = this;');
 
-    this.exec('window = this');
     meteorRuntimeConfig.runInContext(this.context);
 
     for (let pkg of packages)
@@ -104,39 +107,153 @@ class Sandbox {
   }
 }
 
+describe('a', () => {
+  console.log(4);
+  it('passes', () => {
+    console.log(5);
+  });
+});
+
 describe('meteorInstallHot', () => {
+
+  it('fails if no relevant hot.accept() found', () => {
+    const s = new Sandbox();
+    s.exec(`
+      var require = meteorInstall({
+        client: {
+          "noHotAccept.js": function(require, exports, module) {
+            exports.testValue = 1;
+          }
+        }
+      });
+      require('/client/noHotAccept.js').testValue;
+    `, 'noHotAccept1.js').should.equal(1);  // it loads properly
+
+    s.exec(`
+      meteorInstallHot({
+        client: {
+          "noHotAccept.js": [function(require, exports, module) {
+          }]
+        }
+      });
+      hot.failedOnce;
+   `, 'noHotAccept2.js').should.equal(true); // No relevant hot.accept() found
+  });
+
+  it('can self accept', () => {
+    const s = new Sandbox();
+    s.exec(`
+      var testValue;
+      var require = meteorInstall({
+        client: {
+          "selfAcceptTest.js": function(require, exports, module) {
+            module.hot.accept();
+            testValue = 1;
+          }
+        }
+      });
+      require('/client/selfAcceptTest.js');
+      testValue;
+   `, 'selfAcceptTest1.js').should.equal(1);
+
+    s.exec(`
+      meteorInstallHot({
+        client: {
+          "selfAcceptTest.js": [function(require, exports, module) {
+            testValue = 2;
+          }]
+        }
+      });
+      testValue;
+   `, 'selfAcceptTest1.js').should.equal(2);
+
+    s.exec('hot.failedOnce').should.be.false;
+  });
 
   it('replaces the exports of an existing module', () => {
     const s = new Sandbox();
     s.exec(`
-      var meteorInstall = Package['modules-runtime'].meteorInstall;
-
+      var testValue;
       var require = meteorInstall({
         client: {
-          "test1.js": function(require, exports, module) {
-            exports.test = 1;
-          }
+          "test2.js": function(require, exports, module) {
+            exports.testValue = 1;
+          },
+          "test1.js": ['./test2.js', function(require, exports, module) {
+            testValue = require('./test2.js').testValue;
+            module.hot.accept('./test2.js', function() {
+              testValue = require('./test2.js').testValue;
+            });
+          }]
         }
       });
 
-      require('/client/test1.js').test;
+      require('/client/test1.js');
+      testValue;
     `, 'replacesExportsSetup.js').should.equal(1);
 
     
     s.exec(`
       meteorInstallHot({
         client: {
-          "test1.js": [function(require, exports, module) {
-            exports.test = 2;
-          }]
+          "test2.js": function(require, exports, module) {
+            exports.testValue = 2;
+          }
         }
       });
 
-      require('/client/test1.js').test;
+      testValue;
     `, 'replacesExportsTest.js').should.equal(2);
 
-    // No relevant hot.accept() in /client/test1.js.
-    s.exec('hot.failedOnce').should.be.true;
+    s.exec('hot.failedOnce').should.be.false;
+  });
+
+  it('works with accept("package") and update "package/main.js"', () => {
+    const s = new Sandbox();
+    s.exec(`
+      var testValue;
+
+      var require = meteorInstall({
+        client: {
+          "app.js": function(require, exports, module) {
+            testValue = require('hot-test').test;
+            module.hot.accept('hot-test', function() {
+              testValue = require('hot-test').test;
+            });
+          }
+        },
+        node_modules: {
+          "hot-test": {
+            "package.json": function(require, exports) {
+              exports.main = "./main.js";
+            },
+            "main.js": function(require, exports) {
+              exports.test = 1;
+            }
+          }
+        }
+      });
+
+      require('/client/app.js');
+      testValue;
+    `, 'nodeModuleSetup.js').should.equal(1);
+
+    
+    s.exec(`
+      meteorInstallHot({
+        node_modules: {
+          "hot-test": {
+            "main.js": function(require, exports) {
+              exports.test = 2;
+            }
+          }
+        }
+      });
+
+      testValue;
+    `, 'nodeModuleTest.js').should.equal(2);
+
+    s.exec('hot.failedOnce').should.be.false;
   });
 
 });

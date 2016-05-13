@@ -36,6 +36,6 @@ Package.onTest(function(api) {
   api.use('http', 'server');
   api.use('gadicc:hot', 'client');
 //  api.use('pete:jsdom@0.0.2', 'server');
-  api.use('practicalmeteor:mocha@2.4.5_1');
+  api.use('practicalmeteor:mocha@2.4.5_2');
   api.addFiles('hot-tests.js', 'server');
 });
