@@ -1,5 +1,7 @@
 # vNEXT
 
+# v2.0.0 (rc)
+
 * Please see the [Upgrading](docs/Upgrading.md) docs.
 
 * Major refactor and support for arbitrary build plugins.  Plugin authors
@@ -11,14 +13,27 @@
 
 * Removed all transformStateless code, new react hotloader doesn't need it.
 
-* Like in `fast.14`, we now have *basic* HMR support for non-react hotloaders.
-  We provide a partial `hot.accept()` implementation only, and only on the
-  client, for now.
+* Like in `fast.14`, we now have HMR support for non-react hotloaders.
+  It's not as full an implementation as Webpack, but covers all the most
+  common cases.
 
 * Windows fixes for bugs since `fast` branches.  Massive thanks to
   @Vincent-P who worked with me closely in solving these issues and helped
   get this release working for other Windows users weeks earlier.
   (#41, #56, #58)
+
+* Fixed a bug where if we didn't connect to the accelerator first time,
+  we just silently gave up.  Thanks to @priezz who spent 2 days with me
+  on this.
+
+* We now correctly handle "safe" (atomic) writes by text editors.
+  Thanks to @jbbr who helped with this.
+
+Additional massive thanks to @clayne11 who persevered through various bugs,
+helped hunt them down, tested quite possibly every single interim release,
+and assisted other users with their issues so I could focus on code.
+
+A list of various smaller bugfixes and enhancements can be found [here](https://github.com/gadicc/meteor-hmr/compare/b6f1769bcb66a73200dc70a70f249e90d21e1e49...master).
 
 # 1.3.2-fast.14 (2016-04-20)
 
