@@ -36,18 +36,11 @@ function findNodeModuleSymlinks(callback) {
   });
 }
 
-/*
- * 1. Watch the 'src' versions of the files, and run babel when they
- *    are updated.  (TODO, run babel from inside node!  much quicker)
- *
- * 1. Call hot.processFilesForTarget locally (inside Meteor) with all
- *    'lib' versions of the files, so the accelerator will watch them.
- *
- */
+// What to do with relevant packages
 function handleModule(symlink, realpath) {
   // Run babel for any changed files
   var onChange = _.debounce(function onChange(realpath, file, event) {
-    console.log(realpath, file, event);
+    // console.log(realpath, file, event);
     if (event !== 'change') return;
     var bin = path.join(realpath, 'node_modules', '.bin', 'babel');
     var args = [
@@ -55,17 +48,22 @@ function handleModule(symlink, realpath) {
       path.join(file.replace(/\/src\//, '/lib/')),
       file
     ];
-    console.log(bin, args);
+    // console.log(bin, args);
     child_process.spawn(bin, args, { cwd: realpath });
   }, 5);
 
+  // Watch the 'src' versions of the files, and run babel when they
+  // are updated.  (TODO, run babel from inside node!  much quicker)
   recursive(path.join(realpath, 'src'), function(err, files) {
     _.each(files, function(file) {
-      console.log('watch', file);
+      // console.log('watch', file);
       PathWatcher.watch(file, onChange.bind(null, realpath, file));
     });
   });
 
+  // Call hot.processFilesForTarget locally (inside Meteor) with all
+  // 'lib' versions of the files, so the accelerator will watch them.
+  if (hot.processFilesForTarget)
   recursive(path.join(symlink, 'lib'), function(err, files) {
     hot.processFilesForTarget(
       _.map(files, function(file) {
