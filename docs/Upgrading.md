@@ -17,7 +17,8 @@ there.
 
 ### Add the new setup
 
-1. `npm install --save-dev react-hot-loader@^3.0.0-alpha.12` (check latest release)
+1. `npm install --save react-hot-loader@^3.0.0-beta.2` (check latest release)
+1. `npm install --save redbox-react`
 1. In your *project root* `.babelrc`, make sure you have `{ "plugins": ["react-hot-loader/babel"] }`.
 1. Modify your main client entry point / wherever you mount your root to resemble:
 

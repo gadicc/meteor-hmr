@@ -20,7 +20,9 @@ Note: if you're trying a non-stable release, you need to explicitly provide the 
 
 Then follow these React Hotloader specific steps:
 
-1. In your project root, `npm install --save-dev react-hot-loader@^3.0.0-beta.2 redbox-react` (check for the latest version of react-hot-loader)
+1. In your project root:
+  1. `npm install --save react-hot-loader@^3.0.0-beta.2` (check for the latest version of react-hot-loader)
+  1. `npm install --save-dev redbox-react`
 1. See the [babelrc docs](./babelrc.md) if `.babelrc` support is new for you.  Make sure
 your *project root* `.babelrc` has at least the following (there's an example at the end of this file):
 
