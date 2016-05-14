@@ -31,7 +31,7 @@ Hotloading is provided on a *per-build-plugin* basis.  We provide a replacement
 
 If you're trying a non-stable release, you need to explicitly provide the `@version` (or `@=version` if it's not picked up correctly) in the second step.
 
-Note, your code needs to be hot-module-replacement (HMR) aware.  For instuctions on how to add hot loading for React, please see the [React Hotloading](docs/React_Hotloading.md) docs.  For general instructions, see the [Handling Updates](docs/Handling_Updates.md).  If you're a build-plugin author, see the [Build Plugin docs](docs/Build_Plugins.md).
+Note, your code needs to be hot-module-replacement (HMR) aware.  For instuctions on how to add hot loading for React, please see the [React Hotloading](docs/React_Hotloading.md) docs.  For general instructions, see the [Handling Updates](docs/Handling_Updates.md).  If you're a build-plugin author, see the [Build Plugin docs](docs/Build_Plugins.md).  Other build plugins HMR support are list below:
 
 Other Notes:
 
@@ -40,6 +40,13 @@ Meteor's port + 2 (i.e., right after mongo), but you can override it with the
 `HOT_PORT` environment variable.
 
 1. For Mantra style apps, skim over the React Hotloading docs above and then read [this diff](https://github.com/gadicc/mantra-sample-blog-app-hot/compare/master...gadicc:hot) for an example on how to add hotloading to the `mantra-sample-blog-app` (or just clone the repo).  You may also find more info in [#60](https://github.com/gadicc/meteor-hmr/issues/60).
+
+## List of HMR-aware Build Plugins
+
+* `gadicc:ecmascript-hot` - `.js` and `.jsx` files (core, part of this project)
+* `gadicc:node-modules-hot` - compilation & hot updates of local node-modules (core, see [docs](docs/Node_Modules_Hot.md))
+
+Build plugin authors, please submit a PR to add your HMR-aware build plugin to this list.  For more info, see the [Build Plugin docs](docs/Build_Plugins.md).
 
 ## Where this works and doesn't work
 
