@@ -45,6 +45,8 @@ function fetchWithoutExt(id, where) {
 
     // if the "main" file matches the current id (after trying with extensions
     // and /index(ext), then check for /node_modules/packageName in "where").
+    if (id === main && where[packageId])
+      return where[packageId];
     for (let ext of extensions) {
       if (id === main+ext && where[packageId])
         return where[packageId];

@@ -56,6 +56,10 @@ $ cd demo
 $ meteor -p 5003 test-packages --driver-package practicalmeteor:mocha gadicc:hot
 ```
 
+Note: although all the tests being run are "server" tests, we're just running
+the code thats shipped to the client in isolated test sendboxes on the server.
+Console output will be on the server.
+
 ## Styling / linting
 
 Coming soon :)

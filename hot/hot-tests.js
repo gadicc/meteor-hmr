@@ -107,13 +107,6 @@ class Sandbox {
   }
 }
 
-describe('a', () => {
-  console.log(4);
-  it('passes', () => {
-    console.log(5);
-  });
-});
-
 describe('meteorInstallHot', () => {
 
   it('fails if no relevant hot.accept() found', () => {
@@ -170,7 +163,7 @@ describe('meteorInstallHot', () => {
     s.exec('hot.failedOnce').should.be.false;
   });
 
-  it('replaces the exports of an existing module', () => {
+  it('can accept a dep and receives new exports', () => {
     const s = new Sandbox();
     s.exec(`
       var testValue;
@@ -208,24 +201,77 @@ describe('meteorInstallHot', () => {
     s.exec('hot.failedOnce').should.be.false;
   });
 
-  it('works with accept("package") and update "package/main.js"', () => {
+  // hot.accept("hot-test") and update "hot-test/lib/index.js"
+  it('node_modules with { main: "./lib" }', () => {
     const s = new Sandbox();
     s.exec(`
       var testValue;
 
       var require = meteorInstall({
         client: {
-          "app.js": function(require, exports, module) {
+          "app.js": ['hot-test', function(require, exports, module) {
             testValue = require('hot-test').test;
             module.hot.accept('hot-test', function() {
               testValue = require('hot-test').test;
             });
-          }
+          }]
         },
         node_modules: {
           "hot-test": {
             "package.json": function(require, exports) {
-              exports.main = "./main.js";
+              exports.main = "./lib";
+            },
+            lib: {
+              "index.js": function(require, exports) {
+                exports.test = 1;
+              }
+            }
+          }
+        }
+      });
+
+      require('/client/app.js');
+      testValue;
+    `, 'nodeModuleSetup.js').should.equal(1);
+
+    
+    s.exec(`
+      meteorInstallHot({
+        node_modules: {
+          "hot-test": {
+            lib: {
+              "index.js": function(require, exports) {
+                exports.test = 2;
+              }
+            }
+          }
+        }
+      });
+
+      testValue;
+    `, 'nodeModuleTest.js').should.equal(2);
+
+    s.exec('hot.failedOnce').should.be.false;
+  });
+
+  it('node_modules with { main: "main.js" } (in root directory)', () => {
+    const s = new Sandbox();
+    s.exec(`
+      var testValue;
+
+      var require = meteorInstall({
+        client: {
+          "app.js": ['hot-test', function(require, exports, module) {
+            testValue = require('hot-test').test;
+            module.hot.accept('hot-test', function() {
+              testValue = require('hot-test').test;
+            });
+          }]
+        },
+        node_modules: {
+          "hot-test": {
+            "package.json": function(require, exports) {
+              exports.main = "main.js";
             },
             "main.js": function(require, exports) {
               exports.test = 1;
