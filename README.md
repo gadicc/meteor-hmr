@@ -65,7 +65,19 @@ a browser refresh regardless... we can't help with that.
 
 ## Settings (in package.json)
 
-Not relevant for newer versions.  Please remove this section.
+Hotloading is disabled by default for packages that *can* be hot loaded, unless the package explicitly forces hotloading, like `ecmascript-hot` and `node-modules-hot` which should simply be removed to disable hotloading.  You can enable hotloading for other packages as follows:
+
+```js
+{
+  // Besides for "-hot" packages which are always enabled,
+  // enable hotloading for all other packages that support it.
+  "enabled": true
+  // Or, we can specify an array of names
+  "enabled": [ "author:packageName", "etc" ]
+}
+```
+
+Please note that the old `ecmascript-hot` section is no longer used and should be removed.
 
 ## Packages
 

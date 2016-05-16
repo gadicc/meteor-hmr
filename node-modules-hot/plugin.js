@@ -9,7 +9,7 @@ var Mode = Npm.require('stat-mode');
 var PathWatcher = Npm.require('pathwatcher');
 
 // This *must* match the name of your package
-var hot = new Hot('gadicc:node-modules-hot/node-modules-hot');
+var hot = new Hot('gadicc:node-modules-hot/node-modules-hot', true);
 var projRoot = MeteorFilesHelpers.getAppPath();
 var nodeModules = path.join(projRoot, 'node_modules');
 

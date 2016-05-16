@@ -16,6 +16,8 @@ Package.onUse(function(api) {
 
   api.use('random', 'server');
   api.use('underscore', 'server');
+  api.use('gadicc:package-json@1.0.2', 'server');
+
   api.addFiles([
     'log.js',
     'hot-server.js',

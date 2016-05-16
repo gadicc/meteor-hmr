@@ -38,6 +38,22 @@ if (projRoot === tmp) {
     throw new Error("Are you running inside a Meteor project dir?");
 }
 
+var pkgConfig = packageJson.getPackageConfig('gadicc:hot-build', false
+  /*
+    we can do this eventually, but need a way to disable a plugin in the
+    accelerator
+  function (prev, next) {
+    if (JSON.stringify(prev.enabled) !== JSON.stringify(next.enabled)) {
+      enabled = next.enabled;
+      Hot.setEnabledStatuses();
+    }
+
+    return true;
+  }
+  */
+);
+var enabled = pkgConfig.enabled;
+
 function loadVersions() {
   var versionsRaw = fs.readFileSync(
     path.join(projRoot, '.meteor', 'versions'), 'utf8'
@@ -107,12 +123,22 @@ function getPluginPath(name) {
 }
 
 const instances = [];
-Hot = function(plugin) {
+Hot = function(plugin, forceEnabled) {
   this.id = Random.id(3);
   this.plugin = plugin;
 
   this.sentFiles = {};
   this.pluginInits = [];
+
+  instances.push(this);
+
+  this.forceEnabled = forceEnabled;
+  this.setEnabledStatus();
+  if (!this.enabled) {
+    // TODO, for live status change, we need to see if we've initted before
+    // and send the data if the status changes.  possibly move code to setStatus.
+    return;
+  }
 
   var pluginPath = getPluginPath(plugin);
   if (!pluginPath) {
@@ -130,7 +156,6 @@ Hot = function(plugin) {
   this.send(data);
   this.pluginInits.push(data);
 
-  instances.push(this);
 };
 
 Hot.onReconnect = function() {
@@ -145,6 +170,27 @@ Hot.onReconnect = function() {
         files: hot.sentFiles
       });
   });
+};
+
+Hot.setEnabledStatuses = function() {
+  instances.forEach(function(hot) {
+    hot.setEnabledStatus();
+  });
+};
+
+Hot.prototype.setEnabledStatus = function() {
+  var oldState = this.enabled;
+
+  if (this.forceEnabled || enabled === true || enabled === undefined)
+    this.enabled = true;
+  else if (_.isArray(enabled))
+    this.enabled = _.contains(enabled, this.plugin.replace(/\/.+$/, ''));
+  else
+    this.enabled = false;
+
+  if (oldState !== this.enabled) {
+    debug('Plugin "' + this.plugin + '" enabled: ' + this.enabled);
+  }
 };
 
 Hot.prototype.wrap = function(compiler) {

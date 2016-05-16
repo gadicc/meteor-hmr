@@ -1,7 +1,7 @@
 var crypto = Npm.require('crypto');
 
 // This *must* match the name of your package
-var hot = new Hot('gadicc:ecmascript-hot/compile-ecmascript-hot');
+var hot = new Hot('gadicc:ecmascript-hot/compile-ecmascript-hot', true);
 
 Plugin.registerCompiler({
   extensions: ['js', 'jsx'],
