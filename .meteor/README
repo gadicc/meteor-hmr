@@ -1,0 +1,1 @@
+Fake .meteor dir to make publishing easier (for findAppDir() checks etc)

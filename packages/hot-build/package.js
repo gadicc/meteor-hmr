@@ -1,6 +1,6 @@
 Package.describe({
   name: 'gadicc:hot-build',
-  version: '2.0.0-rc.0',
+  version: '2.0.0-beta.0',
   summary: 'React hotloading, used by gadicc:ecmascript-hot.',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: '../README.md'
@@ -8,7 +8,7 @@ Package.describe({
 
 Npm.depends({
   // 'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator',
-  'meteor-hotload-accelerator': '1.0.11'
+  'meteor-hotload-accelerator': '1.0.12'
 });
 
 Package.onUse(function(api) {

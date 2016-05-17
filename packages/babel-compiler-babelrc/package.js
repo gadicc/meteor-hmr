@@ -4,7 +4,7 @@ Package.describe({
   // ecmacsript-hot.  Unfortunately no SEMVER with _wrapped packages.
   name: "gadicc:babel-compiler-babelrc",
   // version: '6.6.4'    // core version, KEEP UPDATED
-  version: '6.6.4_3',
+  version: '6.6.4_4',
   summary: 'babel-compiler with babelrc support',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: 'README.md'
@@ -19,6 +19,7 @@ Npm.depends({
 });
 
 Package.onUse(function (api) {
+  api.versionsFrom('1.3.2');
   api.use('tmeasday:check-npm-versions@0.3.1', 'server');
 
   api.addFiles([

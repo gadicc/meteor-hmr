@@ -2,8 +2,6 @@
 
 WIP to help develop local node_modules in a Meteor project.
 
-Note, I don't have time to maintain this.  If you have problems, hopefully you're in a position to fix them yourself and submit a PR so everyone benefits :D
-
 ## The problem
 
 1. Local node modules have their own babel setup.
@@ -22,13 +20,7 @@ Note, I don't have time to maintain this.  If you have problems, hopefully you'r
   1. local babel installed as a devDependency for the package
   1. `src` (input) and `lib` (output) directories
 1. `npm run compile` has been run at least once before so the output paths all already exist.
-1. You need to import the "main" file explicitly (for now), i.e.
-   ```js
-   // wrong
-   import something from 'hot-test';
-   module.hot.accept('hot-test', ...);
 
-   // right
-   import something from 'hot-test/lib/index.js';
-   module.hot.accept('hot-test/lib/index.js', ...);
-   ```
+In general you want a layout like http://jamesknelson.com/writing-npm-packages-with-es6-using-the-babel-6-cli/ but using a `.babelrc` instead of specifying options on the script command line.
+
+See also https://github.com/gadicc/meteor-hmr/blob/master/docs/Node_Modules_Hot.md.

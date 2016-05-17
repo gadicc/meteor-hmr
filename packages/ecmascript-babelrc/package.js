@@ -1,6 +1,6 @@
 Package.describe({
   name: 'gadicc:ecmascript-babelrc',
-  version: '0.4.3_1',
+  version: '0.4.3_2',
   summary: 'Compiler plugin that supports ES2015+ in all .js files',
   documentation: 'README.md'
 });
@@ -14,7 +14,7 @@ Package.registerBuildPlugin({
 Package.onUse(function (api) {
   api.versionsFrom('1.3.2');
   api.use('isobuild:compiler-plugin@1.0.0');
-  api.use('gadicc:babel-compiler-babelrc@6.6.4_1');
+  api.use('gadicc:babel-compiler-babelrc@6.6.4_4');
 
   api.imply('modules');
   api.imply('ecmascript-runtime');
