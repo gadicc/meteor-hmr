@@ -26,9 +26,7 @@
     "react-hot-loader": "^3.0.0-alpha.12",
     "ws": "^1.0.1"
   },
-  "ecmascript-hot": {
-    "transformStateless": {
-      "pathMatch": "NOMATCH"
-    }
+  "gadicc:hot-build": {
+    "//enabled": [ "gadicc:node-modules-hot" ]
   }
 }

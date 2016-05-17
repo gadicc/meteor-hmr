@@ -22,3 +22,4 @@ standard-minifier-css
 standard-minifier-js
 practicalmeteor:mocha
 hot-package-example
+gadicc:node-modules-hot

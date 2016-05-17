@@ -31,7 +31,7 @@ Meteor.startup(function() {
 import { NICE } from './colors';
 console.log('orig NICE', NICE);
 if (module.hot)
-module.hot.accept('./colors.js', function() {
+module.hot.accept('./colors', function() {
   console.log('new NICE', require('./colors').NICE);
 });
 
@@ -42,7 +42,7 @@ module.hot.accept('meteor/hot-package-example', function() {
   console.log('new something: ', require('meteor/hot-package-example').something);
 });
 
-import { something as otherSomething } from 'hot-test/lib/index.js';
+import { something as otherSomething } from 'hot-test';
 console.log('hot-test: ' + otherSomething);
 
 if (module.hot) {
@@ -58,8 +58,8 @@ if (module.hot) {
     const Both = require('../both/hello').default;
     render(<AppContainer component={Both} />, document.getElementById('root3'));
   });
-  module.hot.accept('hot-test/lib/index.js', () => {
-    const nextHotTest = require('hot-test/lib/index.js');
+  module.hot.accept('hot-test', () => {
+    const nextHotTest = require('hot-test');
     console.log('hot-test:' + nextHotTest.something);
   });
 }
