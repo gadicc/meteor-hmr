@@ -1,6 +1,6 @@
 Package.describe({
   name: 'gadicc:hot-build',
-  version: '2.0.0-beta.1',
+  version: '2.0.0-beta.3',
   summary: 'HMR for use by meteor build plugins',
   git: 'https://github.com/gadicc/meteor-hmr',
   documentation: '../../README.md'
@@ -16,7 +16,7 @@ Package.onUse(function(api) {
 
   api.use('random', 'server');
   api.use('underscore', 'server');
-  api.use('gadicc:package-json@1.0.2', 'server');
+  api.use('gadicc:package-json@1.0.4', 'server');
 
   api.addFiles([
     'log.js',

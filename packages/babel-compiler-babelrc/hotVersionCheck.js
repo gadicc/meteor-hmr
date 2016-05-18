@@ -5,7 +5,8 @@ var supported = new PackageVersion('6.6.4');
 if (process.env.INSIDE_ACCELERATOR
     || process.env.NODE_ENV==='production'
     || process.argv.indexOf('test') !== -1
-    || process.argv.indexOf('test-packages') !== -1)
+    || process.argv.indexOf('test-packages') !== -1
+    || Meteor.isTest)
   return;
 
 var current;
