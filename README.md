@@ -4,6 +4,8 @@
 
 **NB: This README refers to the upcoming release.  Although it's experimental, you're encouraged to try it out, since that's the direction we're going in.  More details in [#51](https://github.com/gadicc/meteor-react-hotloader/issues/51).  Otherwise, you can find the old README [here](https://github.com/gadicc/meteor-react-hotloader/blob/1352a7a0335ebeab3684ca8fdd096c2b5749da05/README.md).**
 
+**`gadicc:ecmascript-hot@2.0.0-beta.3` is the last release for Meteor 1.3.2.4; later releases and the 2.0.0 final will target Meteor 1.3.3, using Meteor's new official babelrc support, and no longer includes our own `babel-compiler-babelrc` which we no longer support**.
+
 * Edit your react components and see changes instantly, while maintaining state.
 * Catch react `render()` errors and show on your screen rather than crashing your app.
 * Add your own `.babelrc` plugins and presets, like
