@@ -27,7 +27,8 @@ function meteorRequire(module) {
 }
 
 const Fiber = meteorRequire('fibers');
-const WebSocketServer = meteorRequire('ws').Server;
+//const WebSocketServer = meteorRequire('ws').Server;
+import { Server as WebSocketServer } from 'ws';
 const PathWatcher = meteorRequire('pathwatcher');
 
 const Promise = meteorRequire('meteor-promise');

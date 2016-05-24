@@ -1,6 +1,6 @@
 Package.describe({
   name: 'gadicc:node-modules-hot',
-  version: '2.0.0-beta.3',
+  version: '2.0.0-beta.4',
   summary: 'Watching, compilation and hotloading for local node-modules',
   git: 'https://github.com/gadicc/meteor-hmr',
   documentation: 'README.md'
@@ -10,7 +10,7 @@ Package.registerBuildPlugin({
   name: 'node-modules-hot',
   use: [
     'sanjo:meteor-files-helpers@1.2.0_1',
-    'gadicc:hot-build@2.0.0-beta.3',
+    'gadicc:hot-build@2.0.0-beta.4',
     'underscore@1.0.0'
   ],
   npmDependencies: {

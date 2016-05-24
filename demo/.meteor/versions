@@ -27,9 +27,9 @@ fastclick@1.0.12-beta.0
 gadicc:babel-compiler-babelrc@6.6.4_5
 gadicc:ecmascript-hot@2.0.0-beta.4
 gadicc:hot@2.0.0-beta.1
-gadicc:hot-build@2.0.0-beta.3
+gadicc:hot-build@2.0.0-beta.4
 gadicc:modules-runtime-hot@0.6.4-beta.0
-gadicc:node-modules-hot@2.0.0-beta.3
+gadicc:node-modules-hot@2.0.0-beta.4
 gadicc:package-json@1.0.4
 geojson-utils@1.0.9-beta.0
 hot-code-push@1.0.4

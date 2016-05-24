@@ -1,7 +1,7 @@
 {
   "name": "meteor-hotload-accelerator",
   "//version": "updating version?  set hot-build/accelerator requiredVersion!",
-  "version": "1.0.12",
+  "version": "1.0.13",
   "description": "Used by gadicc:ecmascript-hot meteor package",
   "main": "lib/index.js",
   "scripts": {
@@ -19,7 +19,8 @@
   "license": "MIT",
   "dependencies": {
     "babel-runtime": "^6.6.1",
-    "lodash": "^4.11.1"
+    "lodash": "^4.11.1",
+    "ws": "^1.1.0"
   },
   "devDependencies": {
     "babel-cli": "^6.6.5",
