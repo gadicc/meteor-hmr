@@ -1,5 +1,5 @@
 var packageName = 'ecmascript';
-var supported = new PackageVersion('0.4.3');
+var supported = new PackageVersion('0.4.4');
 
 // Avoid version check in these circumstances
 if (process.env.INSIDE_ACCELERATOR

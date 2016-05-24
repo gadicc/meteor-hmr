@@ -5,14 +5,6 @@ makeInstaller = function (options) {
   // if they do not exactly match an installed module.
   var defaultExtensions = options.extensions || [".js", ".json"];
 
-  // This constructor will be used to instantiate the module objects
-  // passed to module factory functions (i.e. the third argument after
-  // require and exports).
-  var Module = options.Module || function Module(id) {
-    this.id = id;
-    this.children = [];
-  };
-
   // If defined, the options.onInstall function will be called any time
   // new modules are installed.
   var onInstall = options.onInstall;
@@ -34,15 +26,10 @@ makeInstaller = function (options) {
   // characters than Object.prototype.hasOwnProperty after minification.
   var hasOwn = {}.hasOwnProperty;
 
-  // The file object representing the root directory of the installed
-  // module tree.
-  var root = new File("/", new File("/.."));
-  var rootRequire = makeRequire(root);
-
   // Merges the given tree of directories and module factory functions
   // into the tree of installed modules and returns a require function
   // that behaves as if called from a module in the root directory.
-  function install(tree, options) {
+  var install = function install(tree, options) {
     if (isObject(tree)) {
       fileMergeContents(root, tree, options);
       if (isFunction(onInstall)) {
@@ -58,6 +45,27 @@ makeInstaller = function (options) {
       root: root
     }
   }
+
+  // This constructor will be used to instantiate the module objects
+  // passed to module factory functions (i.e. the third argument after
+  // require and exports), and is exposed as install.Module in case the
+  // caller of makeInstaller wishes to modify Module.prototype.
+  function Module(id) {
+    this.id = id;
+    this.children = [];
+  }
+
+  Module.prototype.resolve = function (id) {
+    return this.require.resolve(id);
+  };
+
+  install.Module = Module;
+
+  // The file object representing the root directory of the installed
+  // module tree.
+  // gadi, moved to after install.Module
+  var root = new File("/", new File("/.."));
+  var rootRequire = makeRequire(root);
 
   function getOwn(obj, key) {
     return hasOwn.call(obj, key) && obj[key];
@@ -98,7 +106,11 @@ makeInstaller = function (options) {
     require.resolve = function (id) {
       var f = fileResolve(file, id);
       if (f) return f.m.id;
-      throw new Error("Cannot find module '" + id + "'");
+      var error = new Error("Cannot find module '" + id + "'");
+      if (fallback && isFunction(fallback.resolve)) {
+        return fallback.resolve(id, file.m.id, error);
+      }
+      throw error;
     };
 
     return require;
@@ -126,12 +138,13 @@ makeInstaller = function (options) {
 
     // The module object for this File, which will eventually boast an
     // .exports property when/if the file is evaluated.
-    file.m = new Module(name);
+    file.m = new install.Module(name);
   }
 
   function fileEvaluate(file, parentModule) {
     var contents = file && file.c;
     var module = file.m;
+
     if (! hasOwn.call(module, "exports")) {
       if (parentModule) {
         module.parent = parentModule;
@@ -146,14 +159,21 @@ makeInstaller = function (options) {
       if (! isFunction(module.useNode) ||
           ! module.useNode()) {
         contents(
-          file.r = file.r || makeRequire(file),
+          module.require = module.require || makeRequire(file),
           module.exports = {},
           module,
           file.m.id,
           file.p.m.id
         );
       }
+
+      module.loaded = true;
     }
+
+    if (isFunction(module.runModuleSetters)) {
+      module.runModuleSetters();
+    }
+
     return module.exports;
   }
 

@@ -17,9 +17,9 @@ var hot = mhot;
 if (!Meteor.settings.public.HOT_PORT)
   return;
 
-function Module(id, parent) {
+function Module(id) {
   this.id = id;
-  this.parent = parent;
+  this.children = [];
 
   if (1 /* TODO overridable default based on Meteor.isDevelopment? */) {
     this.hot = Object.create(moduleHotProto);
@@ -27,9 +27,13 @@ function Module(id, parent) {
       this.hot[key] = _.clone(moduleHotProps[key]);
 
     this.hot._m = this;
-    this.parents = [];
+    //this.parents = [];
     //hot.modules[id] = this;
   }
+};
+
+Module.prototype.resolve = function (id) {
+  return this.require.resolve(id);
 };
 
 // https://github.com/webpack/webpack/blob/master/lib/HotModuleReplacement.runtime.js
@@ -106,16 +110,11 @@ var moduleHotProps = {
 };
 
 hot.makeInstaller = function(options) {
-  options.Module = Module; // benjamn/install < 0.7.0
-
   var origInstall = makeInstaller(options);
-
-  // https://github.com/benjamn/install/commit/b7596e43ea4870e254ebc3b5c11f0810df2bd4b3
-  origInstall.Module = Module;  // benjamn/install >= 0.7.0
 
   hot.root = origInstall._expose().root;
 
-  return function meteorInstall(tree, options) {
+  var meteorInstall = function meteorInstall(tree, options) {
     var require = origInstall.apply(this, arguments);
 
     hot.trees.push(tree);
@@ -129,5 +128,11 @@ hot.makeInstaller = function(options) {
     });
 
     return require;
-  }
+  };
+
+  // benjamn/install >= 0.7.0
+  // https://github.com/benjamn/install/commit/b7596e43ea4870e254ebc3b5c11f0810df2bd4b3
+  origInstall.Module = meteorInstall.Module = Module;
+
+  return meteorInstall;
 };

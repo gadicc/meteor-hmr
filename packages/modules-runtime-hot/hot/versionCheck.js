@@ -1,5 +1,5 @@
 var packageName = 'modules-runtime';
-var supported = new PackageVersion('0.6.3');
+var supported = new PackageVersion('0.6.4-beta.0');
 
 // Avoid version check in these circumstances
 if (process.env.INSIDE_ACCELERATOR
