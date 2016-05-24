@@ -17,10 +17,10 @@ Package.registerBuildPlugin({
 Package.onUse(function (api) {
   // hopefully covers version constaint on ecmascript
   // we can't use() this file directly else we get an extension conflict.
-  api.versionsFrom('1.3.2');
+  api.versionsFrom('1.3.3-beta.0');
 
   api.use('isobuild:compiler-plugin@1.0.0');
-  api.use('gadicc:babel-compiler-babelrc@6.6.4_5');
+  api.use('babel-compiler');
   api.use('gadicc:hot-build@2.0.0-beta.3');
 
   api.imply('modules');
