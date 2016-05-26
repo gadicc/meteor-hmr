@@ -10,7 +10,7 @@ Package.describe({
 
 Package.registerBuildPlugin({
   name: 'compile-ecmascript-hot',
-  use: ['gadicc:babel-compiler-babelrc', 'gadicc:hot-build'],
+  use: ['babel-compiler', 'gadicc:hot-build'],
   sources: ['plugin.js']
 });
 
