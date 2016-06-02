@@ -147,9 +147,14 @@ class BuildPlugin {
     // The fiber is for use by plugins that expect to be run in one, e.g.
     // covers the current await/async/promise implementation for node 0.10
     new Fiber(() => {
-      this.compiler.processFilesForTarget(
-        inputFiles.map(inputFile => new this.FakeFile(inputFile))
-      );
+      try {
+        this.compiler.processFilesForTarget(
+          inputFiles.map(inputFile => new this.FakeFile(inputFile))
+        );
+      } catch (err) {
+        log("Build plugin error.  Skipping this time.  The error was:", err);
+        return;
+      }
 
       debug(3, `Finished ${this.name}.processFilesForTarget(`
         + inputFiles.map(file => file.pathInPackage) + ')');
