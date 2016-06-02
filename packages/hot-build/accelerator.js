@@ -47,7 +47,8 @@ if (!process.env.HOT_PORT)
 
 var WebSocket = Npm.require('ws');
 var ws, accelerator;
-var firstAttempt = true, reconnecting = false, stopTrying = false;
+var firstAttempt = true, everConnected = false;
+var reconnecting = false, stopTrying = false;
 
 var reconnectInterval = 1000;
 var reconnectMaxInterval = 30000;
@@ -67,24 +68,28 @@ function connect() {
 
     firstAttempt = false;
     reconnecting = false;
+    everConnected = true;
 
     // wait for "connected" message before sending, in case accelerator
     // rejects us.
   });
+
+  // There is some duplicated code here because both close/error fire on errors
+  // (i think).  TODO be sure, refactor, cleanup.
 
   ws.on('error', function(err) {
     if (err.code === 'ECONNREFUSED' && firstAttempt) {
       firstAttempt = false;
       debug("Starting new accelerator process");
       accelerator = new Accelerator(HOT_PORT, log.id);
-      setTimeout(connect, reconnectInterval);
+      setTimeout(connect, 2000);
       return;
     }
 
     if (reconnecting)
       setTimeout(connect, reconnectInterval);
     else if (err.code === 'ECONNREFUSED') {
-      log("Still can't reach accelerator after 1s, will keep retrying...");
+      log("Still can't reach accelerator after 2s, will keep retrying...");
       setTimeout(connect, reconnectInterval);
       reconnecting = Date.now();
     } else
@@ -100,7 +105,7 @@ function connect() {
         + (reconnectMaxInterval / 1000)
         + "s, aborting.");
       stopTrying = true;
-    } else if (!reconnecting) {
+    } else if (!reconnecting && everConnected) {
       log("Lost connection to accelerator, trying to reconnect...");
       reconnecting = Date.now();
     }
