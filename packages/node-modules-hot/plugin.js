@@ -13,6 +13,9 @@ var hot = new Hot('gadicc:node-modules-hot/node-modules-hot', true);
 var projRoot = MeteorFilesHelpers.getAppPath();
 var nodeModules = path.join(projRoot, 'node_modules');
 
+var foundModules = [];
+var foundModulesTimeout = null;
+
 /*
  * Look through node_modules and call callback(symlink, realPath) for any
  * path found that is a symlink link to realPath.
@@ -36,8 +39,21 @@ function findNodeModuleSymlinks(callback) {
   });
 }
 
+function logFoundModules() {
+  if (foundModules.length)
+    console.log("[gadicc:node-modules-hot] Watching " + foundModules.join(', '));
+  else
+    console.log("[gadicc:node-modules-hot] Didn't find any modules to watch. "
+      + "No symlinks found in " + nodeModules);
+}
+
 // What to do with relevant packages
 function handleModule(symlink, realpath) {
+  foundModules.push(path.basename(symlink));
+  if (foundModulesTimeout)
+    clearTimeout(foundModulesTimeout, 500);
+  foundModulesTimeout = setTimeout(logFoundModules);
+
   // Run babel for any changed files
   var onChange = _.debounce(function onChange(realpath, file, event) {
     // console.log(realpath, file, event);
