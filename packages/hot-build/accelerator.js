@@ -49,6 +49,9 @@ var WebSocket = Npm.require('ws');
 var ws, accelerator;
 var firstAttempt = true, reconnecting = false, stopTrying = false;
 
+var reconnectInterval = 1000;
+var reconnectMaxInterval = 30000;
+
 function connect() {
   ws = new WebSocket('ws://127.0.0.1:' + HOT_PORT + '/hot-build'
     + '?id=' + log.id
@@ -74,16 +77,16 @@ function connect() {
       firstAttempt = false;
       debug("Starting new accelerator process");
       accelerator = new Accelerator(HOT_PORT, log.id);
-      setTimeout(connect, 1000);
+      setTimeout(connect, reconnectInterval);
       return;
     }
 
     if (reconnecting)
-      setTimeout(connect, 1000);
+      setTimeout(connect, reconnectInterval);
     else if (err.code === 'ECONNREFUSED') {
       log("Still can't reach accelerator after 1s, will keep retrying...");
-      setTimeout(connect, 1000);
-      reconnecting = true;
+      setTimeout(connect, reconnectInterval);
+      reconnecting = Date.now();
     } else
       log("Unhandled websocket err!", err);
   });
@@ -92,9 +95,17 @@ function connect() {
     if (stopTrying)
       return;
 
-    log("Lost connection to accelerator, trying to reconnect...");
-    reconnecting = true;
-    setTimeout(connect, 1000);
+    if (reconnecting && Date.now()-reconnecting > reconnectMaxInterval) {
+      log("Couldn't reconnect after "
+        + (reconnectMaxInterval / 1000)
+        + "s, aborting.");
+      stopTrying = true;
+    } else if (!reconnecting) {
+      log("Lost connection to accelerator, trying to reconnect...");
+      reconnecting = Date.now();
+    }
+
+    setTimeout(connect, reconnectInterval);
   });
 
   ws.on('message', function(message) {
@@ -117,7 +128,7 @@ function connect() {
         if (data.code === 'vesionReload') {
           // connect() will log the new connection
           firstAttempt = true;
-          setTimeout(connect, 1000);
+          setTimeout(connect, reconnectInterval);
         } else if (data.code === 'majorVersionMismatch') {
           stopTrying = true;
         }
