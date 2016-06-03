@@ -3,6 +3,7 @@ var supported = new PackageVersion('0.6.4-beta.0');
 
 // Avoid version check in these circumstances
 if (process.env.INSIDE_ACCELERATOR
+    || process.env.APP_ID // i.e. on the server and not the build plugin
     || process.env.NODE_ENV==='production'
     || process.argv.indexOf('test') !== -1
     || process.argv.indexOf('test-packages') !== -1
