@@ -6,19 +6,17 @@ it.  Pay attention to existing plugins & presets, such as `babel-root-slash-impo
 and `es2015` -- you don't want either!  All this features are handled already -
 correctly - by the `meteor` preset.
 
-If you don't already have a `.babelrc`, one will be created for you.  Otherwise,
-ensure that it contains at least the following (unless you know what you're doing):
+If you're upgrading from an earlier release, you should remove the `meteor`
+preset from your `.babelrc` and `npm rm --save-dev babel-preset-meteor`.
+Meteor includes this for you.
+
+In general, your `.babelrc` should be *empty* aside from plugins and presets
+that *you know you need* (e.g. `react-hot-loader`):
 
 ```js
 {
-  "presets": [ "meteor" ]
+  "plugins": [ "react-hot-loader/babel" ]
 }
-```
-
-Install the Meteor preset if you don't have it installed already:
-
-```sh
-$ meteor npm install --save-dev babel-preset-meteor
 ```
 
 ## Adding presets and plugins
@@ -58,27 +56,12 @@ proposals that are subject to change so should be used **with extreme caution**.
 Code that works *now* with these plugins may break on future releases or once
 the spec is finalized.
 
-## Client and server-specific .babelrc
+## Client/server and per-directory .babelrc
 
-If `/server/.babelrc` or `/client/.babelrc` exist, they'll be used
-preferentially for these architectures.  We suggest you extend your
-root `.babelrc` and only keep target-specific config in these files, e.g.
-
-**/client/.babelrc:**
-
-```js
-{
-  "extends": "../.babelrc",
-
-  "env": {
-    "development": {
-      "plugins": [
-        "some-special-plugin-that-you-only-want-on-the-client-and-in-devel"
-      ]
-    }
-  }
-}
-```
+Meteor 1.3.3's babel support will look for a `.babelrc` in the directory of
+the file being transpiled, and in every parent directory up to your project
+root.  You can leverage this fact to create a a `client/.babelrc` which will
+be used for `client/**/files.js`:
 
 ## Troubleshooting
 
@@ -127,14 +110,12 @@ on these features when the respective spec is updated or finalized.
 For more information see https://babeljs.io/docs/plugins/#stage-x-experimental-presets.
 
 ```sh
-$ meteor npm install --save-dev babel-preset-es2015 babel-preset-stage0
+$ meteor npm install --save-dev babel-preset-stage0
 
 ```js
 {
   "presets": [
-    "meteor",
-    "stage-0",
-    "react",
+    "stage-0"
   ],
   "plugins": [
     "transform-decorators-legacy"
@@ -148,12 +129,13 @@ $ meteor npm install --save-dev babel-preset-es2015 babel-preset-stage0
 
 And similar errors.
 
-This can occur due to your load order in your `.babelrc`.  For a straight
-Meteor experience, you should just have:
+This can occur due to your load order in your `.babelrc`.  Make sure you don't
+have any presets that you don't need or that conflict with Meteor's own
+`meteor` preset, like `es2015` (you don't want or need it).  Try an empty
+`.babelrc` like:
 
 ```js
 {
-  "presets": [ "meteor" ]
 }
 ```
 

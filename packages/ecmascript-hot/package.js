@@ -28,7 +28,7 @@ Package.onUse(function (api) {
   api.imply('babel-runtime');
   api.imply('promise');
 
-  api.use('gadicc:hot@2.0.0-beta.1');
+  api.use('gadicc:hot@2.0.0-beta.2');
   api.imply('gadicc:hot');
 
   api.use('sanjo:meteor-files-helpers@1.2.0_1', 'server');

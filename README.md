@@ -6,6 +6,8 @@
 
 **`gadicc:ecmascript-hot@2.0.0-beta.3` is the last release for Meteor 1.3.2.4; later releases and the 2.0.0 final will target Meteor 1.3.3, using Meteor's new official babelrc support, and no longer includes our own `babel-compiler-babelrc` which we no longer support**.
 
+**Since Meteor 1.3.3 we use Meteor's native babelrc support**.  You should `npm rm --save-dev babel-preset-meteor` and remove the `meteor` preset from your `.babelrc`.
+
 * Edit your react components and see changes instantly, while maintaining state.
 * Catch react `render()` errors and show on your screen rather than crashing your app.
 * Add your own `.babelrc` plugins and presets, like

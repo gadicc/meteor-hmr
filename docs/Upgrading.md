@@ -1,7 +1,7 @@
 ## From 1.3.1_1 or .fast releases
 
 * We now use React-Hot-Loader v3.
-* We now rely on Meteor's official `.babelrc` support (from 1.3.3?) XXX
+* We now rely on Meteor's official `.babelrc` support (from 1.3.3)
 * We can now upgrade `hot` and the new `hot-build` independently of `ecmascript-hot`.
 
 This project is now a general hot loading project, and includes sample instructions
@@ -11,7 +11,8 @@ there.
 
 ### Remove the old setup
 
-1. `npm rm --save-dev babel-plugin-react-transform react-transform-hmr react-transform-catch-errors`
+1. `npm rm --save-dev babel-plugin-react-transform react-transform-hmr react-transform-catch-errors babel-preset-meteor`.
+1. Remove `meteor` from your `.babelrc` presets.  Meteor includes it for you automatically.
 1. Remove the entire `react-transform` section from your `client/.babelrc` env block (or delete the file completely if you never modified it)
 1. Remove your `package.json`'s `ecmascript-hot` section completely, it's no longer used.
 

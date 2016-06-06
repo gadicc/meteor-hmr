@@ -1,19 +1,24 @@
 {
   "dependencies": {
     "meteor-hotload-accelerator": {
-      "version": "1.0.13",
-      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-1.0.13.tgz",
-      "from": "meteor-hotload-accelerator@1.0.13",
+      "version": "1.0.14",
+      "resolved": "https://registry.npmjs.org/meteor-hotload-accelerator/-/meteor-hotload-accelerator-1.0.14.tgz",
+      "from": "meteor-hotload-accelerator@1.0.14",
       "dependencies": {
         "babel-runtime": {
-          "version": "6.9.0",
-          "resolved": "https://registry.npmjs.org/babel-runtime/-/babel-runtime-6.9.0.tgz",
+          "version": "6.9.2",
+          "resolved": "https://registry.npmjs.org/babel-runtime/-/babel-runtime-6.9.2.tgz",
           "from": "babel-runtime@>=6.6.1 <7.0.0",
           "dependencies": {
             "core-js": {
               "version": "2.4.0",
               "resolved": "https://registry.npmjs.org/core-js/-/core-js-2.4.0.tgz",
               "from": "core-js@>=2.4.0 <3.0.0"
+            },
+            "regenerator-runtime": {
+              "version": "0.9.5",
+              "resolved": "https://registry.npmjs.org/regenerator-runtime/-/regenerator-runtime-0.9.5.tgz",
+              "from": "regenerator-runtime@>=0.9.5 <0.10.0"
             }
           }
         },
@@ -21,6 +26,11 @@
           "version": "4.13.1",
           "resolved": "https://registry.npmjs.org/lodash/-/lodash-4.13.1.tgz",
           "from": "lodash@>=4.11.1 <5.0.0"
+        },
+        "underscore": {
+          "version": "1.8.3",
+          "resolved": "https://registry.npmjs.org/underscore/-/underscore-1.8.3.tgz",
+          "from": "underscore@>=1.8.3 <2.0.0"
         }
       }
     },
