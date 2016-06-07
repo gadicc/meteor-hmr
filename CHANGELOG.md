@@ -29,6 +29,10 @@
 * We now correctly handle "safe" (atomic) writes by text editors.
   Thanks to @jbbr who helped with this.
 
+* Fix a few cases where a backslash ("\") in your code could break the HMR,
+  affected handcoded newliens ("\n") and double backslashes ("\\") like you
+  might find in RegExps.
+
 Additional massive thanks to @clayne11 who persevered through various bugs,
 helped hunt them down, tested quite possibly every single interim release,
 and assisted other users with their issues so I could focus on code.

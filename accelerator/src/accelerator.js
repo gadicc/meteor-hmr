@@ -370,7 +370,7 @@ hot.process = function hotProcess() {
   var bundleStr = 'meteorInstallHot(' +
     JSON.stringify(tree).replace(/\"__OF__(.*?)__CF__\"/g, function(m, f) {
       return 'function(require,exports,module,__filename,__dirname){'
-        + f.replace(/\\n/g, '\n').replace(/\\t/g, '\t').replace(/\\"/g, '"').replace(/\\'/g, "'")
+        + JSON.parse('"' + f + '"')
         + '\n}';
     }) + ');\n';
 
