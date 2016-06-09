@@ -1,8 +1,7 @@
 Package.describe({
   name: 'gadicc:ecmascript-hot',
-  // version: '0.4.4-beta.0'    // core version, KEEP UPDATED
-  // version: '1.3.1_1',
-  version: '2.0.0-beta.4',
+  // version: '0.4.4-rc.4'    // core version, KEEP UPDATED
+  version: '2.0.0-beta.5',
   summary: 'Replacement ecmascript package providing react hotloading',
   git: 'https://github.com/gadicc/meteor-hmr',
   documentation: 'README.md'
@@ -17,12 +16,14 @@ Package.registerBuildPlugin({
 Package.onUse(function (api) {
   // hopefully covers version constaint on ecmascript
   // we can't use() this file directly else we get an extension conflict.
-  api.versionsFrom('1.3.3-beta.0');
+  api.versionsFrom('1.3.3-rc.4');
 
   api.use('isobuild:compiler-plugin@1.0.0');
   api.use('babel-compiler');
   api.use('gadicc:hot-build@2.0.0-beta.4');
 
+  // The following api.imply calls should match those in
+  // ../coffeescript/package.js.
   api.imply('modules');
   api.imply('ecmascript-runtime');
   api.imply('babel-runtime');
