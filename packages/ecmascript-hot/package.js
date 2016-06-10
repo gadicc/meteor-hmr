@@ -9,7 +9,7 @@ Package.describe({
 
 Package.registerBuildPlugin({
   name: 'compile-ecmascript-hot',
-  use: ['babel-compiler', 'gadicc:hot-build'],
+  use: ['babel-compiler', 'gadicc:hot-build@2.0.0-beta.5'],
   sources: ['plugin.js']
 });
 
@@ -20,7 +20,6 @@ Package.onUse(function (api) {
 
   api.use('isobuild:compiler-plugin@1.0.0');
   api.use('babel-compiler');
-  api.use('gadicc:hot-build@2.0.0-beta.4');
 
   // The following api.imply calls should match those in
   // ../coffeescript/package.js.

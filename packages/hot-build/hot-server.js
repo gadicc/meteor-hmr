@@ -229,7 +229,6 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
 
   inputFiles.forEach(function(inputFile) {
     var file;
-    var sourceBatch;
     if (inputFile.getArch() === "web.browser") {
       file = convertToOSPath(
         inputFile._resourceSlot.packageSourceBatch.sourceRoot +
@@ -237,31 +236,9 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
         inputFile.getPathInPackage()
       );
       if (!self.sentFiles[file]) {
-        sourceBatch = inputFile._resourceSlot.packageSourceBatch;
-        data[file] = {
-          packageName: inputFile.getPackageName(),
-          pathInPackage: inputFile.getPathInPackage(),
-          displayPath: inputFile.getDisplayPath(),
-          extension: inputFile.getExtension(),
-          basename: inputFile.getBasename(),
-          fileOptions: inputFile.getFileOptions(),
-          //sourceRoot: inputFile._resourceSlot.packageSourceBatch.sourceRoot,
-          // only send what we need, avoid circular refs, etc.
-          _resourceSlot: {
-            packageSourceBatch: {
-              sourceRoot: sourceBatch.sourceRoot
-            }
-          },
-          _controlFileCache: inputFile._controlFileCache,
-          _resolveCache: inputFile._resolveCache
+        self.sentFiles[file] = {
+          _resourceSlot: inputFile._resourceSlot
         };
-        if (sourceBatch.unibuild) {
-          data[file]._resourceSlot.packageSourceBatch.unibuild = {
-            nodeModulesDirectories: sourceBatch.unibuild.nodeModulesDirectories
-          };
-        }
-
-        self.sentFiles[file] = data[file];
       }
     }
   });

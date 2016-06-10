@@ -1,19 +1,20 @@
 Package.describe({
   name: 'gadicc:hot-build',
-  version: '2.0.0-beta.4',
+  version: '2.0.0-beta.5',
   summary: 'HMR for use by meteor build plugins',
   git: 'https://github.com/gadicc/meteor-hmr',
-  documentation: '../../README.md'
+  documentation: 'README.md'
 });
 
 Npm.depends({
   'ws': '1.1.0',
+  'arson': '0.2.3',
   //'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator'
   'meteor-hotload-accelerator': '1.0.15' // <-- update top of ./acceleretor.js too!,
 });
 
 Package.onUse(function(api) {
-  api.versionsFrom('1.3-rc.4');
+  api.versionsFrom('1.3.3-rc.4');
 
   api.use('random', 'server');
   api.use('underscore', 'server');

@@ -15,6 +15,7 @@ if (process.env.INSIDE_ACCELERATOR
 var fs = Npm.require('fs');
 var path = Npm.require('path');
 var Accelerator = Npm.require('meteor-hotload-accelerator').default;
+var arson = Npm.require('arson');
 
 // This is only ever used during devel when reloading the build plugin
 var gdata = global._hotGlobalData;
@@ -152,7 +153,7 @@ var send = Hot.send = function(data) {
   // only happens if the connection dies, in which case, we reconnect, and
   // all relevant data is resent with Hot.onReconnect().
   if (ws.readyState === ws.OPEN)
-    ws.send(JSON.stringify(data));
+    ws.send(arson.stringify(data));
 }
 
 // If we're exiting, tell the fork to shutdown too
