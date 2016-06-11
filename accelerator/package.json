@@ -29,6 +29,7 @@
     "babel-eslint": "^6.0.3",
     "babel-preset-meteor": "^6.6.7",
     "babel-preset-stage-0": "^6.5.0",
-    "eslint": "^2.8.0"
+    "eslint": "^2.8.0",
+    "recursive-readdir-sync": "^1.0.6"
   }
 }
