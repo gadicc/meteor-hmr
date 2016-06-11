@@ -113,6 +113,7 @@ files.convertToPosixPath = toPosixPath;
 files.convertToStandardLineEndings = convertToStandardLineEndings;
 files.convertToOSLineEndings = convertToOSLineEndings;
 
+
 // and stuff we need from meteor/tools/fs/files.js
 
 import fs from 'fs';
@@ -164,7 +165,8 @@ function wrapFsFunc(fsFuncName, pathArgIndices, options) {
       // may perform 1,000s or 10,000s of stats each under certain
       // conditions, so we get a nice performance boost from making
       // these calls sync.
-      const isQuickie = (fsFuncName === 'stat');
+      const isQuickie = (fsFuncName === 'stat' ||
+                         fsFuncName === 'rename');
 
       if (canYield && shouldBeSync && !isQuickie) {
         const promise = new Promise((resolve, reject) => {

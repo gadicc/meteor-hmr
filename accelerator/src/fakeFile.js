@@ -1,3 +1,7 @@
+/*
+ * NB: We don't use this anymore, rather, import meteor/inputFile
+ */
+
 import { log, debug } from './log';
 import _ from 'underscore';
 import files from './mini-files.js';

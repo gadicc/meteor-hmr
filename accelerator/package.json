@@ -18,7 +18,9 @@
   "author": "Gadi Cohen",
   "license": "MIT",
   "dependencies": {
-    "babel-runtime": "^6.6.1",
+    "arson": "^0.2.3",
+    "babel-polyfill": "^6.9.1",
+    "babel-runtime": "^6.9.2",
     "lodash": "^4.11.1",
     "underscore": "^1.8.3",
     "ws": "^1.1.0"
@@ -27,8 +29,10 @@
     "babel-cli": "^6.6.5",
     "babel-core": "^6.7.2",
     "babel-eslint": "^6.0.3",
-    "babel-preset-meteor": "^6.6.7",
+    "babel-plugin-transform-runtime": "^6.9.0",
+    "babel-preset-es2015": "^6.9.0",
     "babel-preset-stage-0": "^6.5.0",
-    "eslint": "^2.8.0"
+    "eslint": "^2.8.0",
+    "recursive-readdir-sync": "^1.0.6"
   }
 }

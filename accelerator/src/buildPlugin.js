@@ -4,7 +4,6 @@ import vm from 'vm';
 import _ from 'lodash';
 
 import { log, debug } from './log';
-import FakeFile from './fakeFile';
 
 /*
  * Meteor runs all build plugins in the same context, so we should too, even
@@ -95,11 +94,15 @@ class BuildPlugin {
 
     buildPluginIds[id] = this;
 
-    this.FakeFile = class extends FakeFile {
+    this.addJavaScript = addJavaScript;
+
+    /*
+    this.InputFile = class extends InputFile {
       addJavaScript = function(data) {
-        addJavaScript.call(null, data, this /* FakeFile */);
+        addJavaScript.call(null, data, this /* FakeFile *//*);
       }
     }
+    */
 
     debug(`Loading plugin "${name}" (${id}) from ${path}`);
     this.load();
@@ -148,11 +151,10 @@ class BuildPlugin {
     // covers the current await/async/promise implementation for node 0.10
     new Fiber(() => {
       try {
-        this.compiler.processFilesForTarget(
-          inputFiles.map(inputFile => new this.FakeFile(inputFile))
-        );
+        this.compiler.processFilesForTarget(inputFiles);
       } catch (err) {
-        log("Build plugin error.  Skipping this time.  The error was:", err);
+        log("Build plugin error.  Skipping this time.  The error was:",
+          err.stack);
         return;
       }
 

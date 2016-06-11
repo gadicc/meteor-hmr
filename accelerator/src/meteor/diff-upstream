@@ -1,0 +1,11 @@
+#!/bin/sh
+. ./last-upstream-commit
+
+cd ~/www/meteor.gadicc
+git diff $LAST_COMMIT HEAD -- \
+  tools/isobuild/compiler-plugin.js \
+  tools/fs/files.js \
+  tools/static-assets/server/mini-files.js \
+  tools/isobuild/watch.js \
+  tools/isobuild/resolver.js \
+  | colordiff | less -R

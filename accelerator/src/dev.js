@@ -6,13 +6,15 @@ import fs from 'fs';
 import path from 'path';
 import child_process from 'child_process';
 import _ from 'lodash';
+import recursive from 'recursive-readdir-sync';
 
 const bin='/home/dragon/.meteor/packages/meteor-tool/.1.3.2_1.1b63asg++os.linux.x86_64+web.browser+web.cordova/mt-os.linux.x86_64/dev_bundle/bin/node';
 const args=['lib/accelerator.js', 'dev', '5002', '/home/dragon/.meteor/packages/meteor-tool/1.3.2_1/mt-os.linux.x86_64'];
 const projRoot='/home/dragon/www/meteor-hmr/demo';
 
 const debug=process.env.HOT_DEBUG || 1;
-const files = ['accelerator.js','buildPlugin.js','fakeFile.js','index.js','log.js','dev.js'];
+const files = recursive('src');
+console.log('Dev mode.  Watching: ', files.join(', '));
 
 // Add CWD to lib/accelerator, since we give a new CWD for the cmd
 args[0] = path.join(process.cwd(), args[0]);
@@ -29,7 +31,7 @@ const restart = _.debounce(function restart() {
 }, 5);
 
 files.forEach(file => {
-  fs.watch(path.join('src', file), restart);
+  fs.watch(file, restart);
 });
 
 function start() {

@@ -14,7 +14,7 @@ tracker                 # Meteor's client-side reactive programming library
 
 es5-shim                # ECMAScript 5 compatibility for older browsers.
 #ecmascript              # Enable ECMAScript2015+ syntax in app code
-gadicc:ecmascript-hot@2.0.0-beta.1
+gadicc:ecmascript-hot
 
 #autopublish             # Publish all data to the clients (for prototyping)
 #insecure                # Allow all DB writes from clients (for prototyping)
@@ -22,4 +22,4 @@ standard-minifier-css
 standard-minifier-js
 practicalmeteor:mocha
 hot-package-example
-gadicc:node-modules-hot@2.0.0-beta.1
+#gadicc:node-modules-hot

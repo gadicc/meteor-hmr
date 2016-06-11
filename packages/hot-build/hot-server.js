@@ -228,19 +228,38 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
   var self = this;
 
   inputFiles.forEach(function(inputFile) {
-    var file;
-    if (inputFile.getArch() === "web.browser") {
-      file = convertToOSPath(
-        inputFile._resourceSlot.packageSourceBatch.sourceRoot +
-        '/' + // convertToOSPath is expecting a / of course...
-        inputFile.getPathInPackage()
-      );
-      if (!self.sentFiles[file]) {
-        self.sentFiles[file] = {
-          _resourceSlot: inputFile._resourceSlot
-        };
-      }
-    }
+    if (inputFile.getArch() !== "web.browser")
+      return;
+
+    var file = convertToOSPath(
+      inputFile._resourceSlot.packageSourceBatch.sourceRoot +
+      '/' + // convertToOSPath is expecting a / of course...
+      inputFile.getPathInPackage()
+    );
+
+    const rs = inputFile._resourceSlot;
+    const psb = rs.packageSourceBatch;
+    console.log(99, 'unibuild', psb.unibuild);
+    data[file] = {
+      inputResource: rs.inputResource,
+      // outputResources: rs.outputResources,
+      // jsOutputResources: rs.jsOutputResources,
+      // sourceProcessor: rs.sourceProcessor,
+      packageSourceBatch: {
+        unibuild: {
+          declaredExports: 
+          watchset: {},
+          pkg: psb.pkg,
+        },
+        sourceRoot: psb.sourceRoot,
+        importExtensions: psb.importExtensions,
+        importedSymbolToPackageName: psb.importedSymbolToPackageName,
+        useMeteorInstall: psb.useMeteorInstall
+      };
+
+    // Keep track of all sent files in case we reconnect to a new accelerator
+    if (!self.sentFiles[file])
+      self.sentFiles[file] = data[file];
   });
 
   if (Object.keys(data).length)

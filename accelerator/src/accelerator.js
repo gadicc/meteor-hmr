@@ -3,6 +3,12 @@ import path from 'path';
 import http from 'http';
 import crypto from 'crypto';
 
+import arson from 'arson';
+import 'babel-polyfill';
+
+import { InputFile } from './meteor/compiler-plugin';
+import { getResolver } from './meteor/stubs';
+
 import { log, debug } from './log';
 import BuildPlugin from './buildPlugin';
 
@@ -111,7 +117,7 @@ wss.on('connection', function connection(ws) {
     ws.on('message', function(_msg) {
       var msg;
       try {
-        msg = JSON.parse(_msg);
+        msg = arson.parse(_msg);
       } catch (err) {
         log("Ignoring invalid JSON: " + _msg, err);
         return;        
@@ -193,24 +199,36 @@ handlers.setDiskCacheDirectory = function({dir}, plugin) {
 };
 
 // get file data from build plugin
-const watchers = {};
+const watchSet = {};
+
+// XXX debug
+global.watchSet = watchSet;
+
 handlers.fileData = function({files, pluginId}) {
   const plugin = BuildPlugin.byId(pluginId);
   debug(3, `Got fileData from ${plugin.name} (${pluginId}), watching: `
     + Object.keys(files).join(', '));
 
-  for (var key in files) {
-    // Maybe we got the same file again from a new instance of the plugin
-    if (watchers[key])
-      watchers[key].close();
+  for (var file in files) {
+    // All we really care about for existing files is a new instance of the
+    // plugin.
+    if (watchSet[file]) {
+      watchSet[file].pluginId = pluginId;
+      return;
+    }
 
     try {
-      watchers[key] =
-        PathWatcher.watch(key, onChange.bind(null, key, pluginId, files[key]));
+      const watcher = PathWatcher.watch(file, onChange.bind(null, file));
+
+      watchSet[file] = {
+        watcher: watcher,
+        pluginId: pluginId,
+        fileData: files[file]
+      }
     } catch (err) {
       // On Linux the thrown error actually gives the problematic file name,
       // but not on Windows
-      log("Error watching " + key);
+      log("Error watching " + file);
       throw err;
     }
   }
@@ -219,21 +237,27 @@ handlers.fileData = function({files, pluginId}) {
 /* handle file changes */
 
 var changeQueue = {}, changeTimeout = null;
-function onChange(file, pluginId, inputFile, event) {
+function onChange(file, event /* , unreliableFile */) {
+  const data = watchSet[file];
+  if (!data)
+    throw new Error("Got change event but can't find associated fileData: " + file);
+
   debug(3, `Got ${event} event for ${file}`);
 
   // de-dupe 2 calls for same event
   // fixed https://github.com/atom/node-pathwatcher/issues/50 in aug2015 but
   // Meteor still uses an old version
   // also, we need to debounce, to not start reading too early
-  if (!changeQueue[file])
+  if (!changeQueue[file]) {
     changeQueue[file] = {
-      pluginId: pluginId,
-      inputFile: inputFile,
-      events: [event]
+      pluginId: data.pluginId,
+      fileData: data.fileData,
+      events: [event],
+      initted: false,
     };
-  else
+  } else {
     changeQueue[file].events.push(event);
+  }
 
   if (changeTimeout)
     clearTimeout(changeTimeout);
@@ -245,17 +269,29 @@ function processChanges() {
   debug('processChanges', Object.keys(changeQueue));
 
   for (let file in changeQueue) {
-    const { pluginId, inputFile, events } = changeQueue[file];
+    const { pluginId, fileData, events, initted } = changeQueue[file];
+
     if (events.indexOf('change') === -1)
       return;
+
+    if (!initted) {
+      fileData.addJavaScript = addJavaScript;
+      delete fileData.packageSourceBatch._resolver;
+      fileData.packageSourceBatch.getResolver = getResolver;
+      changeQueue[file].initted = true;
+    }
+
+    const inputFile = new InputFile(fileData);
+    console.log(2, JSON.stringify(inputFile, null, 2));
+    const inputResource = inputFile._resourceSlot.inputResource;
 
     fs.readFile(file, 'utf8', function(err, contents) {
       if (err) throw err;
 
-      inputFile.sourceHash =
+      inputResource.hash =
         crypto.createHash('sha1').update(contents).digest('hex');
 
-      inputFile.contents = contents;
+      inputResource.data = contents;
 
       addInputFile(inputFile, pluginId);
     });
@@ -326,8 +362,9 @@ function treeify(bundle) {
   var tree = {};
   bundle.forEach(function(file) {
     var path = file.path;
-    if (file.packageName)
-      path = 'node_modules/meteor/' + file.packageName + '/' + path;
+    var packageName = file.getPackageName();
+    if (packageName)
+      path = 'node_modules/meteor/' + packageName + '/' + path;
 
     var dirs = path.split('/');
     var filename = dirs.pop();
@@ -342,15 +379,12 @@ function treeify(bundle) {
 }
 
 var bundle = [], bundleTimeout;
-function addJavaScript(data, file) {
+function addJavaScript(data) {
   if (bundleTimeout)
     clearTimeout(bundleTimeout);
 
   debug(3, 'addJavaScript');
-  debug(3, file);
   debug(3, data);
-
-  data.packageName = file.data.packageName;
 
   bundle.push(data);
   bundleTimeout = setTimeout(hot.process, 5);
