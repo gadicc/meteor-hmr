@@ -77,22 +77,31 @@ function connect() {
 
   // There is some duplicated code here because both close/error fire on errors
   // (i think).  TODO be sure, refactor, cleanup.
+  var reconnectTimeout;
+  function reconnect(time) {
+    if (reconnectTimeout)
+      clearTimeout(reconnectTimeout);
+    if (!time)
+      time = reconnectInterval;
+
+    reconnectTimeout = setTimeout(connect, time);
+  }
 
   ws.on('error', function(err) {
     if (err.code === 'ECONNREFUSED' && firstAttempt) {
       firstAttempt = false;
       debug("Starting new accelerator process");
       accelerator = new Accelerator(HOT_PORT, log.id);
-      setTimeout(connect, 2000);
+      reconnect(2000);
       return;
     }
 
     if (reconnecting)
-      setTimeout(connect, reconnectInterval);
+      reconnect();
     else if (err.code === 'ECONNREFUSED') {
       log("Still can't reach accelerator after 2s, will keep retrying...");
-      setTimeout(connect, reconnectInterval);
       reconnecting = Date.now();
+      reconnect();
     } else
       log("Unhandled websocket err!", err);
   });
@@ -106,12 +115,13 @@ function connect() {
         + (reconnectMaxInterval / 1000)
         + "s, aborting.");
       stopTrying = true;
+      return;
     } else if (!reconnecting && everConnected) {
       log("Lost connection to accelerator, trying to reconnect...");
       reconnecting = Date.now();
     }
 
-    setTimeout(connect, reconnectInterval);
+    reconnect();
   });
 
   ws.on('message', function(message) {
@@ -134,7 +144,7 @@ function connect() {
         if (data.code === 'vesionReload') {
           // connect() will log the new connection
           firstAttempt = true;
-          setTimeout(connect, reconnectInterval);
+          reconnect();
         } else if (data.code === 'majorVersionMismatch') {
           stopTrying = true;
         }
