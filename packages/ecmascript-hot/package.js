@@ -16,7 +16,7 @@ Package.registerBuildPlugin({
 Package.onUse(function (api) {
   // hopefully covers version constaint on ecmascript
   // we can't use() this file directly else we get an extension conflict.
-  api.versionsFrom('1.3.3-rc.4');
+  api.versionsFrom('1.3.3');
 
   api.use('isobuild:compiler-plugin@1.0.0');
   api.use('babel-compiler');
