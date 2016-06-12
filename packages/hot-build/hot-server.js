@@ -129,6 +129,7 @@ Hot = function(plugin, forceEnabled) {
 
   this.sentFiles = {};
   this.pluginInits = [];
+  this.cacheDir = null;
 
   instances.push(this);
 
@@ -155,7 +156,6 @@ Hot = function(plugin, forceEnabled) {
 
   this.send(data);
   this.pluginInits.push(data);
-
 };
 
 Hot.onReconnect = function() {
@@ -169,6 +169,9 @@ Hot.onReconnect = function() {
         type: 'fileData',
         files: hot.sentFiles
       });
+
+    if (hot.cacheDir)
+      hot.send({ type: 'setDiskCacheDirectory', dir: hot.cacheDir });
   });
 };
 
@@ -220,6 +223,7 @@ Hot.prototype.send = function(payload) {
 };
 
 Hot.prototype.setDiskCacheDirectory = function(cacheDir) {
+  this.cacheDir = cacheDir;
   this.send({ type: 'setDiskCacheDirectory', dir: cacheDir });
 };
 

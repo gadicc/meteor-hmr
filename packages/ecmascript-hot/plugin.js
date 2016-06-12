@@ -24,6 +24,8 @@ Plugin.registerCompiler({
       getFileOptions: function() { return {}; },
       getArch: function() { return 'web.browser'; },
       getSourceHash: function() { return crypto.randomBytes(20).toString('hex'); },
+      isPackageFile: function() { return false; },
+      isApplicationFile: function() { return true; },
       addJavaScript: function() { },
       error: function(err) { console.log(err); }
     };
