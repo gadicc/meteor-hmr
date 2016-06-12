@@ -198,14 +198,14 @@ Hot.prototype.wrap = function(compiler) {
 
   var origProcessFilesForTarget = compiler.processFilesForTarget;
   compiler.processFilesForTarget = function(inputFiles) {
-    self.processFilesForTarget(inputFiles);
     origProcessFilesForTarget.call(compiler, inputFiles);
+    self.processFilesForTarget(inputFiles);
   }
 
   var origSetDiskCacheDirectory = compiler.setDiskCacheDirectory;
   compiler.setDiskCacheDirectory = function(cacheDir) {
-    self.setDiskCacheDirectory(cacheDir);
     origSetDiskCacheDirectory.call(compiler, cacheDir);
+    self.setDiskCacheDirectory(cacheDir);
   }
 
   return compiler;
@@ -222,6 +222,20 @@ Hot.prototype.send = function(payload) {
 Hot.prototype.setDiskCacheDirectory = function(cacheDir) {
   this.send({ type: 'setDiskCacheDirectory', dir: cacheDir });
 };
+
+// Reduce size of data sent to the accelerator for performance
+function reduceResolverCache(cache) {
+  if (!cache)
+    return cache;
+
+  var key, out = {};
+  for (key in cache)
+    out[key] = cache[key].id
+
+  return out;
+}
+
+// TODO babelrc cache too
 
 Hot.prototype.processFilesForTarget = function(inputFiles) {
   var data = {};
@@ -252,8 +266,9 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
               sourceRoot: sourceBatch.sourceRoot
             }
           },
+//          resolverMap: reduceResolverCache(sourceBatch._resolver && sourceBatch._resolver._resolveCache),
           _controlFileCache: inputFile._controlFileCache,
-          _resolveCache: inputFile._resolveCache
+          _reducedResolveCache: inputFile._resolveCache
         };
         if (sourceBatch.unibuild) {
           data[file]._resourceSlot.packageSourceBatch.unibuild = {
@@ -261,6 +276,7 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
           };
         }
 
+        // console.log(data[file]);
         self.sentFiles[file] = data[file];
       }
     }

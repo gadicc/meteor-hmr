@@ -2,13 +2,14 @@ import { log, debug } from './log';
 import _ from 'underscore';
 import files from './mini-files.js';
 import fs from 'fs';
+import crypto from 'crypto';
 
 class FakeFile {
 
   constructor(data) {
     this.data = data;
 
-    for (let k of ['_controlFileCache','_resourceSlot','_resolveCache'])
+    for (let k of ['_controlFileCache','_resourceSlot'/*,'_resolveCache'*/])
       this[k] = data[k];
   }
 
@@ -98,6 +99,12 @@ class FakeFile {
   readAndWatchFile(path) {
     return fs.readFileSync(path);
   }
+  readAndWatchFileWithHash(path) {
+    const osPath = files.convertToOSPath(path);
+    const contents = fs.readFileSync(osPath);
+    const hash = crypto.createHash('sha1').update(contents).digest('hex');
+    return { contents, hash };
+  }
 
   // Search ancestor directories for control files (e.g. package.json,
   // .babelrc), and return the absolute path of the first one found, or
@@ -108,85 +115,38 @@ class FakeFile {
       return absPath;
     }
 
-    const sourceRoot = this._resourceSlot.packageSourceBatch.sourceRoot;
-    if (! _.isString(sourceRoot)) {
-      return this._controlFileCache[basename] = null;
-    }
-
-    let dir = files.pathDirname(this.getPathInPackage());
-    while (true) {
-      absPath = files.pathJoin(sourceRoot, dir, basename);
-
-      const stat = files.statOrNull(absPath);
-      if (stat && stat.isFile()) {
-        return this._controlFileCache[basename] = absPath;
-      }
-
-      if (files.pathBasename(dir) === "node_modules") {
-        // The search for control files should not escape node_modules.
-        return this._controlFileCache[basename] = null;
-      }
-
-      let parentDir = files.pathDirname(dir);
-      if (parentDir === dir) break;
-      dir = parentDir;
-    }
-
-    return this._controlFileCache[basename] = null;
+    throw new Error(`control file ${basename} not found in cache`, this);
   }
 
-  resolve(id) {
-    if (_.has(this._resolveCache, id)) {
-      return this._resolveCache[id];
-    }
+  // no actual resolver, exclusively use the existing reduced cache map
+  resolve(id, parentPath) {
+    const batch = this._resourceSlot.packageSourceBatch;
 
-    const sourceBatch = this._resourceSlot.packageSourceBatch;
-    const parentPath = files.convertToOSPath(files.pathJoin(
-      sourceBatch.sourceRoot,
+    parentPath = parentPath || files.pathJoin(
+      batch.sourceRoot,
       this.getPathInPackage()
-    ));
-    // Absolute CommonJS module identifier of the parent module.
-    const parentId = files.convertToPosixPath(parentPath, true);
-    const Module = module.constructor;
-    const parent = new Module(parentId);
+    );
 
-    // We only need to populate parent.paths if id is top-level, meaning
-    // that it could potentially be found in a node_modules directory.
-    const isTopLevelId = "./".indexOf(id.charAt(0)) < 0;
-    if (isTopLevelId) {
-      const nmds = sourceBatch.unibuild.nodeModulesDirectories;
-      const osPaths = Object.create(null);
-      const nonLocalPaths = [];
-
-      _.each(nmds, (nmd, path) => {
-        path = files.convertToOSPath(path.replace(/\/$/g, ""));
-        osPaths[path] = true;
-        if (! nmd.local) {
-          nonLocalPaths.push(path);
-        }
-      });
-
-      parent.paths = [];
-
-      // Add any local node_modules directory paths that are both
-      // ancestors of this file and included in this PackageSourceBatch.
-      Module._nodeModulePaths(parentPath).forEach(path => {
-        if (_.has(osPaths, path)) {
-          parent.paths.push(path);
-        }
-      });
-
-      // Now add any non-local node_modules directories that are used by
-      // this PackageSourceBatch.
-      parent.paths.push(...nonLocalPaths);
+    const cache = this.data._reducedResolveCache;
+    if (!cache) {
+      debug(3, `inputFile.resolve("${id}", "${parentPath}") - file has no cache, `
+        + `passing to base require`);
+      return require.resolve(id, true);
     }
 
-    return this._resolveCache[id] =
-      Module._resolveFilename(id, parent);
+    const resolved = cache[id] && cache[id][parentPath];
+    if (!resolved) {
+      debug(3, `inputFile.resolve("${id}", "${parentPath}") - no parentPath in `
+        + `cache, passing to base require`);
+      return require.resolve(id, true);
+    }
+
+    debug(3, `inputFile.resolve("${id}", "${parentPath}") => "${resolved}"`);
+    return resolved;
   }
 
-  require(id) {
-    return require(this.resolve(id));
+  require(id, parentPath) {
+    return require(this.resolve(id, parentPath), true);
   }
 
 }
