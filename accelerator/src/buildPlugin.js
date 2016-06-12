@@ -152,7 +152,7 @@ class BuildPlugin {
           inputFiles.map(inputFile => new this.FakeFile(inputFile))
         );
       } catch (err) {
-        log("Build plugin error.  Skipping this time.  The error was:", err);
+        log("Build plugin error.  Skipping this time.  The error was:", err.stack);
         return;
       }
 
