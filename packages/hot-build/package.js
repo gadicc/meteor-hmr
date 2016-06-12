@@ -10,7 +10,7 @@ Npm.depends({
   'ws': '1.1.0',
   'arson': '0.2.3',
   //'meteor-hotload-accelerator': 'file:///home/dragon/www/meteor-react-hotloader/accelerator'
-  'meteor-hotload-accelerator': '1.0.15' // <-- update top of ./acceleretor.js too!,
+  'meteor-hotload-accelerator': '1.0.16' // <-- update top of ./acceleretor.js too!,
 });
 
 Package.onUse(function(api) {
