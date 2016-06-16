@@ -164,7 +164,7 @@ const meteorInstallHot = function(tree) {
       let acceptFunc;
 
       if (mhot._selfDeclined)
-        return logAndFile('Aborted because of self decline: ' + file.m.id);
+        return logAndFail('Aborted because of self decline: ' + file.m.id);
       else if (parentId && mhot._declinedDependencies
           && mhot._declinedDependencies[parentId])
         return logAndFail('Aborted because of declined dependency: '
@@ -191,7 +191,7 @@ const meteorInstallHot = function(tree) {
           if (typeof mhot._selfAccepted === 'function')
             mhot._selfAccepted(err);
 
-          logAndFile('An error occured trying to accept hmr for '
+          logAndFail('An error occured trying to accept hmr for '
             + file.m.id, err);
 
         }
