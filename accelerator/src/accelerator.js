@@ -246,8 +246,17 @@ function processChanges() {
 
   for (let file in changeQueue) {
     const { pluginId, inputFile, events } = changeQueue[file];
+
+    // Remove file from watch list and skip processing
+    if (events.indexOf('delete') > 0) {
+      watchers[file].close();
+      delete watchers[file];
+      break;
+    }
+
+    // If there's no change event, skip (e.g. just a rename)
     if (events.indexOf('change') === -1)
-      return;
+      break;
 
     fs.readFile(file, 'utf8', function(err, contents) {
       if (err) throw err;

@@ -244,6 +244,7 @@ function reduceResolverCache(cache) {
 Hot.prototype.processFilesForTarget = function(inputFiles) {
   var data = {};
   var self = this;
+  var currentFiles = [];
 
   inputFiles.forEach(function(inputFile) {
     var file;
@@ -254,6 +255,8 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
         '/' + // convertToOSPath is expecting a / of course...
         inputFile.getPathInPackage()
       );
+      currentFiles.push(file);
+
       if (!self.sentFiles[file]) {
         sourceBatch = inputFile._resourceSlot.packageSourceBatch;
         data[file] = {
@@ -284,6 +287,12 @@ Hot.prototype.processFilesForTarget = function(inputFiles) {
         self.sentFiles[file] = data[file];
       }
     }
+  });
+
+  // Remove files that are no longer being processed (e.g. deleted files)
+  Object.keys(self.sentFiles).forEach(function(file) {
+    if (!currentFiles[file])
+      delete self.sentFiles[file];
   });
 
   if (Object.keys(data).length)
