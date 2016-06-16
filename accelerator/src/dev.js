@@ -14,12 +14,12 @@ const projRoot='/home/dragon/www/meteor-hmr/demo';
 
 const debug=process.env.HOT_DEBUG || 1;
 const files = recursive('src');
-console.log('Dev mode.  Watching: ', files.join(', '));
+console.log('Dev mode.  Watching: ' + files.join(', ') + '\n');
 
 // Add CWD to lib/accelerator, since we give a new CWD for the cmd
 args[0] = path.join(process.cwd(), args[0]);
 
-var child;
+var child, restarting = false;
 const restart = _.debounce(function restart() {
   if (child)
     child.kill();
@@ -39,7 +39,16 @@ function start() {
     cwd: projRoot,
     env: { HOT_DEBUG: debug },
     stdio: [0,1,2]
-  });  
+  });
+  restarting = true;
+
+  child.on('exit', () => {
+    if (restarting)
+      return;
+    
+    console.log("\n\nAccelerator exited/crashed, restarting...\n");
+    start();
+  });
 }
 
 start();
