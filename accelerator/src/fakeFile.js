@@ -115,7 +115,8 @@ class FakeFile {
       return absPath;
     }
 
-    throw new Error(`control file ${basename} not found in cache`, this);
+    //throw new Error(`control file ${basename} not found in cache`, this);
+    return null;
   }
 
   // no actual resolver, exclusively use the existing reduced cache map
