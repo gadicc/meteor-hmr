@@ -21,13 +21,14 @@ args[0] = path.join(process.cwd(), args[0]);
 
 var child, restarting = false;
 const restart = _.debounce(function restart() {
+  restarting = true;
   if (child)
     child.kill();
 
   child_process.execSync('npm run compile', {stdio:[0,1,2]});
   console.log();
 
-  start();
+  setTimeout(start, 1000);
 }, 5);
 
 files.forEach(file => {
@@ -40,14 +41,14 @@ function start() {
     env: { HOT_DEBUG: debug },
     stdio: [0,1,2]
   });
-  restarting = true;
+  restarting = false;
 
   child.on('exit', () => {
     if (restarting)
       return;
     
     console.log("\n\nAccelerator exited/crashed, restarting...\n");
-    start();
+    setTimeout(start, 1000);
   });
 }
 
