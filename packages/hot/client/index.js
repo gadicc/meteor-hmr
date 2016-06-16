@@ -1,4 +1,4 @@
-if (process.env.NODE_ENV === 'production' || Meteor.isTest)
+if (process.env.NODE_ENV !== 'development' || Meteor.isTest)
   return;
 
 // Can't import, since we want to load this conditionally if we get past the above.

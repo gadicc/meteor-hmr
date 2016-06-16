@@ -1,4 +1,4 @@
-if (process.env.NODE_ENV === 'production')
+if (process.env.NODE_ENV !== 'development')
   return;
 
 // console.log('[gadicc:hot] Overriding /packages/modules-runtime.js');

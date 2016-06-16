@@ -7,7 +7,7 @@ if (process.env.APP_ID)
 
 // Don't load the accelerator in these circumstances
 if (process.env.INSIDE_ACCELERATOR
-    || process.env.NODE_ENV==='production'
+    || process.env.NODE_ENV !== 'development'
     || process.argv.indexOf('test') !== -1
     || process.argv.indexOf('test-packages') !== -1)
   return;
