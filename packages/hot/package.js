@@ -1,6 +1,6 @@
 Package.describe({
   name: 'gadicc:hot',
-  version: '2.0.0-beta.2',
+  version: '2.0.0-beta.3',
   summary: 'React hotloading, used by gadicc:ecmascript-hot.',
   git: 'https://github.com/gadicc/meteor-react-hotloader',
   documentation: '../README.md'
@@ -14,13 +14,13 @@ Npm.depends({
 */
 
 Package.onUse(function(api) {
-  api.versionsFrom('1.3.3-beta.1');
+  api.versionsFrom('1.3.3.1');
 
   api.use('modules');
   api.use('ecmascript');
 
   // this isn't used directly, but is used to pull in the package
-  api.use('gadicc:modules-runtime-hot@0.6.4-beta.0');
+  api.use('gadicc:modules-runtime-hot@0.6.4-beta.1');
   api.use('modules-runtime', 'client');
   api.imply('modules-runtime', 'client');
 

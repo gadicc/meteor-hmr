@@ -1,6 +1,6 @@
 Package.describe({
   name: 'gadicc:hot-build',
-  version: '2.0.0-beta.5',
+  version: '2.0.0-beta.6',
   summary: 'HMR for use by meteor build plugins',
   git: 'https://github.com/gadicc/meteor-hmr',
   documentation: 'README.md'

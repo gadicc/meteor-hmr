@@ -1,7 +1,7 @@
 Package.describe({
   name: 'gadicc:ecmascript-hot',
   // version: '0.4.4-rc.4'    // core version, KEEP UPDATED
-  version: '2.0.0-beta.5',
+  version: '2.0.0-beta.6',
   summary: 'Replacement ecmascript package providing react hotloading',
   git: 'https://github.com/gadicc/meteor-hmr',
   documentation: 'README.md'
@@ -9,7 +9,7 @@ Package.describe({
 
 Package.registerBuildPlugin({
   name: 'compile-ecmascript-hot',
-  use: ['babel-compiler', 'gadicc:hot-build@2.0.0-beta.5'],
+  use: ['babel-compiler', 'gadicc:hot-build@2.0.0-beta.6'],
   sources: ['plugin.js']
 });
 
@@ -28,7 +28,7 @@ Package.onUse(function (api) {
   api.imply('babel-runtime');
   api.imply('promise');
 
-  api.use('gadicc:hot@2.0.0-beta.2');
+  api.use('gadicc:hot@2.0.0-beta.3');
   api.imply('gadicc:hot');
 
   api.use('sanjo:meteor-files-helpers@1.2.0_1', 'server');

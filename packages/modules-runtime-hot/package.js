@@ -1,7 +1,7 @@
 Package.describe({
   name: "gadicc:modules-runtime-hot",
   // version: "0.6.3",    // core version, KEEP UPDATED
-  version: "0.6.4-beta.0",
+  version: "0.6.4-beta.1",
   summary: 'Used by gadicc:ecmascript-hot',
   git: "https://github.com/benjamn/install",
   documentation: "README.md"
@@ -15,7 +15,7 @@ Npm.depends({
 
 Package.onUse(function(api) {
   // forces minimum supported Meteor version
-  api.use('modules-runtime@0.6.4-beta.0', 'server');
+  api.use('modules-runtime@0.6.4', 'server');
 
   api.addFiles(
     // ".npm/package/node_modules/install/install.js",
