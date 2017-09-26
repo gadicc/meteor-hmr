@@ -1,5 +1,14 @@
 # meteor-hmr
 
+## This project is no longer maintained
+
+Interested in taking it over?
+See [Info for potential maintainers](https://github.com/gadicc/meteor-hmr/issues/135).
+I regret that I simply do not have the resources to continue this project at
+this point in time.
+
+## Past Info
+
 *Hot Module Replacement (HMR) for Meteor*
 
 **NB: This README refers to the upcoming release.  Although it's experimental, you're encouraged to try it out, since that's the direction we're going in.  More details in [#51](https://github.com/gadicc/meteor-react-hotloader/issues/51).  Otherwise, you can find the old README [here](https://github.com/gadicc/meteor-react-hotloader/blob/1352a7a0335ebeab3684ca8fdd096c2b5749da05/README.md).**
